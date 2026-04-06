@@ -67,7 +67,7 @@ export default function CheckoutPage() {
         prescriptionUrl: prescriptionUrl
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'}/api/orders/checkout`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://server-hw5w.onrender.com'}/api/orders/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)
@@ -102,7 +102,7 @@ export default function CheckoutPage() {
   React.useEffect(() => {
     const fetchSlots = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'}/api/slots`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://server-hw5w.onrender.com'}/api/slots`);
         if (res.ok) {
           const data = await res.json();
           setDbSlots(data);

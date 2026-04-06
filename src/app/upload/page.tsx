@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/components/CartContext';
 import { useRouter } from 'next/navigation';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://server-hw5w.onrender.com';
 
 interface DetectedMedicine {
   name: string;

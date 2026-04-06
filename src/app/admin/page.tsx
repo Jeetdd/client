@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar';
 import { LayoutDashboard, ShoppingBag, Pill, Calendar, Tag, Check, X, Eye, ShieldAlert, Plus, Loader2, Trash2, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://server-hw5w.onrender.com';
 
 interface Medicine {
   _id?: string;

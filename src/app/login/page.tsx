@@ -7,7 +7,7 @@ import { User, Mail, Lock, ArrowRight, CheckCircle2, ShieldCheck, Loader2 } from
 import { useAuth } from '@/components/AuthContext';
 import { useRouter } from 'next/navigation';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://server-hw5w.onrender.com';
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
