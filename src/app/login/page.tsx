@@ -1,53 +1,64 @@
 "use client";
 
-import React, { useState } from 'react';
-import Navbar from '@/components/Navbar';
-import { motion, AnimatePresence } from 'framer-motion';
-import { User, Mail, Lock, ArrowRight, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
-import { useAuth } from '@/components/AuthContext';
-import { useRouter } from 'next/navigation';
+import React, { Suspense, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, CheckCircle2, ShieldCheck, Sparkles, User, Mail, Lock, Loader2 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://server-hw5w.onrender.com';
+import Navbar from "@/components/Navbar";
+import { useAuth } from "@/components/AuthContext";
 
-export default function LoginPage() {
-  const [isLogin, setIsLogin] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { login: setAuth } = useAuth();
+const errorMessages: Record<string, string> = {
+  google_oauth_state_mismatch: "Google sign-in expired or was interrupted. Please try again.",
+  google_token_exchange_failed: "Google sign-in could not be completed. Please try again.",
+  google_profile_fetch_failed: "We could not read your Google profile. Please try again.",
+  google_email_not_verified: "Your Google email must be verified before you can continue.",
+};
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://server-hw5w.onrender.com";
+
+function LoginContent() {
+  const searchParams = useSearchParams();
+  const { login: setAuth, loginWithGoogle, user } = useAuth();
   const router = useRouter();
-
+  const [isLogin, setIsLogin] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
+    name: "",
+    email: "",
+    password: "",
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+  const error = useMemo(() => {
+    const code = searchParams.get("error");
+    return code ? errorMessages[code] ?? "Unable to complete Google sign-in right now." : null;
+  }, [searchParams]);
 
-    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-    
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+
+    const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
+
     try {
       const response = await fetch(`${API_BASE}${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
+        throw new Error(data.message || "Something went wrong");
       }
 
       setAuth(data.token, data.user);
-      router.push(data.user.role === 'ADMIN' ? '/admin' : '/');
-    } catch (err: any) {
-      setError(err.message);
+      router.push(data.user.role === "ADMIN" ? "/admin" : "/");
+    } catch (submitError) {
+      console.error("Credential sign-in failed:", submitError);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -58,20 +69,25 @@ export default function LoginPage() {
       <div className="flex-1 container mx-auto px-4 flex flex-col items-center justify-center py-12">
         <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
           
-          {/* Brand Info Section */}
           <div className="hidden lg:block space-y-10 animate-fade-in-up">
             <div className="space-y-4">
-              <h1 className="text-7xl font-black font-outfit tracking-tight">Your Skin. <br /><span className="text-primary italic">Simplified.</span></h1>
-              <p className="text-2xl text-muted-foreground font-medium">Join 50,000+ people who use SkinShop for seamless, prescription-verified healthcare.</p>
+              <h1 className="text-7xl font-black font-outfit tracking-tight">
+                Care Access.
+                <br />
+                <span className="text-primary italic">One Secure Sign-In.</span>
+              </h1>
+              <p className="text-2xl text-muted-foreground font-medium">
+                Use your Google account to unlock prescription uploads, faster checkout, and role-based access for admins.
+              </p>
             </div>
             
             <div className="space-y-6">
               {[
-                { icon: ShieldCheck, text: "Official Pharmacist Verification", color: "text-emerald-500" },
-                { icon: CheckCircle2, text: "AI-Powered Prescription Analysis", color: "text-primary" },
-                { icon: ArrowRight, text: "Free Doorstep Delivery", color: "text-primary" }
-              ].map((item, i) => (
-                <div key={i} className="flex items-center gap-4 group">
+                { icon: ShieldCheck, text: "Secure Google OAuth session", color: "text-emerald-500" },
+                { icon: CheckCircle2, text: "One-click sign up and sign in", color: "text-primary" },
+                { icon: Sparkles, text: "Admins route straight to the dashboard", color: "text-amber-400" }
+              ].map((item) => (
+                <div key={item.text} className="flex items-center gap-4 group">
                   <div className={`p-4 bg-secondary/50 rounded-2xl group-hover:scale-110 transition-transform ${item.color}`}>
                     <item.icon className="w-8 h-8" />
                   </div>
@@ -81,31 +97,24 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Form Card */}
           <div className="w-full max-w-md mx-auto">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="glass p-10 rounded-[3.5rem] border border-white/10 shadow-2xl relative bg-secondary/10 backdrop-blur-3xl"
             >
-              <div className="flex bg-secondary/40 p-2 rounded-2xl mb-10">
-                <button
-                  onClick={() => setIsLogin(true)}
-                  className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${isLogin ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:bg-secondary'}`}
-                >
-                  Sign In
-                </button>
-                <button
-                  onClick={() => setIsLogin(false)}
-                  className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${!isLogin ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:bg-secondary'}`}
-                >
-                  Register
-                </button>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-[11px] font-black uppercase tracking-[0.3em] mb-8">
+                OAuth
+                <span className="text-primary/50">Google</span>
               </div>
 
               <div className="space-y-2 mb-8">
-                <h2 className="text-3xl font-black font-outfit">{isLogin ? "Welcome Back" : "Create Account"}</h2>
-                <p className="text-muted-foreground font-medium">{isLogin ? "Unlock your medical dashboard." : "Start your skincare journey today."}</p>
+                <h2 className="text-3xl font-black font-outfit">
+                  {user ? `Welcome back, ${user.name.split(" ")[0]}` : "Sign in to SkinShop"}
+                </h2>
+                <p className="text-muted-foreground font-medium">
+                  Continue with Google to create your account or log back in with the same identity.
+                </p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -174,10 +183,10 @@ export default function LoginPage() {
 
                 <button 
                   type="submit" 
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                   className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-black flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 disabled:opacity-50"
                 >
-                  {isLoading ? (
+                  {isSubmitting ? (
                     <Loader2 className="w-6 h-6 animate-spin" />
                   ) : (
                     <>
@@ -185,6 +194,23 @@ export default function LoginPage() {
                       <ArrowRight className="w-5 h-5" />
                     </>
                   )}
+                </button>
+
+                <div className="relative py-2">
+                  <div className="border-t border-border/70" />
+                  <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-3 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+                    or
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={loginWithGoogle}
+                  className="w-full py-5 px-6 bg-white text-slate-900 rounded-2xl font-black flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl"
+                >
+                  <span className="grid place-items-center w-7 h-7 rounded-full bg-white text-lg font-black">G</span>
+                  Continue with Google
+                  <ArrowRight className="w-5 h-5" />
                 </button>
               </form>
 
@@ -205,5 +231,25 @@ export default function LoginPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-background flex flex-col pt-20">
+          <Navbar />
+          <div className="flex-1 container mx-auto px-4 py-20 flex items-center justify-center">
+            <div className="flex items-center gap-4 text-muted-foreground font-bold">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              Loading sign-in...
+            </div>
+          </div>
+        </main>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }

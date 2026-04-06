@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import { LayoutDashboard, ShoppingBag, Pill, Calendar, Tag, Check, X, Eye, ShieldAlert, Plus, Loader2, Trash2, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+
+import { useAuth } from '@/components/AuthContext';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://server-hw5w.onrender.com';
 
@@ -55,6 +58,8 @@ const initialOrders = [
 ];
 
 export default function AdminDashboard() {
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('orders');
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -81,6 +86,25 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
+    if (isAuthLoading) {
+      return;
+    }
+
+    if (!user) {
+      router.replace('/login');
+      return;
+    }
+
+    if (user.role !== 'ADMIN') {
+      router.replace('/');
+    }
+  }, [isAuthLoading, router, user]);
+
+  useEffect(() => {
+    if (!user || user.role !== 'ADMIN') {
+      return;
+    }
+
     if (activeTab === 'catalog') {
       fetchMedicines();
     } else if (activeTab === 'orders') {
@@ -88,7 +112,21 @@ export default function AdminDashboard() {
     } else if (activeTab === 'slots') {
       fetchSlots();
     }
-  }, [activeTab]);
+  }, [activeTab, user]);
+
+  if (isAuthLoading || !user || user.role !== 'ADMIN') {
+    return (
+      <main className="min-h-screen bg-background pt-24">
+        <Navbar />
+        <div className="container mx-auto px-4 py-20 flex items-center justify-center">
+          <div className="flex items-center gap-4 text-muted-foreground font-bold">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            Securing admin workspace...
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   const fetchMedicines = async () => {
     setIsLoading(true);

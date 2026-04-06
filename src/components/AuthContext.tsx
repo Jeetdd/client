@@ -1,20 +1,22 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: string;
+  image?: string;
+  role: "ADMIN" | "USER";
 }
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
-  login: (token: string, user: User) => void;
-  logout: () => void;
+  login: (_token: string, user: User) => void;
+  loginWithGoogle: () => void;
+  logout: () => Promise<void>;
+  refreshSession: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -22,38 +24,56 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const savedToken = localStorage.getItem('skinshop_token');
-    const savedUser = localStorage.getItem('skinshop_user');
-    
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
+  const refreshSession = useCallback(async () => {
+    try {
+      const response = await fetch("/api/auth/session", {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        setUser(null);
+        return;
+      }
+
+      const data = (await response.json()) as { user: User };
+      setUser(data.user);
+    } catch {
+      setUser(null);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
-  const login = (newToken: string, newUser: User) => {
-    setToken(newToken);
-    setUser(newUser);
-    localStorage.setItem('skinshop_token', newToken);
-    localStorage.setItem('skinshop_user', JSON.stringify(newUser));
+  useEffect(() => {
+    void refreshSession();
+  }, [refreshSession]);
+
+  const loginWithGoogle = () => {
+    window.location.href = "/api/auth/google";
   };
 
-  const logout = () => {
-    setToken(null);
+  const login = (_token: string, nextUser: User) => {
+    setUser(nextUser);
+  };
+
+  const logout = async () => {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+
     setUser(null);
-    localStorage.removeItem('skinshop_token');
-    localStorage.removeItem('skinshop_user');
-    router.push('/');
+    router.push("/");
+    router.refresh();
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, loginWithGoogle, logout, refreshSession, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -62,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
