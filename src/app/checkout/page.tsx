@@ -33,6 +33,12 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderId, setOrderId] = useState('');
 
+  type CheckoutResponse = {
+    id?: string;
+    _id?: string;
+    message?: string;
+  };
+
   // Form states
   const [formData, setFormData] = useState({
     name: '',
@@ -47,6 +53,21 @@ export default function CheckoutPage() {
   const total = subtotal + deliveryCharge - discount;
 
   const handlePlaceOrder = async () => {
+    if (items.length === 0) {
+      alert('Your cart is empty. Add at least one medicine before checkout.');
+      return;
+    }
+
+    if (deliveryType === 'pickup' && !selectedSlot) {
+      alert('Please select a pickup slot before placing the order.');
+      return;
+    }
+
+    if (!formData.name || !formData.phone || !formData.email || (deliveryType === 'home' && !formData.address)) {
+      alert('Please complete all required checkout details.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const orderData = {
@@ -74,16 +95,23 @@ export default function CheckoutPage() {
       });
 
       if (res.ok) {
-        const data = await res.json();
-        setOrderId(data._id.slice(-8).toUpperCase());
+        const data = await res.json() as CheckoutResponse;
+        const createdOrderId = data.id || data._id;
+
+        if (!createdOrderId) {
+          throw new Error('Order created but id is missing in response.');
+        }
+
+        setOrderId(createdOrderId.slice(-8).toUpperCase());
         setOrderPlaced(true);
         clearCart();
       } else {
-        alert('Failed to place order. Please try again.');
+        const errorData = await res.json().catch(() => ({ message: 'Failed to place order. Please try again.' })) as CheckoutResponse;
+        alert(errorData.message || 'Failed to place order. Please try again.');
       }
     } catch (err) {
       console.error('Checkout error:', err);
-      alert('Error connecting to payment gateway');
+      alert(err instanceof Error ? err.message : 'Error connecting to payment gateway');
     } finally {
       setIsSubmitting(false);
     }
@@ -399,7 +427,7 @@ export default function CheckoutPage() {
                 <div className="space-y-5 relative z-10">
                   <button 
                     onClick={handlePlaceOrder}
-                    disabled={(deliveryType === 'pickup' && !selectedSlot) || !formData.name || !formData.phone || isSubmitting}
+                    disabled={items.length === 0 || (deliveryType === 'pickup' && !selectedSlot) || !formData.name || !formData.phone || !formData.email || (deliveryType === 'home' && !formData.address) || isSubmitting}
                     className="w-full py-8 bg-primary text-primary-foreground rounded-[2.5rem] text-2xl font-black flex items-center justify-center gap-4 hover:scale-[1.03] active:scale-[0.97] transition-all shadow-[0_20px_50px_rgba(var(--primary-rgb),0.3)] disabled:opacity-30 disabled:grayscale disabled:scale-100 disabled:cursor-not-allowed group font-outfit"
                   >
                     {isSubmitting ? (

@@ -289,13 +289,16 @@ export default function AdminDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newMed),
       });
-      if (!res.ok) throw new Error("Failed to add medicine");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: "Failed to add medicine" }));
+        throw new Error(errorData.message || "Failed to add medicine");
+      }
       setShowAddModal(false);
       setNewMed({ medicineId: "", name: "", strength: "", price: 0, quantity: 0, category: "Skin Care", description: "", requiresPrescription: true });
       await fetchMedicines();
     } catch (error) {
       console.error(error);
-      alert("Unable to add medicine.");
+      alert(error instanceof Error ? error.message : "Unable to add medicine.");
     } finally {
       setIsCatalogLoading(false);
     }
@@ -590,14 +593,35 @@ export default function AdminDashboard() {
               <h3 className="text-2xl font-black text-slate-900">Add Medicine</h3>
               <form onSubmit={handleAddMedicine} className="mt-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <input required value={newMed.medicineId} onChange={(event) => setNewMed({ ...newMed, medicineId: event.target.value })} placeholder="Medicine ID" className="rounded-2xl border border-border bg-slate-50 px-4 py-3 outline-none focus:border-primary focus:bg-white" />
-                  <input required value={newMed.name} onChange={(event) => setNewMed({ ...newMed, name: event.target.value })} placeholder="Medicine name" className="rounded-2xl border border-border bg-slate-50 px-4 py-3 outline-none focus:border-primary focus:bg-white" />
-                  <input required value={newMed.strength} onChange={(event) => setNewMed({ ...newMed, strength: event.target.value })} placeholder="Strength" className="rounded-2xl border border-border bg-slate-50 px-4 py-3 outline-none focus:border-primary focus:bg-white" />
-                  <input required value={newMed.category} onChange={(event) => setNewMed({ ...newMed, category: event.target.value })} placeholder="Category" className="rounded-2xl border border-border bg-slate-50 px-4 py-3 outline-none focus:border-primary focus:bg-white" />
-                  <input required type="number" value={newMed.price} onChange={(event) => setNewMed({ ...newMed, price: Number(event.target.value) })} placeholder="Price" className="rounded-2xl border border-border bg-slate-50 px-4 py-3 outline-none focus:border-primary focus:bg-white" />
-                  <input required type="number" value={newMed.quantity} onChange={(event) => setNewMed({ ...newMed, quantity: Number(event.target.value) })} placeholder="Quantity" className="rounded-2xl border border-border bg-slate-50 px-4 py-3 outline-none focus:border-primary focus:bg-white" />
+                  <label className="space-y-2">
+                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Medicine ID</span>
+                    <input required value={newMed.medicineId} onChange={(event) => setNewMed({ ...newMed, medicineId: event.target.value })} placeholder="SKIN-001" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Medicine Name</span>
+                    <input required value={newMed.name} onChange={(event) => setNewMed({ ...newMed, name: event.target.value })} placeholder="Tretinoin Cream" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Strength</span>
+                    <input required value={newMed.strength} onChange={(event) => setNewMed({ ...newMed, strength: event.target.value })} placeholder="10mg / 0.05%" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Category</span>
+                    <input required value={newMed.category} onChange={(event) => setNewMed({ ...newMed, category: event.target.value })} placeholder="Skin Care" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Price</span>
+                    <input required type="number" value={newMed.price} onChange={(event) => setNewMed({ ...newMed, price: Number(event.target.value) })} placeholder="499" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Quantity</span>
+                    <input required type="number" value={newMed.quantity} onChange={(event) => setNewMed({ ...newMed, quantity: Number(event.target.value) })} placeholder="25" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
+                  </label>
                 </div>
-                <textarea required rows={4} value={newMed.description} onChange={(event) => setNewMed({ ...newMed, description: event.target.value })} placeholder="Description" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 outline-none focus:border-primary focus:bg-white" />
+                <label className="space-y-2 block">
+                  <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Description</span>
+                  <textarea required rows={4} value={newMed.description} onChange={(event) => setNewMed({ ...newMed, description: event.target.value })} placeholder="Describe the medicine, usage, or key notes" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
+                </label>
                 <label className="inline-flex items-center gap-3 text-sm font-medium text-slate-700"><input type="checkbox" checked={newMed.requiresPrescription} onChange={(event) => setNewMed({ ...newMed, requiresPrescription: event.target.checked })} />Requires prescription</label>
                 <div className="flex justify-end gap-3"><button type="button" onClick={() => setShowAddModal(false)} className="rounded-2xl border border-border px-5 py-3 font-bold text-slate-700">Cancel</button><button type="submit" className="rounded-2xl bg-primary px-5 py-3 font-bold text-primary-foreground">Save Medicine</button></div>
               </form>
