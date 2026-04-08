@@ -24,7 +24,8 @@ import {
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/components/AuthContext";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+// Default to the production Render API so Vercel deployments work even if the env var isn't set.
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://server-hw5w.onrender.com").replace(/\/$/, "");
 
 type AdminTab = "orders" | "catalog" | "slots" | "coupons";
 type OrderStatus = "PENDING_PHARMACIST_REVIEW" | "APPROVED" | "REJECTED" | "DISPATCHED" | "DELIVERED" | "READY_FOR_PICKUP" | "COMPLETED" | "CANCELLED";
