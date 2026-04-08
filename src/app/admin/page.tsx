@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  Boxes,
   Calendar,
   Check,
   ChevronRight,
@@ -27,7 +28,7 @@ import { useAuth } from "@/components/AuthContext";
 // Default to the production Render API so Vercel deployments work even if the env var isn't set.
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://server-hw5w.onrender.com").replace(/\/$/, "");
 
-type AdminTab = "orders" | "catalog" | "slots" | "coupons";
+type AdminTab = "orders" | "catalog" | "inventory" | "slots" | "coupons";
 type OrderStatus = "PENDING_PHARMACIST_REVIEW" | "APPROVED" | "REJECTED" | "DISPATCHED" | "DELIVERED" | "READY_FOR_PICKUP" | "COMPLETED" | "CANCELLED";
 type PaymentStatus = "PENDING" | "SUCCESS" | "FAILED";
 
@@ -51,6 +52,38 @@ interface Slot {
   timeSlot: string;
   maxBookings: number;
   currentBookings: number;
+}
+
+interface InventorySummary {
+  totalSkus: number;
+  outOfStockSkus: number;
+  lowStockSkus: number;
+  lowStockThreshold: number;
+  totalUnits: number;
+  totalStockValue: number;
+}
+
+type InventoryMovementType =
+  | "INITIAL_STOCK"
+  | "ADJUSTMENT_IN"
+  | "ADJUSTMENT_OUT"
+  | "SALE"
+  | "RESTOCK"
+  | "RETURN"
+  | "CANCELLED_ORDER";
+
+interface InventoryMovement {
+  id: string;
+  medicineId: string;
+  type: InventoryMovementType;
+  delta: number;
+  beforeStock: number;
+  afterStock: number;
+  reason?: string | null;
+  orderId?: string | null;
+  actorEmail?: string | null;
+  createdAt: string;
+  medicine?: { id: string; name: string; category: string };
 }
 
 interface OrderItem {
@@ -103,6 +136,15 @@ const EMPTY_SUMMARY: OrderSummary = {
   revenue: 0,
 };
 
+const EMPTY_INVENTORY_SUMMARY: InventorySummary = {
+  totalSkus: 0,
+  outOfStockSkus: 0,
+  lowStockSkus: 0,
+  lowStockThreshold: 10,
+  totalUnits: 0,
+  totalStockValue: 0,
+};
+
 const STATUS_OPTIONS: OrderStatus[] = ["PENDING_PHARMACIST_REVIEW", "APPROVED", "REJECTED", "DISPATCHED", "DELIVERED", "READY_FOR_PICKUP", "COMPLETED", "CANCELLED"];
 const PAYMENT_OPTIONS: PaymentStatus[] = ["PENDING", "SUCCESS", "FAILED"];
 
@@ -153,6 +195,10 @@ export default function AdminDashboard() {
   const [summary, setSummary] = useState<OrderSummary>(EMPTY_SUMMARY);
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [slots, setSlots] = useState<Slot[]>([]);
+  const [inventorySummary, setInventorySummary] = useState<InventorySummary>(EMPTY_INVENTORY_SUMMARY);
+  const [inventoryMovements, setInventoryMovements] = useState<InventoryMovement[]>([]);
+  const [isInventoryLoading, setIsInventoryLoading] = useState(false);
+  const [movementMedicineFilter, setMovementMedicineFilter] = useState<string>("ALL");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -163,10 +209,15 @@ export default function AdminDashboard() {
   const [isOrdersLoading, setIsOrdersLoading] = useState(false);
   const [isCatalogLoading, setIsCatalogLoading] = useState(false);
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
+  const [isAdjustingStock, setIsAdjustingStock] = useState(false);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
   const [ordersError, setOrdersError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAddSlotModal, setShowAddSlotModal] = useState(false);
+  const [showAdjustModal, setShowAdjustModal] = useState(false);
+  const [adjustTarget, setAdjustTarget] = useState<Medicine | null>(null);
+  const [adjustDelta, setAdjustDelta] = useState<number>(0);
+  const [adjustReason, setAdjustReason] = useState<string>("");
   const [newMed, setNewMed] = useState<Medicine>({
     medicineId: "",
     name: "",
@@ -201,6 +252,10 @@ export default function AdminDashboard() {
     if (!user || user.role !== "ADMIN") return;
     if (activeTab === "orders") void fetchOrders();
     if (activeTab === "catalog") void fetchMedicines();
+    if (activeTab === "inventory") {
+      void fetchMedicines();
+      void fetchInventory();
+    }
     if (activeTab === "slots") void fetchSlots();
   }, [activeTab, user]);
 
@@ -209,6 +264,12 @@ export default function AdminDashboard() {
     const timeout = setTimeout(() => void fetchOrders(), 250);
     return () => clearTimeout(timeout);
   }, [search, statusFilter, fulfillmentFilter, paymentFilter, prescriptionOnly, activeTab, user]);
+
+  useEffect(() => {
+    if (!user || user.role !== "ADMIN" || activeTab !== "inventory") return;
+    const timeout = setTimeout(() => void fetchInventory(), 150);
+    return () => clearTimeout(timeout);
+  }, [movementMedicineFilter, activeTab, user]);
 
   async function fetchOrders() {
     setIsOrdersLoading(true);
@@ -259,6 +320,87 @@ export default function AdminDashboard() {
       if (res.ok) setSlots(await res.json());
     } finally {
       setIsSlotsLoading(false);
+    }
+  };
+
+  const fetchInventory = async () => {
+    setIsInventoryLoading(true);
+    try {
+      const movementParams = new URLSearchParams();
+      if (movementMedicineFilter !== "ALL") movementParams.set("medicineId", movementMedicineFilter);
+      movementParams.set("limit", "50");
+
+      const [summaryRes, movementsRes] = await Promise.all([
+        fetch(`${API_BASE}/api/inventory/summary`, { cache: "no-store" }),
+        fetch(`${API_BASE}/api/inventory/movements?${movementParams.toString()}`, { cache: "no-store" }),
+      ]);
+
+      if (summaryRes.ok) {
+        setInventorySummary((await summaryRes.json()) as InventorySummary);
+      } else {
+        setInventorySummary(EMPTY_INVENTORY_SUMMARY);
+      }
+
+      if (movementsRes.ok) {
+        setInventoryMovements((await movementsRes.json()) as InventoryMovement[]);
+      } else {
+        setInventoryMovements([]);
+      }
+    } catch (error) {
+      console.error(error);
+      setInventorySummary(EMPTY_INVENTORY_SUMMARY);
+      setInventoryMovements([]);
+    } finally {
+      setIsInventoryLoading(false);
+    }
+  };
+
+  const openAdjustModal = (medicine: Medicine) => {
+    setAdjustTarget(medicine);
+    setAdjustDelta(0);
+    setAdjustReason("");
+    setShowAdjustModal(true);
+  };
+
+  const handleAdjustInventory = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!adjustTarget) return;
+
+    const delta = Number(adjustDelta);
+    if (!Number.isFinite(delta) || delta === 0) {
+      alert("Enter a non-zero stock adjustment (positive to add, negative to remove).");
+      return;
+    }
+
+    setIsAdjustingStock(true);
+    try {
+      const targetId = adjustTarget.id || adjustTarget._id;
+      if (!targetId) throw new Error("Missing medicine id");
+
+      const res = await fetch(`${API_BASE}/api/inventory/adjust`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          medicineId: targetId,
+          delta,
+          reason: adjustReason,
+          actorEmail: user?.email,
+        }),
+      });
+
+      const payload = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(payload?.message || "Failed to adjust inventory");
+      }
+
+      setShowAdjustModal(false);
+      setAdjustTarget(null);
+      await Promise.all([fetchMedicines(), fetchInventory()]);
+    } catch (error: any) {
+      console.error(error);
+      alert(error?.message || "Unable to adjust inventory right now.");
+    } finally {
+      setIsAdjustingStock(false);
     }
   };
 
@@ -362,13 +504,14 @@ export default function AdminDashboard() {
             <h1 className="mt-3 text-3xl font-black leading-tight">Order Management</h1>
             <p className="mt-3 text-sm text-white/80">Live visibility from prescription review to delivery and pick-up.</p>
           </div>
-          <div className="space-y-3">
-            {[
-              { id: "orders", label: "Orders", icon: LayoutDashboard },
-              { id: "catalog", label: "Medicine Catalogue", icon: Pill },
-              { id: "slots", label: "Pick-up Slots", icon: Calendar },
-              { id: "coupons", label: "Coupons", icon: Tag },
-            ].map((item) => (
+            <div className="space-y-3">
+              {[
+                { id: "orders", label: "Orders", icon: LayoutDashboard },
+                { id: "catalog", label: "Medicine Catalogue", icon: Pill },
+                { id: "inventory", label: "Inventory", icon: Boxes },
+                { id: "slots", label: "Pick-up Slots", icon: Calendar },
+                { id: "coupons", label: "Coupons", icon: Tag },
+              ].map((item) => (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id as AdminTab)}
@@ -386,8 +529,28 @@ export default function AdminDashboard() {
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.25em] text-primary/70">Module 10</p>
-                <h2 className="mt-2 text-3xl font-black text-slate-900">{activeTab === "orders" ? "Order Management" : activeTab === "catalog" ? "Medicine Catalogue" : activeTab === "slots" ? "Pick-up Management" : "Coupons"}</h2>
-                <p className="mt-2 max-w-3xl text-sm text-muted-foreground">{activeTab === "orders" ? "The admin panel provides full visibility and control over all orders from placement to completion." : activeTab === "catalog" ? "Manage medicine metadata and prescription-safe inventory." : activeTab === "slots" ? "Create and monitor collection windows for pick-up orders." : "Coupon management can be added in the same admin shell next."}</p>
+                <h2 className="mt-2 text-3xl font-black text-slate-900">
+                  {activeTab === "orders"
+                    ? "Order Management"
+                    : activeTab === "catalog"
+                      ? "Medicine Catalogue"
+                      : activeTab === "inventory"
+                        ? "Inventory Management"
+                        : activeTab === "slots"
+                          ? "Pick-up Management"
+                          : "Coupons"}
+                </h2>
+                <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+                  {activeTab === "orders"
+                    ? "The admin panel provides full visibility and control over all orders from placement to completion."
+                    : activeTab === "catalog"
+                      ? "Manage medicine metadata and create new products."
+                      : activeTab === "inventory"
+                        ? "Track stock levels, adjust quantities, and review every inventory movement."
+                        : activeTab === "slots"
+                          ? "Create and monitor collection windows for pick-up orders."
+                          : "Coupon management can be added in the same admin shell next."}
+                </p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 {activeTab === "orders" && (
@@ -523,6 +686,157 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          {activeTab === "inventory" && (
+            <div className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                {[
+                  { label: "Total SKUs", value: inventorySummary.totalSkus, icon: Boxes },
+                  { label: "Low Stock", value: inventorySummary.lowStockSkus, icon: ShieldAlert },
+                  { label: "Out Of Stock", value: inventorySummary.outOfStockSkus, icon: Truck },
+                  { label: "Total Units", value: inventorySummary.totalUnits, icon: Pill },
+                  { label: "Stock Value", value: formatCurrency(inventorySummary.totalStockValue), icon: Tag },
+                ].map((card) => (
+                  <div key={card.label} className="rounded-[1.6rem] border border-primary/10 bg-white p-5 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">{card.label}</p>
+                      <card.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <p className="mt-5 text-3xl font-black text-slate-900">{card.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)]">
+                <div className="rounded-[2rem] border border-primary/10 bg-white/80 p-5 shadow-sm">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Stock Levels</p>
+                      <p className="mt-2 text-sm text-muted-foreground">Adjust stock and keep your catalogue in sync with checkout availability.</p>
+                    </div>
+                    <button
+                      onClick={() => void Promise.all([fetchMedicines(), fetchInventory()])}
+                      className="rounded-2xl border border-border bg-white px-4 py-3 text-sm font-bold text-slate-800 transition hover:border-primary/20"
+                    >
+                      Refresh
+                    </button>
+                  </div>
+
+                  {isCatalogLoading && medicines.length === 0 ? (
+                    <div className="flex min-h-72 items-center justify-center gap-4 text-muted-foreground">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      Loading inventory...
+                    </div>
+                  ) : medicines.length === 0 ? (
+                    <div className="rounded-[1.5rem] border border-dashed border-border p-10 text-center text-muted-foreground">
+                      No medicines found. Add medicines in the Catalogue tab first.
+                    </div>
+                  ) : (
+                    <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-border bg-white">
+                      <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)_minmax(0,0.6fr)] items-center gap-4 bg-slate-50 px-5 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-500">
+                        <span>Medicine</span>
+                        <span>Stock</span>
+                        <span className="text-right">Action</span>
+                      </div>
+                      <div className="divide-y divide-border">
+                        {medicines.map((medicine, index) => {
+                          const stock = Number((medicine as any).stock ?? medicine.quantity ?? 0);
+                          const isOut = stock <= 0;
+                          const isLow = !isOut && stock <= inventorySummary.lowStockThreshold;
+                          const badgeClass = isOut
+                            ? "bg-rose-50 text-rose-700 border-rose-200"
+                            : isLow
+                              ? "bg-amber-50 text-amber-800 border-amber-200"
+                              : "bg-emerald-50 text-emerald-700 border-emerald-200";
+                          const badgeLabel = isOut ? "Out" : isLow ? "Low" : "OK";
+
+                          return (
+                            <div key={medicine.id || medicine._id || `${medicine.name}-${index}`} className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)_minmax(0,0.6fr)] items-center gap-4 px-5 py-4">
+                              <div className="min-w-0">
+                                <p className="truncate font-black text-slate-900">{medicine.name}</p>
+                                <p className="mt-1 truncate text-xs text-muted-foreground">{medicine.category}</p>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-black ${badgeClass}`}>{badgeLabel}</span>
+                                <span className="text-sm font-black text-slate-900">{stock}</span>
+                              </div>
+                              <div className="flex justify-end">
+                                <button onClick={() => openAdjustModal(medicine)} className="rounded-2xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground">
+                                  Adjust
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-[2rem] border border-primary/10 bg-white/80 p-5 shadow-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Movement History</p>
+                      <p className="mt-2 text-sm text-muted-foreground">Last 50 stock events (sales, adjustments, restocks).</p>
+                    </div>
+                    <select
+                      value={movementMedicineFilter}
+                      onChange={(event) => setMovementMedicineFilter(event.target.value)}
+                      className="rounded-2xl border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white"
+                    >
+                      <option value="ALL">All medicines</option>
+                      {medicines.map((m) => (
+                        <option key={m.id || m._id || m.name} value={(m.id || m._id) as string}>
+                          {m.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {isInventoryLoading && inventoryMovements.length === 0 ? (
+                    <div className="mt-6 flex min-h-64 items-center justify-center gap-4 text-muted-foreground">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      Loading movements...
+                    </div>
+                  ) : inventoryMovements.length === 0 ? (
+                    <div className="mt-6 rounded-[1.5rem] border border-dashed border-border p-8 text-center text-muted-foreground">
+                      No movements yet.
+                    </div>
+                  ) : (
+                    <div className="mt-5 space-y-3">
+                      {inventoryMovements.map((movement) => (
+                        <div key={movement.id} className="rounded-[1.3rem] border border-border bg-white p-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-black text-slate-900">{movement.medicine?.name ?? "Medicine"}</p>
+                              <p className="mt-1 text-xs text-muted-foreground">{new Date(movement.createdAt).toLocaleString("en-IN")}</p>
+                            </div>
+                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">{statusLabel(movement.type)}</span>
+                          </div>
+                          <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
+                            <div className="rounded-2xl bg-slate-50 p-3">
+                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Delta</p>
+                              <p className={`mt-2 font-black ${movement.delta < 0 ? "text-rose-700" : "text-emerald-700"}`}>{movement.delta}</p>
+                            </div>
+                            <div className="rounded-2xl bg-slate-50 p-3">
+                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Before</p>
+                              <p className="mt-2 font-black text-slate-900">{movement.beforeStock}</p>
+                            </div>
+                            <div className="rounded-2xl bg-slate-50 p-3">
+                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">After</p>
+                              <p className="mt-2 font-black text-slate-900">{movement.afterStock}</p>
+                            </div>
+                          </div>
+                          {movement.reason ? <p className="mt-3 text-xs text-muted-foreground">Reason: {movement.reason}</p> : null}
+                          {movement.orderId ? <p className="mt-1 text-xs text-muted-foreground">Order: {movement.orderId}</p> : null}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeTab === "catalog" && (
             <div className="rounded-[2rem] border border-primary/10 bg-white/80 p-5 shadow-sm">
               {isCatalogLoading && medicines.length === 0 ? (
@@ -585,6 +899,85 @@ export default function AdminDashboard() {
           )}
         </section>
       </div>
+
+      <AnimatePresence>
+        {showAdjustModal && adjustTarget && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                if (isAdjustingStock) return;
+                setShowAdjustModal(false);
+                setAdjustTarget(null);
+              }}
+              className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 20 }}
+              className="relative w-full max-w-xl rounded-[2rem] bg-white p-8 shadow-2xl"
+            >
+              <h3 className="text-2xl font-black text-slate-900">Adjust Inventory</h3>
+              <p className="mt-2 text-sm text-muted-foreground">Positive adds stock, negative removes stock.</p>
+
+              <form onSubmit={handleAdjustInventory} className="mt-6 space-y-4">
+                <div className="rounded-[1.5rem] border border-border bg-slate-50 p-4">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Medicine</p>
+                  <p className="mt-2 text-lg font-black text-slate-900">{adjustTarget.name}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{adjustTarget.category}</p>
+                </div>
+
+                <label className="space-y-2 block">
+                  <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Delta</span>
+                  <input
+                    type="number"
+                    required
+                    value={adjustDelta}
+                    onChange={(event) => setAdjustDelta(Number(event.target.value))}
+                    placeholder="e.g. 25 or -10"
+                    className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                  />
+                </label>
+
+                <label className="space-y-2 block">
+                  <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Reason (Optional)</span>
+                  <input
+                    value={adjustReason}
+                    onChange={(event) => setAdjustReason(event.target.value)}
+                    placeholder="Restock delivery, expiry, manual correction"
+                    className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                  />
+                </label>
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isAdjustingStock) return;
+                      setShowAdjustModal(false);
+                      setAdjustTarget(null);
+                    }}
+                    className="rounded-2xl border border-border px-5 py-3 font-bold text-slate-700"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isAdjustingStock}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 font-bold text-primary-foreground disabled:opacity-60"
+                  >
+                    {isAdjustingStock ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                    Save Adjustment
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showAddModal && (
