@@ -9,6 +9,8 @@ import {
   type AuthUser,
 } from "@/lib/auth/session";
 
+export const runtime = "nodejs";
+
 interface GoogleTokenResponse {
   access_token?: string;
   id_token?: string;
@@ -47,69 +49,74 @@ function redirectWithError(request: Request, reason: string) {
 }
 
 export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const code = url.searchParams.get("code");
-  const state = url.searchParams.get("state");
-  const cookieStore = await cookies();
-  const savedState = cookieStore.get(getOauthStateCookieName())?.value;
+  try {
+    const url = new URL(request.url);
+    const code = url.searchParams.get("code");
+    const state = url.searchParams.get("state");
+    const cookieStore = await cookies();
+    const savedState = cookieStore.get(getOauthStateCookieName())?.value;
 
-  if (!code || !state || !savedState || savedState !== state) {
-    return redirectWithError(request, "google_oauth_state_mismatch");
+    if (!code || !state || !savedState || savedState !== state) {
+      return redirectWithError(request, "google_oauth_state_mismatch");
+    }
+
+    const redirectUri = new URL("/api/auth/google/callback", url.origin).toString();
+    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        code,
+        client_id: getRequiredEnv("GOOGLE_CLIENT_ID"),
+        client_secret: getRequiredEnv("GOOGLE_CLIENT_SECRET"),
+        redirect_uri: redirectUri,
+        grant_type: "authorization_code",
+      }),
+      cache: "no-store",
+    });
+
+    const tokenData = (await tokenResponse.json()) as GoogleTokenResponse;
+
+    if (!tokenResponse.ok || !tokenData.access_token) {
+      return redirectWithError(request, tokenData.error ?? "google_token_exchange_failed");
+    }
+
+    const profileResponse = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
+      headers: {
+        Authorization: `Bearer ${tokenData.access_token}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!profileResponse.ok) {
+      return redirectWithError(request, "google_profile_fetch_failed");
+    }
+
+    const profile = (await profileResponse.json()) as GoogleUserInfo;
+
+    if (!profile.email || profile.email_verified === false) {
+      return redirectWithError(request, "google_email_not_verified");
+    }
+
+    const user: AuthUser = {
+      id: profile.sub,
+      name: profile.name,
+      email: profile.email,
+      image: profile.picture,
+      role: getRoleForEmail(profile.email),
+    };
+
+    const response = NextResponse.redirect(new URL(user.role === "ADMIN" ? "/admin" : "/", request.url));
+    const sessionCookie = createSessionCookie(user);
+    const oauthStateCookie = clearOauthStateCookie();
+
+    response.cookies.set(sessionCookie.name, sessionCookie.value, sessionCookie.options);
+    response.cookies.set(oauthStateCookie.name, oauthStateCookie.value, oauthStateCookie.options);
+
+    return response;
+  } catch (error) {
+    console.error("Google OAuth callback failed:", error);
+    return redirectWithError(request, "google_oauth_callback_failed");
   }
-
-  const redirectUri = new URL("/api/auth/google/callback", url.origin).toString();
-  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      code,
-      client_id: getRequiredEnv("GOOGLE_CLIENT_ID"),
-      client_secret: getRequiredEnv("GOOGLE_CLIENT_SECRET"),
-      redirect_uri: redirectUri,
-      grant_type: "authorization_code",
-    }),
-    cache: "no-store",
-  });
-
-  const tokenData = (await tokenResponse.json()) as GoogleTokenResponse;
-
-  if (!tokenResponse.ok || !tokenData.access_token) {
-    return redirectWithError(request, tokenData.error ?? "google_token_exchange_failed");
-  }
-
-  const profileResponse = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
-    headers: {
-      Authorization: `Bearer ${tokenData.access_token}`,
-    },
-    cache: "no-store",
-  });
-
-  if (!profileResponse.ok) {
-    return redirectWithError(request, "google_profile_fetch_failed");
-  }
-
-  const profile = (await profileResponse.json()) as GoogleUserInfo;
-
-  if (!profile.email || profile.email_verified === false) {
-    return redirectWithError(request, "google_email_not_verified");
-  }
-
-  const user: AuthUser = {
-    id: profile.sub,
-    name: profile.name,
-    email: profile.email,
-    image: profile.picture,
-    role: getRoleForEmail(profile.email),
-  };
-
-  const response = NextResponse.redirect(new URL(user.role === "ADMIN" ? "/admin" : "/", request.url));
-  const sessionCookie = createSessionCookie(user);
-  const oauthStateCookie = clearOauthStateCookie();
-
-  response.cookies.set(sessionCookie.name, sessionCookie.value, sessionCookie.options);
-  response.cookies.set(oauthStateCookie.name, oauthStateCookie.value, oauthStateCookie.options);
-
-  return response;
 }

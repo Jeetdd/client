@@ -13,6 +13,8 @@ const errorMessages: Record<string, string> = {
   google_token_exchange_failed: "Google sign-in could not be completed. Please try again.",
   google_profile_fetch_failed: "We could not read your Google profile. Please try again.",
   google_email_not_verified: "Your Google email must be verified before you can continue.",
+  google_oauth_not_configured: "Google sign-in is not configured on this deployment yet.",
+  google_oauth_callback_failed: "Google sign-in failed on the server. Check deployment environment variables.",
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://server-hw5w.onrender.com";
