@@ -77,6 +77,7 @@ export default function CheckoutPage() {
           phone: formData.phone
         },
         items: items.map(item => ({
+          medicineId: item.medicineId,
           name: item.name,
           price: item.price,
           quantity: item.quantity,

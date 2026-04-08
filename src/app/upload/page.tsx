@@ -104,6 +104,7 @@ export default function UploadPage() {
     const medsToAdd = selectedMeds.map(index => detectedMedicines[index]);
     medsToAdd.forEach(med => {
       addItem({
+        medicineId: med.matchedMedicine?.id || undefined,
         name: med.name,
         price: med.price || 0, // Fallback to 0 if not matched in catalogue
         quantity: med.quantity || 1,

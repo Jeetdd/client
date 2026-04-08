@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 export interface CartItem {
   id: string;
+  medicineId?: string;
   name: string;
   price: number;
   quantity: number;
@@ -55,10 +56,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = (item: Omit<CartItem, 'id'>) => {
     setItems(prev => {
-      const existing = prev.find(i => i.name.toLowerCase() === item.name.toLowerCase());
+      const existing = prev.find(i =>
+        item.medicineId
+          ? i.medicineId === item.medicineId
+          : i.name.toLowerCase() === item.name.toLowerCase()
+      );
       if (existing) {
         return prev.map(i =>
-          i.name.toLowerCase() === item.name.toLowerCase()
+          (item.medicineId ? i.medicineId === item.medicineId : i.name.toLowerCase() === item.name.toLowerCase())
             ? { ...i, quantity: i.quantity + (item.quantity || 1) }
             : i
         );
