@@ -638,9 +638,43 @@ export default function AdminDashboard() {
             <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-xl rounded-[2rem] bg-white p-8 shadow-2xl">
               <h3 className="text-2xl font-black text-slate-900">Create Pick-up Slot</h3>
               <form onSubmit={handleAddSlot} className="mt-6 space-y-4">
-                <input type="date" required value={newSlot.date} onChange={(event) => setNewSlot({ ...newSlot, date: event.target.value })} className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 outline-none focus:border-primary focus:bg-white" />
-                <select value={newSlot.timeSlot} onChange={(event) => setNewSlot({ ...newSlot, timeSlot: event.target.value })} className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 outline-none focus:border-primary focus:bg-white"><option>09:00 AM - 11:00 AM</option><option>11:00 AM - 01:00 PM</option><option>01:00 PM - 03:00 PM</option><option>03:00 PM - 05:00 PM</option><option>05:00 PM - 07:00 PM</option><option>07:00 PM - 09:00 PM</option></select>
-                <input type="number" min="1" required value={newSlot.maxBookings} onChange={(event) => setNewSlot({ ...newSlot, maxBookings: Number(event.target.value) })} className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 outline-none focus:border-primary focus:bg-white" />
+                <label className="space-y-2 block">
+                  <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Date</span>
+                  <input
+                    type="date"
+                    required
+                    value={newSlot.date}
+                    onChange={(event) => setNewSlot({ ...newSlot, date: event.target.value })}
+                    className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                  />
+                </label>
+                <label className="space-y-2 block">
+                  <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Time Slot</span>
+                  <select
+                    value={newSlot.timeSlot}
+                    onChange={(event) => setNewSlot({ ...newSlot, timeSlot: event.target.value })}
+                    className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                  >
+                    <option>09:00 AM - 11:00 AM</option>
+                    <option>11:00 AM - 01:00 PM</option>
+                    <option>01:00 PM - 03:00 PM</option>
+                    <option>03:00 PM - 05:00 PM</option>
+                    <option>05:00 PM - 07:00 PM</option>
+                    <option>07:00 PM - 09:00 PM</option>
+                  </select>
+                </label>
+                <label className="space-y-2 block">
+                  <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Max Bookings</span>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={newSlot.maxBookings}
+                    onChange={(event) => setNewSlot({ ...newSlot, maxBookings: Number(event.target.value) })}
+                    placeholder="10"
+                    className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                  />
+                </label>
                 <div className="flex justify-end gap-3"><button type="button" onClick={() => setShowAddSlotModal(false)} className="rounded-2xl border border-border px-5 py-3 font-bold text-slate-700">Cancel</button><button type="submit" className="rounded-2xl bg-primary px-5 py-3 font-bold text-primary-foreground">Save Slot</button></div>
               </form>
             </motion.div>
