@@ -22,9 +22,11 @@ import {
   Loader2
 } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from "@/components/AuthContext";
 
 export default function CheckoutPage() {
   const { items, prescriptionUrl, clearCart } = useCart();
+  const { user } = useAuth();
   const [deliveryType, setDeliveryType] = useState<'home' | 'pickup'>('home');
   const [selectedSlot, setSelectedSlot] = useState<string>('');
   const [coupon, setCoupon] = useState('');
@@ -46,6 +48,15 @@ export default function CheckoutPage() {
     email: '',
     address: ''
   });
+
+  React.useEffect(() => {
+    if (!user) return;
+    setFormData((current) => ({
+      ...current,
+      name: current.name || user.name || "",
+      email: user.email || current.email,
+    }));
+  }, [user]);
 
   const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const deliveryCharge = deliveryType === 'home' ? 50 : 0;
@@ -70,10 +81,11 @@ export default function CheckoutPage() {
 
     setIsSubmitting(true);
     try {
+      const effectiveEmail = user?.email || formData.email;
       const orderData = {
         user: {
           name: formData.name,
-          email: formData.email,
+          email: effectiveEmail,
           phone: formData.phone
         },
         items: items.map(item => ({
@@ -334,7 +346,8 @@ export default function CheckoutPage() {
                   <label className="text-sm font-bold text-muted-foreground ml-2">Email Address</label>
                   <input 
                     placeholder="john@example.com" 
-                    className="w-full p-6 rounded-2xl bg-secondary/30 border border-border outline-none focus:ring-4 ring-primary transition-all font-bold text-lg" 
+                    disabled={Boolean(user?.email)}
+                    className={`w-full p-6 rounded-2xl border border-border outline-none focus:ring-4 ring-primary transition-all font-bold text-lg ${user?.email ? "bg-secondary/10 text-muted-foreground cursor-not-allowed" : "bg-secondary/30"}`} 
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                   />

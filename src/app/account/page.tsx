@@ -154,11 +154,15 @@ export default function AccountPage() {
     setIsOrdersLoading(true);
     try {
       const res = await fetch(`/api/account/orders`, { cache: "no-store" });
+      if (res.status === 401) throw new Error("Not signed in.");
+      if (res.status === 500) throw new Error("Account service misconfigured. Set BACKEND_INTERNAL_TOKEN on Vercel and INTERNAL_API_TOKEN on Render.");
       if (!res.ok) throw new Error("Failed");
       setOrders((await res.json()) as Order[]);
     } catch (error) {
       console.error(error);
       setOrders([]);
+      const message = error instanceof Error ? error.message : "";
+      if (message) alert(message);
     } finally {
       setIsOrdersLoading(false);
     }
@@ -168,6 +172,8 @@ export default function AccountPage() {
     setIsPrescriptionsLoading(true);
     try {
       const res = await fetch(`/api/account/prescriptions`, { cache: "no-store" });
+      if (res.status === 401) throw new Error("Not signed in.");
+      if (res.status === 500) throw new Error("Account service misconfigured. Set BACKEND_INTERNAL_TOKEN on Vercel and INTERNAL_API_TOKEN on Render.");
       if (!res.ok) throw new Error("Failed");
       const list = (await res.json()) as PrescriptionListItem[];
       setPrescriptions(list);
@@ -176,6 +182,8 @@ export default function AccountPage() {
       console.error(error);
       setPrescriptions([]);
       setSelectedPrescriptionId(null);
+      const message = error instanceof Error ? error.message : "";
+      if (message) alert(message);
     } finally {
       setIsPrescriptionsLoading(false);
     }
@@ -208,6 +216,8 @@ export default function AccountPage() {
     setIsProfileLoading(true);
     try {
       const res = await fetch(`/api/account/profile`, { cache: "no-store" });
+      if (res.status === 401) throw new Error("Not signed in.");
+      if (res.status === 500) throw new Error("Account service misconfigured. Set BACKEND_INTERNAL_TOKEN on Vercel and INTERNAL_API_TOKEN on Render.");
       if (!res.ok) throw new Error("Failed");
       const data = (await res.json()) as UserProfile;
       setProfile(data);
@@ -216,6 +226,8 @@ export default function AccountPage() {
       console.error(error);
       setProfile(null);
       setProfileDraft({ name: user?.name ?? "", phone: "" });
+      const message = error instanceof Error ? error.message : "";
+      if (message) alert(message);
     } finally {
       setIsProfileLoading(false);
     }
