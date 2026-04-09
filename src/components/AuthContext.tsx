@@ -13,7 +13,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (_token: string, user: User) => void;
+  login: (_token: string, user: User) => Promise<void>;
   loginWithGoogle: () => void;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
@@ -57,7 +57,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.location.href = "/api/auth/google";
   };
 
-  const login = (_token: string, nextUser: User) => {
+  const login = async (_token: string, nextUser: User) => {
+    const response = await fetch("/api/auth/session", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user: nextUser }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Unable to persist session.");
+    }
+
     setUser(nextUser);
   };
 

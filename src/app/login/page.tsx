@@ -57,9 +57,9 @@ function LoginContent() {
         throw new Error(data.message || "Something went wrong");
       }
 
-      setAuth("", data.user);
+      await setAuth("", data.user);
       // Persisted by the session cookie; refreshSession will hydrate after navigation.
-      router.push(data.user.role === "ADMIN" ? "/admin" : "/account");
+      router.push(data.user.role === "ADMIN" ? "/admin" : "/");
     } catch (submitError) {
       console.error("Credential sign-in failed:", submitError);
     } finally {
