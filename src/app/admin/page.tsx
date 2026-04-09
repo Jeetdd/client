@@ -781,7 +781,7 @@ export default function AdminDashboard() {
                     <select
                       value={movementMedicineFilter}
                       onChange={(event) => setMovementMedicineFilter(event.target.value)}
-                      className="rounded-2xl border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white"
+                      className="rounded-2xl border border-border bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white [color-scheme:light]"
                     >
                       <option value="ALL">All medicines</option>
                       {medicines.map((m) => (
