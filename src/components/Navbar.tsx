@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ShoppingCart, User, Menu, LogOut, LayoutDashboard } from 'lucide-react';
+import { ShoppingCart, User, Menu, LogOut, LayoutDashboard, UserRound } from 'lucide-react';
 import { useCart } from './CartContext';
 import { useAuth } from './AuthContext';
 
@@ -45,6 +45,9 @@ export default function Navbar() {
                     <LayoutDashboard className="w-5 h-5" />
                   </Link>
                 )}
+                <Link href="/account" className="p-3 bg-secondary/30 text-slate-800 rounded-2xl hover:bg-secondary transition-colors">
+                  <UserRound className="w-5 h-5" />
+                </Link>
                 <button 
                   onClick={logout}
                   className="p-3 bg-red-500/10 text-red-500 rounded-2xl hover:bg-red-500/20 transition-all font-bold group"

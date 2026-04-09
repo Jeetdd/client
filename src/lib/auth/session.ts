@@ -7,6 +7,7 @@ export interface AuthUser {
   name: string;
   email: string;
   image?: string;
+  phone?: string;
   role: AuthRole;
 }
 

@@ -20,8 +20,6 @@ const errorMessages: Record<string, string> = {
   google_oauth_missing_session_secret: "Missing AUTH_SESSION_SECRET in deployment environment variables.",
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://server-hw5w.onrender.com";
-
 function LoginContent() {
   const searchParams = useSearchParams();
   const { login: setAuth, loginWithGoogle, user } = useAuth();
@@ -47,7 +45,7 @@ function LoginContent() {
     const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
 
     try {
-      const response = await fetch(`${API_BASE}${endpoint}`, {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -59,8 +57,9 @@ function LoginContent() {
         throw new Error(data.message || "Something went wrong");
       }
 
-      setAuth(data.token, data.user);
-      router.push(data.user.role === "ADMIN" ? "/admin" : "/");
+      setAuth("", data.user);
+      // Persisted by the session cookie; refreshSession will hydrate after navigation.
+      router.push(data.user.role === "ADMIN" ? "/admin" : "/account");
     } catch (submitError) {
       console.error("Credential sign-in failed:", submitError);
     } finally {

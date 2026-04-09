@@ -6,6 +6,7 @@ import { Upload, CheckCircle2, AlertCircle, Loader2, ShoppingCart, X, ImageIcon,
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/components/CartContext';
 import { useRouter } from 'next/navigation';
+import { useAuth } from "@/components/AuthContext";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://server-hw5w.onrender.com';
 
@@ -30,6 +31,7 @@ export default function UploadPage() {
   const [selectedMeds, setSelectedMeds] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
   const { addItem, setPrescriptionUrl } = useCart();
+  const { user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -65,6 +67,10 @@ export default function UploadPage() {
     try {
       const formData = new FormData();
       formData.append('prescription', selectedFile);
+      if (user?.email) {
+        formData.append("email", user.email);
+        formData.append("name", user.name);
+      }
 
       const response = await fetch(`${API_BASE}/api/prescriptions/analyze`, {
         method: 'POST',
