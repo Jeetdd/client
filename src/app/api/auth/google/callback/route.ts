@@ -50,6 +50,10 @@ function redirectWithError(request: Request, reason: string) {
 
 export async function GET(request: Request) {
   try {
+    getRequiredEnv("GOOGLE_CLIENT_ID");
+    getRequiredEnv("GOOGLE_CLIENT_SECRET");
+    getRequiredEnv("AUTH_SESSION_SECRET");
+
     const url = new URL(request.url);
     const code = url.searchParams.get("code");
     const state = url.searchParams.get("state");
@@ -68,8 +72,8 @@ export async function GET(request: Request) {
       },
       body: new URLSearchParams({
         code,
-        client_id: getRequiredEnv("GOOGLE_CLIENT_ID"),
-        client_secret: getRequiredEnv("GOOGLE_CLIENT_SECRET"),
+        client_id: process.env.GOOGLE_CLIENT_ID!,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
         redirect_uri: redirectUri,
         grant_type: "authorization_code",
       }),
@@ -117,6 +121,20 @@ export async function GET(request: Request) {
     return response;
   } catch (error) {
     console.error("Google OAuth callback failed:", error);
+    const message = error instanceof Error ? error.message : "";
+
+    if (message.includes("GOOGLE_CLIENT_ID")) {
+      return redirectWithError(request, "google_oauth_missing_client_id");
+    }
+
+    if (message.includes("GOOGLE_CLIENT_SECRET")) {
+      return redirectWithError(request, "google_oauth_missing_client_secret");
+    }
+
+    if (message.includes("AUTH_SESSION_SECRET")) {
+      return redirectWithError(request, "google_oauth_missing_session_secret");
+    }
+
     return redirectWithError(request, "google_oauth_callback_failed");
   }
 }

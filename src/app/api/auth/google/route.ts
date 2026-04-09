@@ -39,7 +39,12 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Google OAuth init failed:", error);
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("error", "google_oauth_not_configured");
+    const message = error instanceof Error ? error.message : "";
+    if (message.includes("GOOGLE_CLIENT_ID")) {
+      loginUrl.searchParams.set("error", "google_oauth_missing_client_id");
+    } else {
+      loginUrl.searchParams.set("error", "google_oauth_not_configured");
+    }
     return NextResponse.redirect(loginUrl);
   }
 }

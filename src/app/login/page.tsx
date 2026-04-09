@@ -15,6 +15,9 @@ const errorMessages: Record<string, string> = {
   google_email_not_verified: "Your Google email must be verified before you can continue.",
   google_oauth_not_configured: "Google sign-in is not configured on this deployment yet.",
   google_oauth_callback_failed: "Google sign-in failed on the server. Check deployment environment variables.",
+  google_oauth_missing_client_id: "Missing GOOGLE_CLIENT_ID in deployment environment variables.",
+  google_oauth_missing_client_secret: "Missing GOOGLE_CLIENT_SECRET in deployment environment variables.",
+  google_oauth_missing_session_secret: "Missing AUTH_SESSION_SECRET in deployment environment variables.",
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://server-hw5w.onrender.com";
