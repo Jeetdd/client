@@ -60,12 +60,14 @@ interface Order {
 
 interface PrescriptionListItem {
   id: string;
+  label?: string | null;
   imageUrl: string;
   createdAt: string;
 }
 
 interface PrescriptionDetail {
   id: string;
+  label?: string | null;
   imageUrl: string;
   createdAt: string;
   detectedMedicines: any[];
@@ -116,6 +118,7 @@ export default function AccountPage() {
   const [prescriptions, setPrescriptions] = useState<PrescriptionListItem[]>([]);
   const [selectedPrescriptionId, setSelectedPrescriptionId] = useState<string | null>(null);
   const [prescriptionDetail, setPrescriptionDetail] = useState<PrescriptionDetail | null>(null);
+  const [selectedDetected, setSelectedDetected] = useState<number[]>([]);
   const [isPrescriptionsLoading, setIsPrescriptionsLoading] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
@@ -148,10 +151,9 @@ export default function AccountPage() {
   }, [selectedPrescriptionId]);
 
   const fetchOrders = async () => {
-    if (!user?.email) return;
     setIsOrdersLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/orders/my?email=${encodeURIComponent(user.email)}`, { cache: "no-store" });
+      const res = await fetch(`/api/account/orders`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed");
       setOrders((await res.json()) as Order[]);
     } catch (error) {
@@ -163,10 +165,9 @@ export default function AccountPage() {
   };
 
   const fetchPrescriptions = async () => {
-    if (!user?.email) return;
     setIsPrescriptionsLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/prescriptions/my?email=${encodeURIComponent(user.email)}`, { cache: "no-store" });
+      const res = await fetch(`/api/account/prescriptions`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed");
       const list = (await res.json()) as PrescriptionListItem[];
       setPrescriptions(list);
@@ -183,22 +184,30 @@ export default function AccountPage() {
   const fetchPrescriptionDetail = async (id: string) => {
     setIsPrescriptionsLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/prescriptions/${id}`, { cache: "no-store" });
+      const res = await fetch(`/api/account/prescriptions/${id}`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed");
-      setPrescriptionDetail((await res.json()) as PrescriptionDetail);
+      const detail = (await res.json()) as PrescriptionDetail;
+      setPrescriptionDetail(detail);
+      const availableIndices =
+        Array.isArray(detail.detectedMedicines)
+          ? detail.detectedMedicines
+              .map((med: any, idx: number) => (med?.matchedMedicine?.id && med?.price ? idx : -1))
+              .filter((idx: number) => idx >= 0)
+          : [];
+      setSelectedDetected(availableIndices);
     } catch (error) {
       console.error(error);
       setPrescriptionDetail(null);
+      setSelectedDetected([]);
     } finally {
       setIsPrescriptionsLoading(false);
     }
   };
 
   const fetchProfile = async () => {
-    if (!user?.email) return;
     setIsProfileLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/users/me?email=${encodeURIComponent(user.email)}`, { cache: "no-store" });
+      const res = await fetch(`/api/account/profile`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed");
       const data = (await res.json()) as UserProfile;
       setProfile(data);
@@ -214,30 +223,18 @@ export default function AccountPage() {
 
   const saveProfile = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!user?.email) return;
-
     setIsSavingProfile(true);
     try {
-      const res = await fetch(`${API_BASE}/api/users/me`, {
+      const res = await fetch(`/api/account/profile`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: user.email,
-          name: profileDraft.name,
-          phone: profileDraft.phone,
-        }),
+        body: JSON.stringify({ name: profileDraft.name, phone: profileDraft.phone }),
       });
       const payload = await res.json().catch(() => null);
       if (!res.ok) {
         throw new Error(payload?.message || "Failed to update profile");
       }
 
-      // Keep the cookie/session user in sync (used by navbar).
-      await fetch("/api/auth/profile", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: profileDraft.name, phone: profileDraft.phone }),
-      });
       await refreshSession();
 
       await fetchProfile();
@@ -254,7 +251,9 @@ export default function AccountPage() {
     if (!prescriptionDetail) return;
     const meds = Array.isArray(prescriptionDetail.detectedMedicines) ? prescriptionDetail.detectedMedicines : [];
 
-    const toAdd = meds
+    const indices = selectedDetected.length ? selectedDetected : meds.map((_m, idx) => idx);
+    const toAdd = indices
+      .map((idx) => meds[idx])
       .map((med) => {
         const matched = med?.matchedMedicine;
         const medicineId = matched?.id;
@@ -276,6 +275,44 @@ export default function AccountPage() {
     setPrescriptionUrl(`${API_BASE}${prescriptionDetail.imageUrl}`);
     toAdd.forEach((item) => addItem(item));
     router.push("/cart");
+  };
+
+  const renamePrescription = async (id: string) => {
+    const label = window.prompt("Enter a label for this prescription (optional):");
+    if (label === null) return;
+
+    try {
+      const res = await fetch(`/api/account/prescriptions/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ label }),
+      });
+      const payload = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(payload?.message || "Failed");
+      await fetchPrescriptions();
+      if (selectedPrescriptionId === id) {
+        await fetchPrescriptionDetail(id);
+      }
+    } catch (error: any) {
+      console.error(error);
+      alert(error?.message || "Unable to rename prescription.");
+    }
+  };
+
+  const removePrescription = async (id: string) => {
+    const ok = window.confirm("Delete this prescription? This cannot be undone.");
+    if (!ok) return;
+
+    try {
+      const res = await fetch(`/api/account/prescriptions/${id}`, { method: "DELETE" });
+      const payload = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(payload?.message || "Failed");
+      setSelectedPrescriptionId((current) => (current === id ? null : current));
+      await fetchPrescriptions();
+    } catch (error: any) {
+      console.error(error);
+      alert(error?.message || "Unable to delete prescription.");
+    }
   };
 
   if (isAuthLoading || !user) {
@@ -428,7 +465,7 @@ export default function AccountPage() {
                   </div>
                 ) : (
                   <div className="mt-6 space-y-3">
-                    {prescriptions.map((p) => (
+                  {prescriptions.map((p) => (
                       <button
                         key={p.id}
                         onClick={() => setSelectedPrescriptionId(p.id)}
@@ -438,8 +475,30 @@ export default function AccountPage() {
                       >
                         <img src={toAssetUrl(p.imageUrl)} alt="Prescription" className="h-16 w-16 rounded-[1rem] object-cover" />
                         <div className="min-w-0">
-                          <p className="truncate font-black text-slate-900">{p.id}</p>
+                          <p className="truncate font-black text-slate-900">{p.label?.trim() ? p.label : p.id}</p>
                           <p className="mt-1 text-sm text-muted-foreground">{formatDateTime(p.createdAt)}</p>
+                        </div>
+                        <div className="ml-auto flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              void renamePrescription(p.id);
+                            }}
+                            className="rounded-2xl border border-border bg-white px-3 py-2 text-xs font-black text-slate-700 hover:border-primary/20"
+                          >
+                            Rename
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              void removePrescription(p.id);
+                            }}
+                            className="rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-black text-rose-700 hover:border-rose-300"
+                          >
+                            Delete
+                          </button>
                         </div>
                       </button>
                     ))}
@@ -475,20 +534,44 @@ export default function AccountPage() {
                         <p className="text-sm font-bold text-slate-900">Detected Items</p>
                         <p className="text-xs text-muted-foreground">{formatDateTime(prescriptionDetail.createdAt)}</p>
                       </div>
-                      <button
-                        onClick={addPrescriptionToCart}
-                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground"
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                        Add Matched To Cart
-                      </button>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          onClick={() => {
+                            const meds = Array.isArray(prescriptionDetail.detectedMedicines) ? prescriptionDetail.detectedMedicines : [];
+                            const available = meds
+                              .map((med: any, idx: number) => (med?.matchedMedicine?.id && med?.price ? idx : -1))
+                              .filter((idx: number) => idx >= 0);
+                            setSelectedDetected(available);
+                          }}
+                          className="rounded-2xl border border-border bg-white px-4 py-3 text-sm font-bold text-slate-800 hover:border-primary/20"
+                        >
+                          Select Matched
+                        </button>
+                        <button
+                          onClick={addPrescriptionToCart}
+                          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground"
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                          Add Selected To Cart
+                        </button>
+                      </div>
                     </div>
 
                     <div className="space-y-3">
                       {(prescriptionDetail.detectedMedicines || []).slice(0, 12).map((med: any, idx: number) => {
                         const available = Boolean(med?.matchedMedicine?.id && med?.price);
+                        const checked = selectedDetected.includes(idx);
                         return (
-                          <div key={`${prescriptionDetail.id}-${idx}`} className="rounded-[1.3rem] border border-border bg-white p-4">
+                          <button
+                            key={`${prescriptionDetail.id}-${idx}`}
+                            type="button"
+                            onClick={() => {
+                              setSelectedDetected((current) =>
+                                current.includes(idx) ? current.filter((value) => value !== idx) : [...current, idx],
+                              );
+                            }}
+                            className="w-full rounded-[1.3rem] border border-border bg-white p-4 text-left transition hover:border-primary/20"
+                          >
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
                                 <p className="truncate font-black text-slate-900">{med?.name ?? "Medicine"}</p>
@@ -497,11 +580,16 @@ export default function AccountPage() {
                                   {med?.frequency ? `• ${med.frequency}` : ""}
                                 </p>
                               </div>
-                              <span className={`rounded-full border px-3 py-1 text-xs font-black ${available ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
-                                {available ? "Available" : "Not Matched"}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className={`rounded-full border px-3 py-1 text-xs font-black ${available ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
+                                  {available ? "Available" : "Not Matched"}
+                                </span>
+                                <span className={`rounded-full border px-3 py-1 text-xs font-black ${checked ? "border-primary bg-primary/10 text-primary" : "border-border bg-slate-50 text-slate-600"}`}>
+                                  {checked ? "Selected" : "Tap"}
+                                </span>
+                              </div>
                             </div>
-                          </div>
+                          </button>
                         );
                       })}
                     </div>
@@ -590,4 +678,3 @@ export default function AccountPage() {
     </main>
   );
 }
-
