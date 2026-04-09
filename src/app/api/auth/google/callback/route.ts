@@ -36,9 +36,12 @@ function getRequiredEnv(name: string) {
   return value;
 }
 
-function redirectWithError(request: Request, reason: string) {
+function redirectWithError(request: Request, reason: string, detail?: string) {
   const url = new URL("/login", request.url);
   url.searchParams.set("error", reason);
+  if (detail) {
+    url.searchParams.set("detail", detail);
+  }
 
   const response = NextResponse.redirect(url);
   const cookie = clearOauthStateCookie();
@@ -65,39 +68,63 @@ export async function GET(request: Request) {
     }
 
     const redirectUri = new URL("/api/auth/google/callback", url.origin).toString();
-    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        code,
-        client_id: process.env.GOOGLE_CLIENT_ID!,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-        redirect_uri: redirectUri,
-        grant_type: "authorization_code",
-      }),
-      cache: "no-store",
-    });
+    let tokenResponse: Response;
+    try {
+      tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          code,
+          client_id: process.env.GOOGLE_CLIENT_ID!,
+          client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+          redirect_uri: redirectUri,
+          grant_type: "authorization_code",
+        }),
+        cache: "no-store",
+      });
+    } catch (error) {
+      console.error("Google token request failed:", error);
+      return redirectWithError(request, "google_oauth_callback_failed", "token_request_failed");
+    }
 
-    const tokenData = (await tokenResponse.json()) as GoogleTokenResponse;
+    let tokenData: GoogleTokenResponse;
+    try {
+      tokenData = (await tokenResponse.json()) as GoogleTokenResponse;
+    } catch (error) {
+      console.error("Google token parse failed:", error);
+      return redirectWithError(request, "google_oauth_callback_failed", "token_parse_failed");
+    }
 
     if (!tokenResponse.ok || !tokenData.access_token) {
       return redirectWithError(request, tokenData.error ?? "google_token_exchange_failed");
     }
 
-    const profileResponse = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
-      headers: {
-        Authorization: `Bearer ${tokenData.access_token}`,
-      },
-      cache: "no-store",
-    });
+    let profileResponse: Response;
+    try {
+      profileResponse = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
+        headers: {
+          Authorization: `Bearer ${tokenData.access_token}`,
+        },
+        cache: "no-store",
+      });
+    } catch (error) {
+      console.error("Google profile request failed:", error);
+      return redirectWithError(request, "google_oauth_callback_failed", "profile_request_failed");
+    }
 
     if (!profileResponse.ok) {
       return redirectWithError(request, "google_profile_fetch_failed");
     }
 
-    const profile = (await profileResponse.json()) as GoogleUserInfo;
+    let profile: GoogleUserInfo;
+    try {
+      profile = (await profileResponse.json()) as GoogleUserInfo;
+    } catch (error) {
+      console.error("Google profile parse failed:", error);
+      return redirectWithError(request, "google_oauth_callback_failed", "profile_parse_failed");
+    }
 
     if (!profile.email || profile.email_verified === false) {
       return redirectWithError(request, "google_email_not_verified");
@@ -112,7 +139,13 @@ export async function GET(request: Request) {
     };
 
     const response = NextResponse.redirect(new URL(user.role === "ADMIN" ? "/admin" : "/", request.url));
-    const sessionCookie = createSessionCookie(user);
+    let sessionCookie;
+    try {
+      sessionCookie = createSessionCookie(user);
+    } catch (error) {
+      console.error("Session cookie creation failed:", error);
+      return redirectWithError(request, "google_oauth_callback_failed", "session_sign_failed");
+    }
     const oauthStateCookie = clearOauthStateCookie();
 
     response.cookies.set(sessionCookie.name, sessionCookie.value, sessionCookie.options);
@@ -135,6 +168,6 @@ export async function GET(request: Request) {
       return redirectWithError(request, "google_oauth_missing_session_secret");
     }
 
-    return redirectWithError(request, "google_oauth_callback_failed");
+    return redirectWithError(request, "google_oauth_callback_failed", "unhandled_callback_error");
   }
 }

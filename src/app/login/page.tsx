@@ -38,6 +38,7 @@ function LoginContent() {
     const code = searchParams.get("error");
     return code ? errorMessages[code] ?? "Unable to complete Google sign-in right now." : null;
   }, [searchParams]);
+  const errorDetail = searchParams.get("detail");
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -183,6 +184,7 @@ function LoginContent() {
                 {error && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm font-bold text-center">
                     {error}
+                    {errorDetail ? <div className="mt-1 text-xs font-medium opacity-80">Reason: {errorDetail}</div> : null}
                   </motion.div>
                 )}
 
