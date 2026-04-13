@@ -29,7 +29,13 @@ export default function CheckoutPage() {
   const [deliveryType, setDeliveryType] = useState<'home' | 'pickup'>('home');
   const [selectedSlot, setSelectedSlot] = useState<string>('');
   const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; label: string; discountAmount: number } | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountType: 'PERCENTAGE' | 'FLAT' | 'UNKNOWN';
+    discountValue: number;
+    maxDiscountAmount?: number;
+    fallbackDiscountAmount: number;
+  } | null>(null);
   const [couponMessage, setCouponMessage] = useState('');
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
@@ -77,7 +83,24 @@ export default function CheckoutPage() {
 
   const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const deliveryCharge = deliveryType === 'home' ? 50 : 0;
-  const discount = appliedCoupon?.discountAmount || 0;
+  const discount = React.useMemo(() => {
+    if (!appliedCoupon) return 0;
+
+    if (appliedCoupon.discountType === 'PERCENTAGE' && appliedCoupon.discountValue > 0) {
+      let value = (subtotal * appliedCoupon.discountValue) / 100;
+      if ((appliedCoupon.maxDiscountAmount || 0) > 0) {
+        value = Math.min(value, Number(appliedCoupon.maxDiscountAmount));
+      }
+      return Math.max(0, Math.min(value, subtotal));
+    }
+
+    if (appliedCoupon.discountType === 'FLAT' && appliedCoupon.discountValue > 0) {
+      return Math.max(0, Math.min(appliedCoupon.discountValue, subtotal));
+    }
+
+    return Math.max(0, Math.min(appliedCoupon.fallbackDiscountAmount || 0, subtotal));
+  }, [appliedCoupon, subtotal]);
+
   const total = Math.max(subtotal + deliveryCharge - discount, 0);
   const appliedCouponContextRef = React.useRef<{ subtotal: number } | null>(null);
 
@@ -149,16 +172,13 @@ export default function CheckoutPage() {
         return;
       }
 
-      const label =
-        payload.coupon?.discountType === 'PERCENTAGE'
-          ? `${payload.coupon.discountValue || 0}%`
-          : 'Flat';
-
       appliedCouponContextRef.current = { subtotal };
       setAppliedCoupon({
         code: normalizedCode,
-        label,
-        discountAmount: resolvedDiscount
+        discountType: payload.coupon?.discountType === 'PERCENTAGE' ? 'PERCENTAGE' : payload.coupon?.discountType === 'FLAT' ? 'FLAT' : 'UNKNOWN',
+        discountValue: Number(payload.coupon?.discountValue || 0),
+        maxDiscountAmount: Number(payload.coupon?.maxDiscountAmount || 0) || undefined,
+        fallbackDiscountAmount: resolvedDiscount
       });
       setCouponMessage(`${normalizedCode} applied successfully.`);
     } catch (err) {
@@ -504,7 +524,13 @@ export default function CheckoutPage() {
                     <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex justify-between items-center text-xl text-emerald-500 font-black">
                       <span className="flex items-center gap-2">
                         <Ticket className="w-5 h-5" />
-                        Discount ({appliedCoupon.label})
+                        Discount (
+                        {appliedCoupon.discountType === 'PERCENTAGE'
+                          ? `${appliedCoupon.discountValue}%`
+                          : appliedCoupon.discountType === 'FLAT'
+                            ? 'Flat'
+                            : 'Applied'}
+                        )
                       </span>
                       <span>-₹{discount.toFixed(2)}</span>
                     </motion.div>
