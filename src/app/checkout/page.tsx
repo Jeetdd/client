@@ -79,7 +79,7 @@ export default function CheckoutPage() {
   const deliveryCharge = deliveryType === 'home' ? 50 : 0;
   const discount = appliedCoupon?.discountAmount || 0;
   const total = Math.max(subtotal + deliveryCharge - discount, 0);
-  const appliedCouponContextRef = React.useRef<{ subtotal: number; deliveryCharge: number } | null>(null);
+  const appliedCouponContextRef = React.useRef<{ subtotal: number } | null>(null);
 
   React.useEffect(() => {
     if (!appliedCoupon) return;
@@ -87,12 +87,12 @@ export default function CheckoutPage() {
     const context = appliedCouponContextRef.current;
     if (!context) return;
 
-    if (context.subtotal !== subtotal || context.deliveryCharge !== deliveryCharge) {
+    if (context.subtotal !== subtotal) {
       setAppliedCoupon(null);
       setCouponMessage('Cart changed. Please apply the coupon again.');
       appliedCouponContextRef.current = null;
     }
-  }, [appliedCoupon, subtotal, deliveryCharge]);
+  }, [appliedCoupon, subtotal]);
 
   const handleApplyCoupon = async () => {
     const normalizedCode = couponCode.trim().toUpperCase();
@@ -110,7 +110,7 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           code: normalizedCode,
-          orderAmount: subtotal + deliveryCharge,
+          orderAmount: subtotal,
           email: user?.email || formData.email || undefined
         })
       });
@@ -124,24 +124,25 @@ export default function CheckoutPage() {
         return;
       }
 
-      let resolvedDiscount = Number(payload.discountAmount ?? payload.discount ?? 0);
-      if (!resolvedDiscount && typeof payload.finalAmount === 'number') {
-        resolvedDiscount = subtotal + deliveryCharge - payload.finalAmount;
-      }
+      let resolvedDiscount = 0;
+      const discountType = payload.coupon?.discountType;
+      const discountValue = Number(payload.coupon?.discountValue || 0);
 
-      if (!resolvedDiscount && payload.coupon) {
-        const discountType = payload.coupon.discountType;
-        const discountValue = Number(payload.coupon.discountValue || 0);
-        if (discountType === 'PERCENTAGE') {
-          resolvedDiscount = ((subtotal + deliveryCharge) * discountValue) / 100;
-          const maxDiscount = Number(payload.coupon.maxDiscountAmount || 0);
-          if (maxDiscount > 0) resolvedDiscount = Math.min(resolvedDiscount, maxDiscount);
-        } else if (discountType === 'FLAT') {
-          resolvedDiscount = discountValue;
+      // Always compute percentage discount on subtotal so 15% of 100 => 15.
+      if (discountType === 'PERCENTAGE' && discountValue > 0) {
+        resolvedDiscount = (subtotal * discountValue) / 100;
+        const maxDiscount = Number(payload.coupon?.maxDiscountAmount || 0);
+        if (maxDiscount > 0) resolvedDiscount = Math.min(resolvedDiscount, maxDiscount);
+      } else if (discountType === 'FLAT' && discountValue > 0) {
+        resolvedDiscount = discountValue;
+      } else {
+        resolvedDiscount = Number(payload.discountAmount ?? payload.discount ?? 0);
+        if (!resolvedDiscount && typeof payload.finalAmount === 'number') {
+          resolvedDiscount = subtotal - payload.finalAmount;
         }
       }
 
-      resolvedDiscount = Math.max(0, Math.min(resolvedDiscount, subtotal + deliveryCharge));
+      resolvedDiscount = Math.max(0, Math.min(resolvedDiscount, subtotal));
       if (!resolvedDiscount) {
         setAppliedCoupon(null);
         setCouponMessage(payload.message || 'Coupon did not qualify for this cart.');
@@ -153,7 +154,7 @@ export default function CheckoutPage() {
           ? `${payload.coupon.discountValue || 0}%`
           : 'Flat';
 
-      appliedCouponContextRef.current = { subtotal, deliveryCharge };
+      appliedCouponContextRef.current = { subtotal };
       setAppliedCoupon({
         code: normalizedCode,
         label,
