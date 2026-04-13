@@ -522,16 +522,16 @@ export default function CheckoutPage() {
                   
                   {appliedCoupon && (
                     <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex justify-between items-center text-xl text-emerald-500 font-black">
-                      <span className="flex items-center gap-2">
-                        <Ticket className="w-5 h-5" />
-                        Discount (
-                        {appliedCoupon.discountType === 'PERCENTAGE'
-                          ? `${appliedCoupon.discountValue}%`
-                          : appliedCoupon.discountType === 'FLAT'
-                            ? 'Flat'
-                            : 'Applied'}
-                        )
-                      </span>
+	                      <span className="flex items-center gap-2">
+	                        <Ticket className="w-5 h-5" />
+	                        Discount (
+	                        {appliedCoupon.discountType === 'PERCENTAGE'
+	                          ? `${appliedCoupon.discountValue}%${(appliedCoupon.maxDiscountAmount || 0) > 0 ? ` (cap ₹${appliedCoupon.maxDiscountAmount})` : ''}`
+	                          : appliedCoupon.discountType === 'FLAT'
+	                            ? 'Flat'
+	                            : 'Applied'}
+	                        )
+	                      </span>
                       <span>-₹{discount.toFixed(2)}</span>
                     </motion.div>
                   )}
