@@ -34,7 +34,20 @@ interface CouponInput {
   isActive?: boolean;
 }
 
-const DATA_DIR = path.join(process.cwd(), "data");
+function getDataDir() {
+  if (process.env.COUPON_DATA_DIR) {
+    return process.env.COUPON_DATA_DIR;
+  }
+
+  // Vercel serverless filesystem is read-only except /tmp.
+  if (process.env.VERCEL) {
+    return path.join("/tmp", "skinshop-data");
+  }
+
+  return path.join(process.cwd(), "data");
+}
+
+const DATA_DIR = getDataDir();
 const DATA_FILE = path.join(DATA_DIR, "coupons.json");
 
 async function ensureDataFile() {
