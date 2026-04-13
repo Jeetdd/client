@@ -79,11 +79,19 @@ export default function CheckoutPage() {
   const deliveryCharge = deliveryType === 'home' ? 50 : 0;
   const discount = appliedCoupon?.discountAmount || 0;
   const total = Math.max(subtotal + deliveryCharge - discount, 0);
+  const appliedCouponContextRef = React.useRef<{ subtotal: number; deliveryCharge: number } | null>(null);
 
   React.useEffect(() => {
     if (!appliedCoupon) return;
-    setAppliedCoupon(null);
-    setCouponMessage('Cart changed. Please apply the coupon again.');
+
+    const context = appliedCouponContextRef.current;
+    if (!context) return;
+
+    if (context.subtotal !== subtotal || context.deliveryCharge !== deliveryCharge) {
+      setAppliedCoupon(null);
+      setCouponMessage('Cart changed. Please apply the coupon again.');
+      appliedCouponContextRef.current = null;
+    }
   }, [appliedCoupon, subtotal, deliveryCharge]);
 
   const handleApplyCoupon = async () => {
@@ -145,6 +153,7 @@ export default function CheckoutPage() {
           ? `${payload.coupon.discountValue || 0}%`
           : 'Flat';
 
+      appliedCouponContextRef.current = { subtotal, deliveryCharge };
       setAppliedCoupon({
         code: normalizedCode,
         label,
