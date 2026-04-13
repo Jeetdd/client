@@ -11,7 +11,6 @@ import {
   Clock, 
   Truck, 
   ShieldCheck, 
-  CreditCard, 
   ArrowRight, 
   CheckCircle2, 
   Calendar,
@@ -29,8 +28,10 @@ export default function CheckoutPage() {
   const { user } = useAuth();
   const [deliveryType, setDeliveryType] = useState<'home' | 'pickup'>('home');
   const [selectedSlot, setSelectedSlot] = useState<string>('');
-  const [coupon, setCoupon] = useState('');
-  const [isCouponApplied, setIsCouponApplied] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; label: string; discountAmount: number } | null>(null);
+  const [couponMessage, setCouponMessage] = useState('');
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderId, setOrderId] = useState('');
@@ -39,6 +40,22 @@ export default function CheckoutPage() {
     id?: string;
     _id?: string;
     message?: string;
+  };
+
+  type CouponValidationResponse = {
+    valid?: boolean;
+    isValid?: boolean;
+    success?: boolean;
+    message?: string;
+    discountAmount?: number;
+    discount?: number;
+    finalAmount?: number;
+    coupon?: {
+      code?: string;
+      discountType?: 'PERCENTAGE' | 'FLAT';
+      discountValue?: number;
+      maxDiscountAmount?: number;
+    };
   };
 
   // Form states
@@ -60,8 +77,88 @@ export default function CheckoutPage() {
 
   const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const deliveryCharge = deliveryType === 'home' ? 50 : 0;
-  const discount = isCouponApplied ? subtotal * 0.2 : 0;
-  const total = subtotal + deliveryCharge - discount;
+  const discount = appliedCoupon?.discountAmount || 0;
+  const total = Math.max(subtotal + deliveryCharge - discount, 0);
+
+  React.useEffect(() => {
+    if (!appliedCoupon) return;
+    setAppliedCoupon(null);
+    setCouponMessage('Cart changed. Please apply the coupon again.');
+  }, [appliedCoupon, subtotal, deliveryCharge]);
+
+  const handleApplyCoupon = async () => {
+    const normalizedCode = couponCode.trim().toUpperCase();
+    if (!normalizedCode) {
+      setCouponMessage('Enter a coupon code first.');
+      setAppliedCoupon(null);
+      return;
+    }
+
+    setIsApplyingCoupon(true);
+    setCouponMessage('');
+    try {
+      const res = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: normalizedCode,
+          orderAmount: subtotal + deliveryCharge,
+          email: user?.email || formData.email || undefined
+        })
+      });
+
+      const payload = await res.json().catch(() => ({})) as CouponValidationResponse;
+      const isValid = Boolean(payload.valid ?? payload.isValid ?? payload.success);
+
+      if (!res.ok || !isValid) {
+        setAppliedCoupon(null);
+        setCouponMessage(payload.message || 'Invalid coupon code.');
+        return;
+      }
+
+      let resolvedDiscount = Number(payload.discountAmount ?? payload.discount ?? 0);
+      if (!resolvedDiscount && typeof payload.finalAmount === 'number') {
+        resolvedDiscount = subtotal + deliveryCharge - payload.finalAmount;
+      }
+
+      if (!resolvedDiscount && payload.coupon) {
+        const discountType = payload.coupon.discountType;
+        const discountValue = Number(payload.coupon.discountValue || 0);
+        if (discountType === 'PERCENTAGE') {
+          resolvedDiscount = ((subtotal + deliveryCharge) * discountValue) / 100;
+          const maxDiscount = Number(payload.coupon.maxDiscountAmount || 0);
+          if (maxDiscount > 0) resolvedDiscount = Math.min(resolvedDiscount, maxDiscount);
+        } else if (discountType === 'FLAT') {
+          resolvedDiscount = discountValue;
+        }
+      }
+
+      resolvedDiscount = Math.max(0, Math.min(resolvedDiscount, subtotal + deliveryCharge));
+      if (!resolvedDiscount) {
+        setAppliedCoupon(null);
+        setCouponMessage(payload.message || 'Coupon did not qualify for this cart.');
+        return;
+      }
+
+      const label =
+        payload.coupon?.discountType === 'PERCENTAGE'
+          ? `${payload.coupon.discountValue || 0}%`
+          : 'Flat';
+
+      setAppliedCoupon({
+        code: normalizedCode,
+        label,
+        discountAmount: resolvedDiscount
+      });
+      setCouponMessage(`${normalizedCode} applied successfully.`);
+    } catch (err) {
+      console.error('Coupon validation error:', err);
+      setAppliedCoupon(null);
+      setCouponMessage('Unable to validate coupon right now.');
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
 
   const handlePlaceOrder = async () => {
     if (items.length === 0) {
@@ -96,7 +193,12 @@ export default function CheckoutPage() {
           dosage: item.dosage,
           frequency: item.frequency
         })),
+        subtotalAmount: subtotal,
+        deliveryCharge,
+        discountAmount: discount,
+        couponCode: appliedCoupon?.code || undefined,
         totalAmount: total,
+        finalAmount: total,
         address: deliveryType === 'home' ? formData.address : `PICKUP: ${selectedSlot}`,
         prescriptionUrl: prescriptionUrl
       };
@@ -155,8 +257,6 @@ export default function CheckoutPage() {
     fetchSlots();
   }, []);
 
-  const timeSlots = dbSlots.map(s => s.timeSlot);
-
   if (orderPlaced) {
     return (
       <main className="min-h-screen bg-background flex flex-col">
@@ -178,10 +278,10 @@ export default function CheckoutPage() {
             </div>
             
             <div className="p-8 bg-background/50 rounded-[2.5rem] border border-border text-left space-y-4">
-              <h3 className="font-bold text-lg flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-500" />
-                What's Next?
-              </h3>
+                <h3 className="font-bold text-lg flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-emerald-500" />
+                  What&apos;s Next?
+                </h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 {deliveryType === 'home' 
                   ? "A licensed pharmacist is reviewing your prescription. Once verified, your medicines will be dispatched and arrive within 24 hours." 
@@ -296,7 +396,7 @@ export default function CheckoutPage() {
                   </div>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-                    {dbSlots.map((slot, i) => (
+                    {dbSlots.map((slot) => (
                       <button
                         key={slot.id}
                         onClick={() => setSelectedSlot(`${new Date(slot.date).toLocaleDateString()} ${slot.timeSlot}`)}
@@ -390,11 +490,11 @@ export default function CheckoutPage() {
                     </span>
                   </div>
                   
-                  {isCouponApplied && (
+                  {appliedCoupon && (
                     <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex justify-between items-center text-xl text-emerald-500 font-black">
                       <span className="flex items-center gap-2">
                         <Ticket className="w-5 h-5" />
-                        Discount (20%)
+                        Discount ({appliedCoupon.label})
                       </span>
                       <span>-₹{discount.toFixed(2)}</span>
                     </motion.div>
@@ -412,30 +512,38 @@ export default function CheckoutPage() {
                 <div className="space-y-5 mb-12 relative z-10">
                   <div className="flex items-center gap-3 text-xs text-primary font-black uppercase tracking-[0.2em] mb-2 px-2">
                     <Ticket className="w-4 h-4" />
-                    Special Disount
+                    Special Discount
                   </div>
                   <div className="flex gap-3">
                     <input 
-                      value={coupon}
-                      onChange={(e) => setCoupon(e.target.value.toUpperCase())}
+                      value={couponCode}
+                      onChange={(e) => {
+                        const nextCode = e.target.value.toUpperCase();
+                        setCouponCode(nextCode);
+                        if (appliedCoupon && nextCode.trim() !== appliedCoupon.code) {
+                          setAppliedCoupon(null);
+                        }
+                      }}
                       placeholder="Coupon Code" 
                       className="flex-1 p-5 rounded-2xl bg-secondary/50 border border-border outline-none focus:ring-4 ring-primary font-black uppercase transition-all text-sm"
                     />
                     <button 
-                      onClick={() => {
-                        if (coupon === 'SKIN20') setIsCouponApplied(true);
-                      }}
-                      className="px-8 py-5 bg-white text-black font-black rounded-2xl hover:bg-border transition-all active:scale-95"
+                      onClick={handleApplyCoupon}
+                      disabled={isApplyingCoupon}
+                      className="px-8 py-5 bg-white text-black font-black rounded-2xl hover:bg-border transition-all active:scale-95 disabled:opacity-50"
                     >
-                      Apply
+                      {isApplyingCoupon ? 'Applying...' : 'Apply'}
                     </button>
                   </div>
-                  {isCouponApplied && (
+                  {appliedCoupon && (
                     <p className="text-sm text-emerald-500 font-bold flex items-center gap-2 animate-bounce-subtle px-2">
                       <CheckCircle2 className="w-4 h-4" />
-                      SKIN20 Code Applied!
+                      {appliedCoupon.code} code applied.
                     </p>
                   )}
+                  {!appliedCoupon && couponMessage ? (
+                    <p className="text-sm text-rose-500 font-bold px-2">{couponMessage}</p>
+                  ) : null}
                 </div>
 
                 <div className="space-y-5 relative z-10">
