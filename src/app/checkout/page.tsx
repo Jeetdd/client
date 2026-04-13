@@ -101,6 +101,7 @@ export default function CheckoutPage() {
     return Math.max(0, Math.min(appliedCoupon.fallbackDiscountAmount || 0, subtotal));
   }, [appliedCoupon, subtotal]);
 
+  const discountedSubtotal = Math.max(subtotal - discount, 0);
   const total = Math.max(subtotal + deliveryCharge - discount, 0);
   const appliedCouponContextRef = React.useRef<{ subtotal: number } | null>(null);
 
@@ -509,9 +510,17 @@ export default function CheckoutPage() {
                 <h3 className="text-4xl font-black mb-12 relative z-10 font-outfit">Order Summary</h3>
                 
                 <div className="space-y-8 mb-12 relative z-10">
-                  <div className="flex justify-between items-center text-xl">
-                    <span className="text-muted-foreground font-medium">Subtotal</span>
-                    <span className="font-black">₹{subtotal.toFixed(2)}</span>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-xl">
+                      <span className="text-muted-foreground font-medium">Subtotal</span>
+                      <span className={`font-black ${appliedCoupon ? 'text-emerald-400' : ''}`}>₹{(appliedCoupon ? discountedSubtotal : subtotal).toFixed(2)}</span>
+                    </div>
+                    {appliedCoupon ? (
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground font-medium">Original Subtotal</span>
+                        <span className="text-muted-foreground line-through font-bold">₹{subtotal.toFixed(2)}</span>
+                      </div>
+                    ) : null}
                   </div>
                   <div className="flex justify-between items-center text-xl">
                     <span className="text-muted-foreground font-medium">Delivery Fee</span>
