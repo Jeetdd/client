@@ -25,13 +25,17 @@ export async function GET(request: NextRequest) {
   const user = await requireSessionUser();
   const guard = ensureAdmin(user);
   if (guard) return guard;
+  const userEmail = user?.email;
+  if (!userEmail) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   const search = request.nextUrl.search;
 
   try {
     const res = await fetch(`${getBackendBase()}/api/coupons${search}`, {
       method: "GET",
-      headers: buildBackendHeaders(user.email),
+      headers: buildBackendHeaders(userEmail),
       cache: "no-store",
     });
 
@@ -51,6 +55,10 @@ export async function POST(request: Request) {
   const user = await requireSessionUser();
   const guard = ensureAdmin(user);
   if (guard) return guard;
+  const userEmail = user?.email;
+  if (!userEmail) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   const body = (await request.json().catch(() => ({}))) as {
     code?: string;
@@ -68,7 +76,7 @@ export async function POST(request: Request) {
   try {
     const res = await fetch(`${getBackendBase()}/api/coupons`, {
       method: "POST",
-      headers: buildBackendHeaders(user.email),
+      headers: buildBackendHeaders(userEmail),
       body: JSON.stringify(body),
       cache: "no-store",
     });

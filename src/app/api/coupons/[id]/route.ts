@@ -25,6 +25,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   const user = await requireSessionUser();
   const guard = ensureAdmin(user);
   if (guard) return guard;
+  const userEmail = user?.email;
+  if (!userEmail) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   const { id } = await context.params;
   const body = (await request.json().catch(() => ({}))) as {
@@ -43,7 +47,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   try {
     const res = await fetch(`${getBackendBase()}/api/coupons/${encodeURIComponent(id)}`, {
       method: "PATCH",
-      headers: buildBackendHeaders(user.email),
+      headers: buildBackendHeaders(userEmail),
       body: JSON.stringify(body),
       cache: "no-store",
     });
@@ -84,13 +88,17 @@ export async function DELETE(_request: Request, context: { params: Promise<{ id:
   const user = await requireSessionUser();
   const guard = ensureAdmin(user);
   if (guard) return guard;
+  const userEmail = user?.email;
+  if (!userEmail) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   const { id } = await context.params;
 
   try {
     const res = await fetch(`${getBackendBase()}/api/coupons/${encodeURIComponent(id)}`, {
       method: "DELETE",
-      headers: buildBackendHeaders(user.email),
+      headers: buildBackendHeaders(userEmail),
       cache: "no-store",
     });
 

@@ -62,8 +62,19 @@ function normalizeCode(code?: string) {
   return (code || "").trim().toUpperCase();
 }
 
-function normalizeInput(input: CouponInput) {
-  const discountType = input.discountType === "FLAT" ? "FLAT" : "PERCENTAGE";
+function normalizeInput(input: CouponInput): {
+  code: string;
+  description?: string;
+  discountType: CouponDiscountType;
+  discountValue: number;
+  minOrderAmount: number;
+  maxDiscountAmount?: number;
+  usageLimit?: number;
+  startsAt?: string;
+  expiresAt?: string;
+  isActive: boolean;
+} {
+  const discountType: CouponDiscountType = input.discountType === "FLAT" ? "FLAT" : "PERCENTAGE";
   return {
     code: normalizeCode(input.code),
     description: (input.description || "").trim() || undefined,
