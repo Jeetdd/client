@@ -2,6 +2,8 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 
+import { applyCoupon } from "@/lib/coupons/applyCoupon";
+
 export type CouponDiscountType = "PERCENTAGE" | "FLAT";
 
 export interface CouponRecord {
@@ -226,30 +228,30 @@ export async function validateCoupon(code: string, orderAmount: number) {
     return { valid: false, message: "Coupon has expired." };
   }
 
-  if (orderAmount < coupon.minOrderAmount) {
-    return { valid: false, message: `Minimum order amount is ₹${coupon.minOrderAmount}.` };
-  }
-
   if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
     return { valid: false, message: "Coupon usage limit reached." };
   }
 
-  let discountAmount = 0;
-  if (coupon.discountType === "PERCENTAGE") {
-    discountAmount = (orderAmount * coupon.discountValue) / 100;
-    if (coupon.maxDiscountAmount && coupon.maxDiscountAmount > 0) {
-      discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
-    }
-  } else {
-    discountAmount = coupon.discountValue;
+  const result = applyCoupon(orderAmount, normalizedCode, [
+    {
+      code: coupon.code,
+      discountType: coupon.discountType === "PERCENTAGE" ? "percentage" : "flat",
+      discountValue: coupon.discountValue,
+      maxDiscount: coupon.discountType === "PERCENTAGE" ? coupon.maxDiscountAmount : undefined,
+      minOrderValue: coupon.minOrderAmount,
+      isActive: coupon.isActive,
+    },
+  ]);
+
+  if (!result.success) {
+    return { valid: false, message: result.message };
   }
 
-  discountAmount = Math.max(0, Math.min(discountAmount, orderAmount));
   return {
-    valid: discountAmount > 0,
-    message: discountAmount > 0 ? "Coupon applied successfully." : "Coupon did not qualify.",
-    discountAmount,
-    finalAmount: Math.max(orderAmount - discountAmount, 0),
+    valid: true,
+    message: "Coupon applied successfully.",
+    discountAmount: result.discount,
+    finalAmount: result.finalAmount,
     coupon,
   };
 }
