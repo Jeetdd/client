@@ -927,18 +927,17 @@ export default function AdminDashboard() {
               { id: "catalog", label: "Medicine", icon: Pill },
               { id: "inventory", label: "Inventory", icon: Boxes },
               { id: "slots", label: "Schedule", icon: Calendar },
-              { id: "coupons", label: "Marketing", icon: Tag },
+              { id: "coupons", label: "Coupen", icon: Tag },
             ].map((item) => {
               const active = activeTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id as AdminTab)}
-                  className={`group flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left text-sm font-semibold transition-all duration-300 ${
-                    active 
-                      ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-100" 
+                  className={`group flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left text-sm font-semibold transition-all duration-300 ${active
+                      ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-100"
                       : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                  }`}
+                    }`}
                 >
                   <item.icon className={`h-5 w-5 transition-colors ${active ? "text-white" : "text-slate-400 group-hover:text-slate-900"}`} />
                   {item.label}
@@ -946,7 +945,7 @@ export default function AdminDashboard() {
               );
             })}
           </div>
-          
+
           <div className="mt-auto pt-6 border-t border-slate-100 px-1">
             <p className="mb-4 px-3 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Other</p>
             <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left text-sm font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-all">
@@ -1060,15 +1059,15 @@ export default function AdminDashboard() {
                     <div className="mt-4 flex items-center gap-4">
                       <label className="inline-flex items-center gap-2.5 cursor-pointer group">
                         <div className="relative">
-                           <input type="checkbox" className="sr-only peer" checked={prescriptionOnly} onChange={(event) => setPrescriptionOnly(event.target.checked)} />
-                           <div className="w-10 h-6 bg-slate-100 rounded-full peer peer-checked:bg-indigo-600 transition-colors"></div>
-                           <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4 shadow-sm"></div>
+                          <input type="checkbox" className="sr-only peer" checked={prescriptionOnly} onChange={(event) => setPrescriptionOnly(event.target.checked)} />
+                          <div className="w-10 h-6 bg-slate-100 rounded-full peer peer-checked:bg-indigo-600 transition-colors"></div>
+                          <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4 shadow-sm"></div>
                         </div>
                         <span className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-600 transition-colors">Prescription only</span>
                       </label>
                     </div>
                   </div>
-                  
+
                   <div className="hidden grid-cols-[1.1fr_0.85fr_0.75fr_0.75fr_0.8fr_36px] gap-3 rounded-[1.5rem] bg-white px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 md:grid shadow-sm border border-slate-100 mb-4">
                     <span>Customer</span><span>Order</span><span>Status</span><span>Mode</span><span>Amount</span><span></span>
                   </div>
@@ -1110,7 +1109,7 @@ export default function AdminDashboard() {
                       </div>
                       <span className="rounded-xl bg-white border border-slate-100 shadow-sm px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-slate-900">{statusLabel(selectedOrder.status)}</span>
                     </div>
-                    
+
                     <div className="grid gap-6 rounded-[1.5rem] bg-white border border-slate-100 p-6 shadow-sm md:grid-cols-2">
                       <div><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3">Customer Profile</p><p className="text-lg font-bold text-slate-900">{selectedOrder.user.name}</p><p className="mt-1 text-sm font-medium text-slate-500">{selectedOrder.user.email}</p><p className="text-sm font-medium text-slate-500">{selectedOrder.user.phone || "No device contact"}</p></div>
                       <div><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3">Service Mode</p><p className="text-lg font-bold text-slate-900">{statusLabel(selectedOrder.fulfillmentMethod)}</p><p className="mt-1 text-sm font-medium text-slate-500 leading-relaxed">{selectedOrder.fulfillmentMethod === "PICKUP" ? selectedOrder.pickupSlotTime || "Awaiting slot" : selectedOrder.shippingAddress || "N/A"}</p></div>
@@ -1135,7 +1134,7 @@ export default function AdminDashboard() {
                       <label><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3 ml-1">Lifecycle Status</p><select value={selectedOrder.status} onChange={(event) => void updateOrder({ status: event.target.value as OrderStatus })} className="w-full rounded-2xl border border-slate-100 bg-slate-50/50 px-5 py-4 text-sm font-bold text-slate-900 outline-none transition-all focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 [color-scheme:light]">{STATUS_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
                       <label><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3 ml-1">Payment State</p><select value={selectedOrder.paymentStatus} onChange={(event) => void updateOrder({ paymentStatus: event.target.value as PaymentStatus })} className="w-full rounded-2xl border border-slate-100 bg-slate-50/50 px-5 py-4 text-sm font-bold text-slate-900 outline-none transition-all focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 [color-scheme:light]">{PAYMENT_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
                     </div>
-                    
+
                     <div><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4 ml-1">Workflow Actions</p><div className="flex flex-wrap gap-3">{QUICK_ACTIONS[selectedOrder.status].length ? QUICK_ACTIONS[selectedOrder.status].map((status) => <button key={status} onClick={() => void updateOrder({ status, pharmacistReviewComment: reviewComment })} disabled={isSavingOrder} className="rounded-2xl bg-indigo-600 px-6 py-4 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-indigo-100 transition-all hover:scale-105 active:scale-95 disabled:opacity-50">{statusLabel(status)}</button>) : <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Pipeline Finalized</p>}</div></div>
                   </div>
                 </div>
@@ -1172,7 +1171,7 @@ export default function AdminDashboard() {
                     </div>
                     <button
                       onClick={() => void Promise.all([fetchMedicines(), fetchInventory()])}
-                       className="h-10 px-6 rounded-xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-[11px] font-bold uppercase tracking-widest text-slate-500 hover:text-indigo-600 hover:border-indigo-100 transition-all active:scale-95"
+                      className="h-10 px-6 rounded-xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-[11px] font-bold uppercase tracking-widest text-slate-500 hover:text-indigo-600 hover:border-indigo-100 transition-all active:scale-95"
                     >
                       Refresh
                     </button>
@@ -1207,9 +1206,9 @@ export default function AdminDashboard() {
                           const badgeLabel = isOut ? "Out" : isLow ? "Low" : "OK";
 
                           return (
-                            <button 
-                              key={medicine.id || medicine._id || `${medicine.name}-${index}`} 
-                              onClick={() => setMovementMedicineFilter((medicine.id || medicine._id) as string)} 
+                            <button
+                              key={medicine.id || medicine._id || `${medicine.name}-${index}`}
+                              onClick={() => setMovementMedicineFilter((medicine.id || medicine._id) as string)}
                               className="w-full text-left grid grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)_minmax(0,0.6fr)] items-center gap-4 px-6 py-5 transition-colors hover:bg-slate-50"
                             >
                               <div className="min-w-0">
@@ -1241,9 +1240,9 @@ export default function AdminDashboard() {
                       const selectedMedicine = medicines.find(m => (m.id || m._id) === movementMedicineFilter);
                       if (!selectedMedicine) return null;
                       return (
-                         <button onClick={() => openAdjustModal(selectedMedicine)} className="rounded-xl bg-slate-900 px-6 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-slate-200 transition-all hover:scale-105 active:scale-95">
-                           Adjust Stock
-                         </button>
+                        <button onClick={() => openAdjustModal(selectedMedicine)} className="rounded-xl bg-slate-900 px-6 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-slate-200 transition-all hover:scale-105 active:scale-95">
+                          Adjust Stock
+                        </button>
                       );
                     })()}
                   </div>
@@ -1381,7 +1380,7 @@ export default function AdminDashboard() {
                   { label: "Booked Capacity", value: slots.reduce((sum, slot) => sum + slot.currentBookings, 0), icon: UserRound },
                   { label: "Open Capacity", value: slots.reduce((sum, slot) => sum + Math.max(slot.maxBookings - slot.currentBookings, 0), 0), icon: Boxes },
                 ].map((card) => (
-                   <div key={card.label} className="rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-between">
+                  <div key={card.label} className="rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-between">
                     <div className="flex items-center justify-between">
                       <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">{card.label}</p>
                       <card.icon className="h-5 w-5 text-indigo-600" />
@@ -1392,8 +1391,8 @@ export default function AdminDashboard() {
               </div>
               <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
                 <div className="mb-6">
-                   <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Pick-up Scheduler</p>
-                   <h3 className="text-xl font-bold text-slate-900">Active Time Slots</h3>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Pick-up Scheduler</p>
+                  <h3 className="text-xl font-bold text-slate-900">Active Time Slots</h3>
                 </div>
                 {isSlotsLoading && slots.length === 0 ? (
                   <div className="flex min-h-72 items-center justify-center gap-4 text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin text-indigo-600" />Loading pickup slots...</div>
@@ -1487,9 +1486,8 @@ export default function AdminDashboard() {
                               <div className="flex items-center gap-2">
                                 <span className="rounded-lg bg-slate-900 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white">{coupon.code}</span>
                                 <span
-                                  className={`rounded-lg px-3 py-1 text-[11px] font-bold uppercase tracking-widest border ${
-                                    coupon.isActive ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-slate-100 text-slate-500 border-slate-200"
-                                  }`}
+                                  className={`rounded-lg px-3 py-1 text-[11px] font-bold uppercase tracking-widest border ${coupon.isActive ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-slate-100 text-slate-500 border-slate-200"
+                                    }`}
                                 >
                                   {coupon.isActive ? "Active" : "Inactive"}
                                 </span>
@@ -1499,8 +1497,8 @@ export default function AdminDashboard() {
                               <p className="mt-2 text-sm font-medium text-slate-400">{coupon.description || "Active discount campaign"}</p>
                             </div>
                             <div className="flex items-center gap-2">
-                               <button onClick={() => openEditCouponModal(coupon)} className="h-10 w-10 rounded-xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors"><Pencil className="h-4 w-4" /></button>
-                               <button onClick={() => void deleteCoupon(coupon)} disabled={deletingCouponId === couponId} className="h-10 w-10 rounded-xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-400 hover:text-rose-600 transition-colors disabled:opacity-50">{deletingCouponId === couponId ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}</button>
+                              <button onClick={() => openEditCouponModal(coupon)} className="h-10 w-10 rounded-xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors"><Pencil className="h-4 w-4" /></button>
+                              <button onClick={() => void deleteCoupon(coupon)} disabled={deletingCouponId === couponId} className="h-10 w-10 rounded-xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-400 hover:text-rose-600 transition-colors disabled:opacity-50">{deletingCouponId === couponId ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}</button>
                             </div>
                           </div>
 
@@ -1524,9 +1522,8 @@ export default function AdminDashboard() {
                             </div>
                             <button
                               onClick={() => void toggleCouponStatus(coupon, !coupon.isActive)}
-                              className={`rounded-xl px-4 py-2 text-[11px] font-bold uppercase tracking-wider shadow-sm transition-all active:scale-95 ${
-                                coupon.isActive ? "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50" : "bg-indigo-600 text-white"
-                              }`}
+                              className={`rounded-xl px-4 py-2 text-[11px] font-bold uppercase tracking-wider shadow-sm transition-all active:scale-95 ${coupon.isActive ? "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50" : "bg-indigo-600 text-white"
+                                }`}
                             >
                               {coupon.isActive ? "Pause" : "Start"}
                             </button>
