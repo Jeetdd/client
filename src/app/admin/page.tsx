@@ -1035,32 +1035,32 @@ export default function AdminDashboard() {
               </div>
 
               {!selectedOrder ? (
-                <>
-                  <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm mb-6">
-                    <div className="grid gap-4 lg:grid-cols-[1fr_repeat(3,200px)]">
+                <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm mb-6">
+                  <div className="mb-8 rounded-3xl border border-slate-100 p-4 bg-[#fcfcfd]/50">
+                    <div className="grid gap-4 lg:grid-cols-[1fr_repeat(3,180px)]">
                       <label className="relative group">
                         <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search orders, customers, medicines..." className="w-full rounded-2xl border border-slate-100 bg-[#fcfcfd] py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 transition-all [color-scheme:light]" />
+                        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search orders, customers, medicines..." className="w-full rounded-2xl border border-slate-100 bg-white py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50 transition-all [color-scheme:light]" />
                       </label>
-                      <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-2xl border border-slate-100 bg-[#fcfcfd] px-5 py-3.5 text-sm text-slate-900 font-semibold outline-none focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 transition-all cursor-pointer [color-scheme:light]">
+                      <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-2xl border border-slate-100 bg-white px-5 py-3.5 text-sm text-slate-900 font-semibold outline-none focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50 transition-all cursor-pointer [color-scheme:light]">
                         <option value="ALL">All Statuses</option>
                         {STATUS_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
                       </select>
-                      <select value={fulfillmentFilter} onChange={(event) => setFulfillmentFilter(event.target.value)} className="rounded-2xl border border-slate-100 bg-[#fcfcfd] px-5 py-3.5 text-sm text-slate-900 font-semibold outline-none focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 transition-all cursor-pointer [color-scheme:light]">
+                      <select value={fulfillmentFilter} onChange={(event) => setFulfillmentFilter(event.target.value)} className="rounded-2xl border border-slate-100 bg-white px-5 py-3.5 text-sm text-slate-900 font-semibold outline-none focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50 transition-all cursor-pointer [color-scheme:light]">
                         <option value="ALL">All Delivery</option>
                         <option value="DELIVERY">Home Delivery</option>
                         <option value="PICKUP">Store Pickup</option>
                       </select>
-                      <select value={paymentFilter} onChange={(event) => setPaymentFilter(event.target.value)} className="rounded-2xl border border-slate-100 bg-[#fcfcfd] px-5 py-3.5 text-sm text-slate-900 font-semibold outline-none focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 transition-all cursor-pointer [color-scheme:light]">
+                      <select value={paymentFilter} onChange={(event) => setPaymentFilter(event.target.value)} className="rounded-2xl border border-slate-100 bg-white px-5 py-3.5 text-sm text-slate-900 font-semibold outline-none focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50 transition-all cursor-pointer [color-scheme:light]">
                         <option value="ALL">All Payment</option>
                         {PAYMENT_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
                       </select>
                     </div>
-                    <div className="mt-4 flex items-center gap-4">
+                    <div className="mt-4 flex items-center gap-4 px-2">
                       <label className="inline-flex items-center gap-2.5 cursor-pointer group">
                         <div className="relative">
                           <input type="checkbox" className="sr-only peer" checked={prescriptionOnly} onChange={(event) => setPrescriptionOnly(event.target.checked)} />
-                          <div className="w-10 h-6 bg-slate-100 rounded-full peer peer-checked:bg-indigo-600 transition-colors"></div>
+                          <div className="w-10 h-6 bg-slate-200 rounded-full peer peer-checked:bg-indigo-600 transition-colors"></div>
                           <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4 shadow-sm"></div>
                         </div>
                         <span className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-600 transition-colors">Prescription only</span>
@@ -1077,11 +1077,11 @@ export default function AdminDashboard() {
                     ) : ordersError ? (
                       <div className="rounded-2xl border border-rose-100 bg-rose-50 p-6 text-sm text-rose-600 font-semibold">{ordersError}</div>
                     ) : orders.length === 0 ? (
-                      <div className="rounded-2xl border border-dashed border-slate-200 p-12 text-center text-slate-400 font-medium bg-white">No records found matching filters.</div>
+                      <div className="rounded-2xl border border-dashed border-slate-200 p-12 text-center text-slate-400 font-medium">No records found matching filters.</div>
                     ) : orders.map((order) => (
-                      <button key={order.id} onClick={() => setSelectedOrderId(order.id)} className={`grid w-full gap-4 rounded-[1.5rem] border p-5 text-left transition-all md:grid-cols-[1.1fr_0.85fr_0.75fr_0.75fr_0.8fr_36px] md:items-center ${selectedOrderId === order.id ? "border-indigo-200 bg-indigo-50/30 shadow-md shadow-indigo-100/20" : "border-slate-50 bg-[#fcfcfd]/50 hover:border-slate-200 hover:bg-white hover:shadow-lg hover:shadow-slate-200/20"}`}>
+                      <button key={order.id} onClick={() => setSelectedOrderId(order.id)} className={`grid w-full gap-4 rounded-[1.5rem] border p-5 text-left transition-all md:grid-cols-[1.1fr_0.85fr_0.75fr_0.75fr_0.8fr_36px] md:items-center ${selectedOrderId === order.id ? "border-indigo-200 bg-indigo-50/30 shadow-md shadow-indigo-100/20" : "border-slate-100 bg-white hover:border-slate-200 hover:shadow-lg hover:shadow-slate-200/20"}`}>
                         <div className="flex items-center gap-4">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm text-slate-400 ring-1 ring-slate-100"><UserRound className="h-5 w-5" /></div>
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#fcfcfd] shadow-sm text-slate-400 ring-1 ring-slate-100"><UserRound className="h-5 w-5" /></div>
                           <div><p className="font-bold text-slate-900 leading-none">{order.user.name}</p><p className="mt-1.5 text-xs font-bold text-slate-400 tracking-tight">{order.user.phone || order.user.email}</p></div>
                         </div>
                         <div><p className="text-sm font-bold text-slate-900 leading-none">#{order.id.slice(-8)}</p><p className="mt-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">{formatDateTime(order.createdAt)}</p></div>
@@ -1092,7 +1092,7 @@ export default function AdminDashboard() {
                       </button>
                     ))}
                   </div>
-                </>
+                </div>
               ) : (
                 <div className="bg-[#fcfcfd]/50 p-8 rounded-[2rem] border border-slate-50 mt-2">
                   <button onClick={() => setSelectedOrderId(null)} className="mb-8 inline-flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-5 py-3 text-xs font-bold uppercase tracking-widest text-slate-500 shadow-sm transition-all hover:text-indigo-600 hover:border-indigo-100 hover:shadow-md active:scale-95">
