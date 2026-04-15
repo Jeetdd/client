@@ -935,8 +935,8 @@ export default function AdminDashboard() {
                   key={item.id}
                   onClick={() => setActiveTab(item.id as AdminTab)}
                   className={`group flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left text-sm font-semibold transition-all duration-300 ${active
-                      ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-100"
-                      : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                    ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-100"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
                     }`}
                 >
                   <item.icon className={`h-5 w-5 transition-colors ${active ? "text-white" : "text-slate-400 group-hover:text-slate-900"}`} />
@@ -960,7 +960,7 @@ export default function AdminDashboard() {
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
                 <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-                  Welcome to {activeTab === "orders" ? "Orders" : activeTab === "catalog" ? "Medical Catalog" : activeTab === "inventory" ? "Inventory Control" : activeTab === "slots" ? "Schedules" : "Campaigns"}
+                  Welcome to {activeTab === "orders" ? "Orders" : activeTab === "catalog" ? "Medical Catalog" : activeTab === "inventory" ? "Inventory Control" : activeTab === "slots" ? "Schedules" : "Coupen"}
                 </h2>
                 <p className="mt-1 text-sm font-medium text-slate-400">
                   {activeTab === "orders" ? "Manage and fulfill customer orders at a glance." : activeTab === "catalog" ? "Keep your medical inventory detailed and up to date." : activeTab === "inventory" ? "Monitor stock levels and warehouse operations." : activeTab === "slots" ? "Organize store pickup windows for patients." : "Control discount codes and marketing campaigns."}
