@@ -8,6 +8,7 @@ import {
   Boxes,
   Calendar,
   Check,
+  CheckCircle2,
   ChevronRight,
   Clock,
   Download,
