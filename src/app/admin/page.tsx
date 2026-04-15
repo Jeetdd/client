@@ -225,14 +225,14 @@ const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value || 0);
 
 const UI = {
-  card: "rounded-lg border border-slate-200 bg-white shadow-sm",
-  cardMuted: "rounded-lg border border-slate-200 bg-slate-50 shadow-sm",
-  buttonPrimary: "inline-flex items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 disabled:opacity-60",
-  buttonSecondary: "inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-60",
-  buttonDark: "inline-flex items-center gap-2 rounded-md bg-slate-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-900 disabled:opacity-60",
-  buttonDanger: "inline-flex items-center gap-2 rounded-md border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100 disabled:opacity-60",
-  chip: "inline-flex items-center rounded-md bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800",
-  chipPrimary: "inline-flex items-center rounded-md bg-slate-900/5 px-2.5 py-0.5 text-xs font-medium text-slate-900 border border-slate-200",
+  card: "rounded-xl border border-slate-200 bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]",
+  cardMuted: "rounded-xl border border-slate-100 bg-slate-50",
+  buttonPrimary: "inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-60",
+  buttonSecondary: "inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-60",
+  buttonDark: "inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-60",
+  buttonDanger: "inline-flex items-center justify-center gap-2 rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-rose-700 disabled:opacity-60",
+  chip: "inline-flex items-center rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600",
+  chipPrimary: "inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 border border-indigo-100",
 };
 
 const formatDateTime = (value: string) =>
@@ -893,7 +893,7 @@ export default function AdminDashboard() {
         <Navbar />
         <div className="container mx-auto flex items-center justify-center px-4 py-24">
           <div className="flex items-center gap-4 font-bold text-muted-foreground">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
             Securing admin workspace...
           </div>
         </div>
@@ -902,27 +902,18 @@ export default function AdminDashboard() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 pt-24 pb-10">
+    <main className="min-h-screen bg-[#f8fafc] pt-24 pb-10">
       <Navbar />
-      <div className="mx-auto flex max-w-[1600px] flex-col gap-6 px-4 lg:flex-row lg:px-6">
-        <aside className={`${UI.card} w-full shrink-0 p-5 lg:sticky lg:top-28 lg:w-80 lg:self-start`}>
-          <div className="mb-6 rounded-lg bg-slate-100 p-5 text-slate-900 border border-slate-200">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Admin Panel</p>
-            <h1 className="mt-2 text-2xl font-semibold leading-tight">
-              {activeTab === "orders"
-                ? "Orders"
-                : activeTab === "catalog"
-                  ? "Medicine Catalogue"
-                  : activeTab === "inventory"
-                    ? "Inventory"
-                    : activeTab === "slots"
-                      ? "Pick-up Slots"
-                      : "Coupons"}
+      <div className="mx-auto flex max-w-[1600px] flex-col gap-8 px-4 lg:flex-row lg:px-8">
+        <aside className="w-full shrink-0 lg:sticky lg:top-28 lg:w-72 lg:self-start lg:h-[calc(100vh-8rem)] flex flex-col pt-2">
+          <div className="mb-8 px-2">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+              Admin
             </h1>
-            <p className="mt-2 text-xs text-slate-500">{user.email}</p>
+            <p className="mt-1 text-sm font-medium text-slate-500">{user.email}</p>
           </div>
 
-          <div className="space-y-2">
+          <div className="flex-1 space-y-1">
             {[
               { id: "orders", label: "Orders", icon: LayoutDashboard },
               { id: "catalog", label: "Medicine Catalogue", icon: Pill },
@@ -935,11 +926,11 @@ export default function AdminDashboard() {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id as AdminTab)}
-                  className={`flex w-full items-center gap-3 rounded-md border px-4 py-3 text-left text-sm font-bold transition ${
-                    active ? "border-primary bg-primary text-primary-foreground" : "border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
+                  className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium transition ${
+                    active ? "bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-100" : "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900"
                   }`}
                 >
-                  <item.icon className={`h-5 w-5 ${active ? "text-primary-foreground" : "text-slate-600"}`} />
+                  <item.icon className={`h-5 w-5 ${active ? "text-indigo-600" : "text-slate-400"}`} />
                   {item.label}
                 </button>
               );
@@ -947,32 +938,15 @@ export default function AdminDashboard() {
           </div>
         </aside>
 
-        <section className="min-w-0 flex-1 space-y-6">
-          <header className={`${UI.card} p-6`}>
+        <section className="min-w-0 flex-1 flex flex-col gap-8 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+          <header className="px-2">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Admin Workspace</p>
-                <h2 className="mt-2 text-2xl font-semibold text-slate-900">
-                  {activeTab === "orders"
-                    ? "Order Management"
-                    : activeTab === "catalog"
-                      ? "Medicine Catalogue"
-                      : activeTab === "inventory"
-                        ? "Inventory Management"
-                        : activeTab === "slots"
-                          ? "Pick-up Management"
-                          : "Coupons"}
+                <h2 className="text-2xl font-semibold text-slate-900">
+                  {activeTab === "orders" ? "Order Management" : activeTab === "catalog" ? "Medical Catalog" : activeTab === "inventory" ? "Inventory Control" : activeTab === "slots" ? "Pick-up Management" : "Coupons"}
                 </h2>
-                <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-                  {activeTab === "orders"
-                    ? "The admin panel provides full visibility and control over all orders from placement to completion."
-                    : activeTab === "catalog"
-                      ? "Manage medicine metadata and create new products."
-                      : activeTab === "inventory"
-                        ? "Track stock levels, adjust quantities, and review every inventory movement."
-                        : activeTab === "slots"
-                          ? "Create and monitor collection windows for pick-up orders."
-                          : "Create promo codes, control discount rules, and activate/deactivate campaigns instantly."}
+                <p className="mt-1 max-w-3xl text-sm text-slate-500">
+                  {activeTab === "orders" ? "Review and manage all customer orders, prescriptions, and fulfillment workflows." : activeTab === "catalog" ? "Add and classify pharmaceutical products for the storefront." : activeTab === "inventory" ? "Adjust stock quantities and review comprehensive inventory history." : activeTab === "slots" ? "Create scheduling collection windows for local store pick-up." : "Create promo codes and define their constraints."}
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
@@ -1025,7 +999,7 @@ export default function AdminDashboard() {
 
           {activeTab === "orders" && (
             <div className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
                 {[
                   { label: "Today Orders", value: summary.todayOrders, icon: LayoutDashboard },
                   { label: "Pending Review", value: summary.pendingReview, icon: ShieldAlert },
@@ -1033,12 +1007,12 @@ export default function AdminDashboard() {
                   { label: "Completed", value: summary.completedOrders, icon: Check },
                   { label: "Revenue", value: formatCurrency(summary.revenue), icon: Tag },
                 ].map((card) => (
-                  <div key={card.label} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                  <div key={card.label} className="rounded-xl border border-slate-200 bg-white p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] flex flex-col justify-between">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{card.label}</p>
-                      <card.icon className="h-5 w-5 text-primary" />
+                      <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{card.label}</p>
+                      <card.icon className="h-5 w-5 text-indigo-600" />
                     </div>
-                    <p className="mt-5 text-2xl font-semibold text-slate-900">{card.value}</p>
+                    <p className="mt-4 text-3xl font-bold tracking-tight text-slate-900">{card.value}</p>
                   </div>
                 ))}
               </div>
