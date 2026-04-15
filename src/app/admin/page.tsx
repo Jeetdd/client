@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
+import * as XLSX from "xlsx";
 import {
   Boxes,
   Calendar,
@@ -21,6 +22,7 @@ import {
   Tag,
   Trash2,
   Truck,
+  Upload,
   UserRound,
 } from "lucide-react";
 
@@ -47,6 +49,13 @@ interface Medicine {
   description: string;
   requiresPrescription: boolean;
   image?: string;
+}
+
+interface ImportMedicineRow {
+  rowNumber: number;
+  medicine: Medicine;
+  selected: boolean;
+  issues: string[];
 }
 
 interface Slot {
@@ -288,6 +297,7 @@ export default function AdminDashboard() {
   const [isSavingOrder, setIsSavingOrder] = useState(false);
   const [ordersError, setOrdersError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [showAddSlotModal, setShowAddSlotModal] = useState(false);
   const [showAdjustModal, setShowAdjustModal] = useState(false);
   const [showAddCouponModal, setShowAddCouponModal] = useState(false);
@@ -304,6 +314,12 @@ export default function AdminDashboard() {
   const [adjustTarget, setAdjustTarget] = useState<Medicine | null>(null);
   const [adjustDelta, setAdjustDelta] = useState<number>(0);
   const [adjustReason, setAdjustReason] = useState<string>("");
+  const importFileRef = useRef<HTMLInputElement | null>(null);
+  const [isImportParsing, setIsImportParsing] = useState(false);
+  const [isImportSubmitting, setIsImportSubmitting] = useState(false);
+  const [importRows, setImportRows] = useState<ImportMedicineRow[]>([]);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importProgress, setImportProgress] = useState<{ done: number; total: number } | null>(null);
   const [newMed, setNewMed] = useState<Medicine>({
     medicineId: "",
     name: "",
@@ -336,6 +352,10 @@ export default function AdminDashboard() {
     }).length;
     return { total: coupons.length, active, expiringSoon, exhausted };
   }, [coupons]);
+
+  const importSelectableCount = useMemo(() => importRows.filter((row) => row.issues.length === 0).length, [importRows]);
+  const importSelectedCount = useMemo(() => importRows.filter((row) => row.selected && row.issues.length === 0).length, [importRows]);
+  const isImportAllSelected = importSelectableCount > 0 && importSelectedCount === importSelectableCount;
 
   useEffect(() => {
     if (selectedOrder) {
@@ -655,6 +675,150 @@ export default function AdminDashboard() {
     }
   };
 
+  const resetImport = () => {
+    setImportError(null);
+    setImportRows([]);
+    setImportProgress(null);
+    if (importFileRef.current) importFileRef.current.value = "";
+  };
+
+  const normalizeExcelHeader = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+  const parseExcelBoolean = (value: unknown, fallback: boolean) => {
+    if (typeof value === "boolean") return value;
+    if (typeof value === "number") return value !== 0;
+    const text = String(value ?? "").trim().toLowerCase();
+    if (!text) return fallback;
+    if (["true", "yes", "y", "1", "rx", "required"].includes(text)) return true;
+    if (["false", "no", "n", "0", "otc", "notrequired"].includes(text)) return false;
+    return fallback;
+  };
+
+  const buildImportRow = (raw: Record<string, unknown>, index: number): ImportMedicineRow => {
+    const normalized: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(raw)) normalized[normalizeExcelHeader(key)] = value;
+
+    const medicineId = String(
+      normalized.medicineid ?? normalized.medicinecode ?? normalized.sku ?? normalized.code ?? normalized.id ?? "",
+    ).trim();
+    const name = String(normalized.name ?? normalized.medicinename ?? normalized.productname ?? "").trim();
+    const strength = String(normalized.strength ?? normalized.dosage ?? normalized.power ?? "").trim();
+    const category = String(normalized.category ?? normalized.type ?? "Skin Care").trim() || "Skin Care";
+    const description = String(normalized.description ?? normalized.desc ?? "").trim();
+
+    const priceValue = Number(normalized.price ?? normalized.mrp ?? normalized.cost ?? 0);
+    const quantityValue = Number(normalized.quantity ?? normalized.stock ?? normalized.qty ?? 0);
+    const requiresPrescription = parseExcelBoolean(normalized.requiresprescription ?? normalized.rx ?? normalized.requiresrx, true);
+
+    const issues: string[] = [];
+    if (!medicineId) issues.push("Missing medicineId");
+    if (!name) issues.push("Missing name");
+    if (!Number.isFinite(priceValue) || priceValue < 0) issues.push("Invalid price");
+    if (!Number.isFinite(quantityValue) || quantityValue < 0) issues.push("Invalid stock");
+
+    const medicine: Medicine = {
+      medicineId,
+      name,
+      strength,
+      price: Number.isFinite(priceValue) ? priceValue : 0,
+      quantity: Number.isFinite(quantityValue) ? Math.trunc(quantityValue) : 0,
+      category,
+      description,
+      requiresPrescription,
+    };
+
+    return {
+      rowNumber: index + 2, // header row is usually 1
+      medicine,
+      selected: issues.length === 0,
+      issues,
+    };
+  };
+
+  const handleImportFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setImportError(null);
+    setIsImportParsing(true);
+    try {
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(buffer, { type: "array" });
+      const firstSheetName = workbook.SheetNames[0];
+      if (!firstSheetName) throw new Error("Excel file has no sheets");
+      const sheet = workbook.Sheets[firstSheetName];
+      const rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
+      const rows = rawRows
+        .map((raw, rawIndex) => ({ raw, rawIndex }))
+        .filter(({ raw }) => Object.values(raw).some((value) => String(value ?? "").trim() !== ""))
+        .map(({ raw, rawIndex }) => buildImportRow(raw, rawIndex));
+      if (rows.length === 0) throw new Error("No medicine rows found in the uploaded file");
+      setImportRows(rows);
+    } catch (error) {
+      console.error(error);
+      setImportError(getErrorMessage(error, "Unable to read this Excel file."));
+      setImportRows([]);
+    } finally {
+      setIsImportParsing(false);
+    }
+  };
+
+  const toggleImportAll = (checked: boolean) => {
+    setImportRows((prev) =>
+      prev.map((row) => (row.issues.length > 0 ? { ...row, selected: false } : { ...row, selected: checked })),
+    );
+  };
+
+  const toggleImportRow = (rowNumber: number, checked: boolean) => {
+    setImportRows((prev) => prev.map((row) => (row.rowNumber === rowNumber ? { ...row, selected: checked } : row)));
+  };
+
+  const createMedicine = async (medicine: Medicine) => {
+    const res = await fetch(`${API_BASE}/api/medicines`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(medicine),
+    });
+    if (!res.ok) {
+      const payload = await res.json().catch(() => null);
+      throw new Error(payload?.message || "Failed to add medicine");
+    }
+  };
+
+  const submitImport = async () => {
+    if (isImportSubmitting) return;
+    const selected = importRows.filter((row) => row.selected && row.issues.length === 0);
+    if (selected.length === 0) return alert("Select at least one valid medicine row to import.");
+
+    setIsImportSubmitting(true);
+    setImportProgress({ done: 0, total: selected.length });
+    setImportError(null);
+
+    const failures: Array<{ rowNumber: number; message: string }> = [];
+    try {
+      for (let idx = 0; idx < selected.length; idx += 1) {
+        const row = selected[idx];
+        try {
+          await createMedicine(row.medicine);
+        } catch (error) {
+          failures.push({ rowNumber: row.rowNumber, message: getErrorMessage(error, "Failed to add medicine") });
+        } finally {
+          setImportProgress({ done: idx + 1, total: selected.length });
+        }
+      }
+
+      await fetchMedicines();
+      if (failures.length === 0) {
+        setShowImportModal(false);
+        resetImport();
+        alert(`Imported ${selected.length} medicines.`);
+      } else {
+        setImportError(`Imported ${selected.length - failures.length}/${selected.length}. Failed rows: ${failures.map((f) => f.rowNumber).join(", ")}`);
+      }
+    } finally {
+      setIsImportSubmitting(false);
+    }
+  };
+
   const handleAddMedicine = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsCatalogLoading(true);
@@ -792,10 +956,22 @@ export default function AdminDashboard() {
                   </button>
                 )}
                 {activeTab === "catalog" && (
-                  <button onClick={() => setShowAddModal(true)} className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">
-                    <Plus className="h-4 w-4" />
-                    Add Medicine
-                  </button>
+                  <>
+                    <button
+                      onClick={() => {
+                        resetImport();
+                        setShowImportModal(true);
+                      }}
+                      className="inline-flex items-center gap-2 rounded-2xl border border-border bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
+                    >
+                      <Upload className="h-4 w-4" />
+                      Import Excel
+                    </button>
+                    <button onClick={() => setShowAddModal(true)} className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">
+                      <Plus className="h-4 w-4" />
+                      Add Medicine
+                    </button>
+                  </>
                 )}
                 {activeTab === "slots" && (
                   <button onClick={() => setShowAddSlotModal(true)} className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">
@@ -1082,18 +1258,54 @@ export default function AdminDashboard() {
               ) : medicines.length === 0 ? (
                 <div className="rounded-[1.5rem] border border-dashed border-border p-10 text-center text-muted-foreground">Catalog is empty. Add your first medicine to make it available for checkout.</div>
               ) : (
-                <div className="grid gap-4 xl:grid-cols-2">
-                  {medicines.map((medicine, index) => (
-                    <div key={medicine.id || medicine._id || `${medicine.name}-${index}`} className="flex items-center gap-5 rounded-[1.5rem] border border-border bg-white p-4 transition hover:border-primary/20">
-                      <img src={medicine.image || "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400"} alt={medicine.name} className="h-24 w-24 rounded-2xl object-cover" />
-                      <div className="min-w-0 flex-1">
-                        <div className="mb-2 flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-[0.18em]"><span className="rounded-full bg-primary/10 px-2 py-1 text-primary">{medicine.medicineId || "AUTO"}</span><span className="rounded-full bg-slate-100 px-2 py-1 text-slate-700">{medicine.category}</span>{medicine.requiresPrescription && <span className="rounded-full bg-amber-100 px-2 py-1 text-amber-700">Rx only</span>}</div>
-                        <p className="truncate text-lg font-black text-slate-900">{medicine.name}</p>
-                        <p className="mt-1 text-sm text-muted-foreground">{medicine.description}</p>
-                        <div className="mt-3 flex items-center justify-between gap-4"><p className="font-bold text-primary">{formatCurrency(medicine.price)}</p><p className="text-sm text-muted-foreground">Stock: {medicine.quantity}</p></div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[880px] border-separate border-spacing-y-2">
+                    <thead>
+                      <tr className="text-left text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
+                        <th className="px-4 py-2">Medicine ID</th>
+                        <th className="px-4 py-2">Name</th>
+                        <th className="px-4 py-2">Strength</th>
+                        <th className="px-4 py-2">Category</th>
+                        <th className="px-4 py-2">Rx</th>
+                        <th className="px-4 py-2 text-right">Price</th>
+                        <th className="px-4 py-2 text-right">Stock</th>
+                        <th className="px-4 py-2">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {medicines.map((medicine, index) => (
+                        <tr
+                          key={medicine.id || medicine._id || `${medicine.name}-${index}`}
+                          className="rounded-[1.25rem] border border-border bg-white shadow-sm"
+                        >
+                          <td className="whitespace-nowrap rounded-l-[1.25rem] px-4 py-3 text-sm font-black text-primary">
+                            {medicine.medicineId || "AUTO"}
+                          </td>
+                          <td className="max-w-[260px] px-4 py-3 text-sm font-black text-slate-900">
+                            <p className="truncate">{medicine.name}</p>
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-800">{medicine.strength || "—"}</td>
+                          <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-800">{medicine.category}</td>
+                          <td className="px-4 py-3">
+                            {medicine.requiresPrescription ? (
+                              <span className="inline-flex rounded-full bg-amber-100 px-2 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-amber-700">
+                                Rx only
+                              </span>
+                            ) : (
+                              <span className="inline-flex rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-700">
+                                OTC
+                              </span>
+                            )}
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-3 text-right text-sm font-bold text-primary">{formatCurrency(medicine.price)}</td>
+                          <td className="whitespace-nowrap px-4 py-3 text-right text-sm text-slate-800">{medicine.quantity}</td>
+                          <td className="rounded-r-[1.25rem] px-4 py-3 text-sm text-muted-foreground">
+                            <p className="max-w-[360px] truncate">{medicine.description}</p>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>
@@ -1328,6 +1540,165 @@ export default function AdminDashboard() {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showImportModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                if (isImportParsing || isImportSubmitting) return;
+                setShowImportModal(false);
+                resetImport();
+              }}
+              className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 20 }}
+              className="relative w-full max-w-5xl rounded-[2rem] bg-white p-8 shadow-2xl"
+            >
+              <h3 className="text-2xl font-black text-slate-900">Import Medicines (Excel)</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Upload an Excel file with columns like <span className="font-semibold text-slate-700">medicineId</span>,{" "}
+                <span className="font-semibold text-slate-700">name</span>, <span className="font-semibold text-slate-700">strength</span>,{" "}
+                <span className="font-semibold text-slate-700">category</span>, <span className="font-semibold text-slate-700">price</span>,{" "}
+                <span className="font-semibold text-slate-700">quantity</span>, <span className="font-semibold text-slate-700">description</span>,{" "}
+                <span className="font-semibold text-slate-700">requiresPrescription</span>.
+              </p>
+
+              <input
+                ref={importFileRef}
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={(event) => void handleImportFileChange(event)}
+                className="hidden"
+                disabled={isImportParsing || isImportSubmitting}
+              />
+
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => importFileRef.current?.click()}
+                  disabled={isImportParsing || isImportSubmitting}
+                  className="inline-flex items-center gap-2 rounded-2xl border border-border bg-white px-4 py-3 text-sm font-bold text-slate-800 transition hover:border-primary/20 disabled:opacity-60"
+                >
+                  {isImportParsing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                  Choose Excel File
+                </button>
+
+                {importRows.length > 0 ? (
+                  <label className="inline-flex items-center gap-3 text-sm font-bold text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={isImportAllSelected}
+                      onChange={(event) => toggleImportAll(event.target.checked)}
+                      disabled={isImportSubmitting || importSelectableCount === 0}
+                    />
+                    Select all ({importSelectedCount}/{importSelectableCount})
+                  </label>
+                ) : null}
+              </div>
+
+              {importError ? (
+                <div className="mt-5 rounded-[1.5rem] border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{importError}</div>
+              ) : null}
+
+              {importRows.length === 0 ? (
+                <div className="mt-5 rounded-[1.5rem] border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+                  {isImportParsing ? "Reading file..." : "No file selected yet. Click “Choose Excel File” to start."}
+                </div>
+              ) : (
+                <div className="mt-5 overflow-x-auto rounded-[1.5rem] border border-border">
+                  <table className="w-full min-w-[980px] text-sm">
+                    <thead className="bg-slate-50 text-left text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
+                      <tr>
+                        <th className="w-12 px-4 py-3">Add</th>
+                        <th className="w-20 px-4 py-3">Row</th>
+                        <th className="px-4 py-3">Medicine ID</th>
+                        <th className="px-4 py-3">Name</th>
+                        <th className="px-4 py-3">Strength</th>
+                        <th className="px-4 py-3 text-right">Price</th>
+                        <th className="px-4 py-3 text-right">Stock</th>
+                        <th className="px-4 py-3">Rx</th>
+                        <th className="px-4 py-3">Issues</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {importRows.map((row) => (
+                        <tr key={row.rowNumber} className="bg-white">
+                          <td className="px-4 py-3">
+                            <input
+                              type="checkbox"
+                              checked={row.selected}
+                              disabled={isImportSubmitting || row.issues.length > 0}
+                              onChange={(event) => toggleImportRow(row.rowNumber, event.target.checked)}
+                            />
+                          </td>
+                          <td className="px-4 py-3 text-muted-foreground">{row.rowNumber}</td>
+                          <td className="px-4 py-3 font-black text-primary">{row.medicine.medicineId || "—"}</td>
+                          <td className="px-4 py-3 font-black text-slate-900">{row.medicine.name || "—"}</td>
+                          <td className="px-4 py-3 text-slate-800">{row.medicine.strength || "—"}</td>
+                          <td className="px-4 py-3 text-right font-bold text-slate-900">{formatCurrency(row.medicine.price)}</td>
+                          <td className="px-4 py-3 text-right text-slate-800">{row.medicine.quantity}</td>
+                          <td className="px-4 py-3 text-slate-800">{row.medicine.requiresPrescription ? "Rx" : "OTC"}</td>
+                          <td className="px-4 py-3 text-xs">
+                            {row.issues.length > 0 ? (
+                              <span className="font-bold text-rose-700">{row.issues.join(", ")}</span>
+                            ) : (
+                              <span className="font-bold text-emerald-700">Ready</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                <div className="text-sm text-muted-foreground">
+                  {importProgress ? (
+                    <span>
+                      Importing {importProgress.done}/{importProgress.total}…
+                    </span>
+                  ) : importRows.length > 0 ? (
+                    <span>Choose which medicines to add, or select all.</span>
+                  ) : (
+                    <span />
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isImportParsing || isImportSubmitting) return;
+                      setShowImportModal(false);
+                      resetImport();
+                    }}
+                    className="rounded-2xl border border-border px-5 py-3 font-bold text-slate-700 disabled:opacity-60"
+                    disabled={isImportParsing || isImportSubmitting}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void submitImport()}
+                    disabled={importRows.length === 0 || importSelectedCount === 0 || isImportSubmitting}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 font-bold text-primary-foreground disabled:opacity-60"
+                  >
+                    {isImportSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                    Add Selected
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
