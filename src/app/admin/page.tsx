@@ -1163,7 +1163,7 @@ export default function AdminDashboard() {
                 ))}
               </div>
 
-              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)]">
+              {movementMedicineFilter === "ALL" ? (
                 <div className="bg-[#fcfcfd]/50 p-8 rounded-[2rem] border border-slate-50">
                   <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
@@ -1207,7 +1207,11 @@ export default function AdminDashboard() {
                           const badgeLabel = isOut ? "Out" : isLow ? "Low" : "OK";
 
                           return (
-                            <div key={medicine.id || medicine._id || `${medicine.name}-${index}`} className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)_minmax(0,0.6fr)] items-center gap-4 px-6 py-5 transition-colors hover:bg-[#fcfcfd]/50">
+                            <button 
+                              key={medicine.id || medicine._id || `${medicine.name}-${index}`} 
+                              onClick={() => setMovementMedicineFilter((medicine.id || medicine._id) as string)} 
+                              className="w-full text-left grid grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)_minmax(0,0.6fr)] items-center gap-4 px-6 py-5 transition-colors hover:bg-slate-50"
+                            >
                               <div className="min-w-0">
                                 <p className="truncate font-bold text-slate-900">{medicine.name}</p>
                                 <p className="mt-1 truncate text-[11px] font-bold tracking-wider uppercase text-slate-400">{medicine.category}</p>
@@ -1217,49 +1221,52 @@ export default function AdminDashboard() {
                                 <span className="text-lg font-bold text-slate-900">{stock}</span>
                               </div>
                               <div className="flex justify-end">
-                                <button onClick={() => openAdjustModal(medicine)} className="rounded-xl bg-slate-900 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white transition-all active:scale-95 shadow-md">
-                                  Adjust
-                                </button>
+                                <ChevronRight className="h-5 w-5 text-slate-300" />
                               </div>
-                            </div>
+                            </button>
                           );
                         })}
                       </div>
                     </div>
                   )}
                 </div>
+              ) : (
+                <div className="bg-[#fcfcfd]/50 p-8 rounded-[2rem] border border-slate-50 mt-2">
+                  <div className="mb-8 flex items-center justify-between">
+                    <button onClick={() => setMovementMedicineFilter("ALL")} className="inline-flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-5 py-3 text-xs font-bold uppercase tracking-widest text-slate-500 shadow-sm transition-all hover:text-indigo-600 hover:border-indigo-100 hover:shadow-md active:scale-95">
+                      <ArrowLeft className="h-4 w-4" />
+                      Back to Inventory
+                    </button>
+                    {(() => {
+                      const selectedMedicine = medicines.find(m => (m.id || m._id) === movementMedicineFilter);
+                      if (!selectedMedicine) return null;
+                      return (
+                         <button onClick={() => openAdjustModal(selectedMedicine)} className="rounded-xl bg-slate-900 px-6 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-slate-200 transition-all hover:scale-105 active:scale-95">
+                           Adjust Stock
+                         </button>
+                      );
+                    })()}
+                  </div>
 
-                <div className="bg-[#fcfcfd]/50 p-8 rounded-[2rem] border border-slate-50">
-                  <div className="flex items-start justify-between gap-4 mb-6">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-8">
                     <div>
-                      <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-1">Movement History</p>
-                      <p className="text-sm font-medium text-slate-500">Last 50 stock events.</p>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-indigo-500 mb-1">Detailed Log</p>
+                      <h3 className="text-2xl font-bold tracking-tight text-slate-900">{medicines.find(m => (m.id || m._id) === movementMedicineFilter)?.name || "Movement History"}</h3>
+                      <p className="mt-1 text-sm font-medium text-slate-400">Recent inventory modifications.</p>
                     </div>
-                    <select
-                      value={movementMedicineFilter}
-                      onChange={(event) => setMovementMedicineFilter(event.target.value)}
-                      className="rounded-xl border border-slate-100 bg-white px-4 py-2.5 text-xs font-bold text-slate-600 outline-none focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50 [color-scheme:light]"
-                    >
-                      <option value="ALL">All medicines</option>
-                      {medicines.map((m) => (
-                        <option key={m.id || m._id || m.name} value={(m.id || m._id) as string}>
-                          {m.name}
-                        </option>
-                      ))}
-                    </select>
                   </div>
 
                   {isInventoryLoading && inventoryMovements.length === 0 ? (
-                    <div className="mt-6 flex min-h-64 items-center justify-center gap-4 text-muted-foreground">
+                    <div className="flex min-h-64 items-center justify-center gap-4 text-muted-foreground">
                       <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
                       Loading movements...
                     </div>
                   ) : inventoryMovements.length === 0 ? (
-                    <div className="mt-6 rounded-2xl border border-dashed border-slate-200 p-8 text-center text-slate-400 bg-white">
-                      No movements yet.
+                    <div className="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-slate-400 bg-white">
+                      No stock movements found for this item.
                     </div>
                   ) : (
-                    <div className="mt-6 space-y-4">
+                    <div className="space-y-4">
                       {inventoryMovements.map((movement) => (
                         <div key={movement.id} className="rounded-[1.5rem] border border-slate-100 bg-white p-6 shadow-sm flex flex-col gap-4 mb-4">
                           <div className="flex items-start justify-between gap-3">
@@ -1294,7 +1301,7 @@ export default function AdminDashboard() {
                     </div>
                   )}
                 </div>
-              </div>
+              )}
             </div>
           )}
 
