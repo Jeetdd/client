@@ -225,20 +225,14 @@ const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value || 0);
 
 const UI = {
-  card: "rounded-2xl border border-slate-200 bg-white shadow-sm",
-  cardMuted: "rounded-2xl border border-slate-200 bg-slate-50 shadow-sm",
-  buttonPrimary:
-    "inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition hover:opacity-95 disabled:opacity-60",
-  buttonSecondary:
-    "inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-900 transition hover:bg-slate-50 disabled:opacity-60",
-  buttonDark:
-    "inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-slate-800 disabled:opacity-60",
-  buttonDanger:
-    "inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-bold text-rose-700 transition hover:bg-rose-100 disabled:opacity-60",
-  chip:
-    "inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-700",
-  chipPrimary:
-    "inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-primary",
+  card: "rounded-lg border border-slate-200 bg-white shadow-sm",
+  cardMuted: "rounded-lg border border-slate-200 bg-slate-50 shadow-sm",
+  buttonPrimary: "inline-flex items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 disabled:opacity-60",
+  buttonSecondary: "inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-60",
+  buttonDark: "inline-flex items-center gap-2 rounded-md bg-slate-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-900 disabled:opacity-60",
+  buttonDanger: "inline-flex items-center gap-2 rounded-md border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100 disabled:opacity-60",
+  chip: "inline-flex items-center rounded-md bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800",
+  chipPrimary: "inline-flex items-center rounded-md bg-slate-900/5 px-2.5 py-0.5 text-xs font-medium text-slate-900 border border-slate-200",
 };
 
 const formatDateTime = (value: string) =>
@@ -912,9 +906,9 @@ export default function AdminDashboard() {
       <Navbar />
       <div className="mx-auto flex max-w-[1600px] flex-col gap-6 px-4 lg:flex-row lg:px-6">
         <aside className={`${UI.card} w-full shrink-0 p-5 lg:sticky lg:top-28 lg:w-80 lg:self-start`}>
-          <div className="mb-6 rounded-2xl bg-slate-900 p-5 text-white">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-white/70">Admin Panel</p>
-            <h1 className="mt-2 text-2xl font-black leading-tight">
+          <div className="mb-6 rounded-lg bg-slate-100 p-5 text-slate-900 border border-slate-200">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Admin Panel</p>
+            <h1 className="mt-2 text-2xl font-semibold leading-tight">
               {activeTab === "orders"
                 ? "Orders"
                 : activeTab === "catalog"
@@ -925,7 +919,7 @@ export default function AdminDashboard() {
                       ? "Pick-up Slots"
                       : "Coupons"}
             </h1>
-            <p className="mt-2 text-xs text-white/70">{user.email}</p>
+            <p className="mt-2 text-xs text-slate-500">{user.email}</p>
           </div>
 
           <div className="space-y-2">
@@ -941,7 +935,7 @@ export default function AdminDashboard() {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id as AdminTab)}
-                  className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-bold transition ${
+                  className={`flex w-full items-center gap-3 rounded-md border px-4 py-3 text-left text-sm font-bold transition ${
                     active ? "border-primary bg-primary text-primary-foreground" : "border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
                   }`}
                 >
@@ -957,8 +951,8 @@ export default function AdminDashboard() {
           <header className={`${UI.card} p-6`}>
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.25em] text-slate-500">Admin Workspace</p>
-                <h2 className="mt-2 text-3xl font-black text-slate-900">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Admin Workspace</p>
+                <h2 className="mt-2 text-2xl font-semibold text-slate-900">
                   {activeTab === "orders"
                     ? "Order Management"
                     : activeTab === "catalog"
@@ -1018,10 +1012,10 @@ export default function AdminDashboard() {
                     Create Coupon
                   </button>
                 )}
-                <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900">
+                <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900">
                   <ShieldAlert className="h-5 w-5 text-primary" />
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Access</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Access</p>
                     <p className="text-sm font-bold">Admin verified</p>
                   </div>
                 </div>
@@ -1039,12 +1033,12 @@ export default function AdminDashboard() {
                   { label: "Completed", value: summary.completedOrders, icon: Check },
                   { label: "Revenue", value: formatCurrency(summary.revenue), icon: Tag },
                 ].map((card) => (
-                  <div key={card.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <div key={card.label} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">{card.label}</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{card.label}</p>
                       <card.icon className="h-5 w-5 text-primary" />
                     </div>
-                    <p className="mt-5 text-3xl font-black text-slate-900">{card.value}</p>
+                    <p className="mt-5 text-2xl font-semibold text-slate-900">{card.value}</p>
                   </div>
                 ))}
               </div>
@@ -1053,23 +1047,23 @@ export default function AdminDashboard() {
                 <div className="grid gap-3 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,0.8fr))]">
                   <label className="relative block">
                     <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search order id, customer, email, phone, medicine" className="w-full rounded-2xl border border-border bg-slate-50 py-3 pl-11 pr-4 text-sm outline-none focus:border-primary focus:bg-white" />
+                    <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search order id, customer, email, phone, medicine" className="w-full rounded-lg border border-border bg-slate-50 py-3 pl-11 pr-4 text-sm outline-none focus:border-primary focus:bg-white" />
                   </label>
-                  <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-2xl border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">
+                  <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">
                     <option value="ALL">All Statuses</option>
                     {STATUS_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
                   </select>
-                  <select value={fulfillmentFilter} onChange={(event) => setFulfillmentFilter(event.target.value)} className="rounded-2xl border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">
+                  <select value={fulfillmentFilter} onChange={(event) => setFulfillmentFilter(event.target.value)} className="rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">
                     <option value="ALL">All Fulfillment</option>
                     <option value="DELIVERY">Delivery</option>
                     <option value="PICKUP">Pick-up</option>
                   </select>
-                  <select value={paymentFilter} onChange={(event) => setPaymentFilter(event.target.value)} className="rounded-2xl border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">
+                  <select value={paymentFilter} onChange={(event) => setPaymentFilter(event.target.value)} className="rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">
                     <option value="ALL">All Payment</option>
                     {PAYMENT_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
                   </select>
                 </div>
-                <label className="mt-4 inline-flex items-center gap-3 rounded-2xl border border-border bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700">
+                <label className="mt-4 inline-flex items-center gap-3 rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700">
                   <input type="checkbox" checked={prescriptionOnly} onChange={(event) => setPrescriptionOnly(event.target.checked)} />
                   Prescription orders only
                 </label>
@@ -1077,23 +1071,23 @@ export default function AdminDashboard() {
 
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
                 <div className={`${UI.card} p-4`}>
-                  <div className="hidden grid-cols-[1.1fr_0.85fr_0.75fr_0.75fr_0.8fr_36px] gap-3 rounded-[1.3rem] bg-slate-100 px-4 py-3 text-xs font-black uppercase tracking-[0.2em] text-slate-500 md:grid">
+                  <div className="hidden grid-cols-[1.1fr_0.85fr_0.75fr_0.75fr_0.8fr_36px] gap-3 rounded-lg bg-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 md:grid">
                     <span>Customer</span><span>Order</span><span>Status</span><span>Mode</span><span>Amount</span><span></span>
                   </div>
                   <div className="mt-3 space-y-3">
                     {isOrdersLoading ? (
                       <div className="flex min-h-72 items-center justify-center gap-4 text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin text-primary" />Loading order dashboard...</div>
                     ) : ordersError ? (
-                      <div className="rounded-[1.5rem] border border-red-200 bg-red-50 p-6 text-sm text-red-700">{ordersError}</div>
+                      <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-700">{ordersError}</div>
                     ) : orders.length === 0 ? (
-                      <div className="rounded-[1.5rem] border border-dashed border-border p-10 text-center text-muted-foreground">No orders matched the current filters.</div>
+                      <div className="rounded-lg border border-dashed border-border p-10 text-center text-muted-foreground">No orders matched the current filters.</div>
                     ) : orders.map((order) => (
-                      <button key={order.id} onClick={() => setSelectedOrderId(order.id)} className={`grid w-full gap-4 rounded-[1.5rem] border p-4 text-left transition md:grid-cols-[1.1fr_0.85fr_0.75fr_0.75fr_0.8fr_36px] md:items-center ${selectedOrderId === order.id ? "border-primary bg-primary/5" : "border-border bg-white hover:border-primary/20 hover:bg-slate-50"}`}>
-                        <div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700"><UserRound className="h-5 w-5" /></div><div><p className="font-bold text-slate-900">{order.user.name}</p><p className="text-xs text-muted-foreground">{order.user.phone || order.user.email}</p></div></div>
+                      <button key={order.id} onClick={() => setSelectedOrderId(order.id)} className={`grid w-full gap-4 rounded-lg border p-4 text-left transition md:grid-cols-[1.1fr_0.85fr_0.75fr_0.75fr_0.8fr_36px] md:items-center ${selectedOrderId === order.id ? "border-primary bg-primary/5" : "border-border bg-white hover:border-primary/20 hover:bg-slate-50"}`}>
+                        <div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-lg bg-slate-100 text-slate-700"><UserRound className="h-5 w-5" /></div><div><p className="font-bold text-slate-900">{order.user.name}</p><p className="text-xs text-muted-foreground">{order.user.phone || order.user.email}</p></div></div>
                         <div><p className="text-sm font-bold text-slate-900">#{order.id.slice(-8)}</p><p className="text-xs text-muted-foreground">{formatDateTime(order.createdAt)}</p></div>
-                        <div><span className="inline-flex rounded-full bg-slate-900 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white">{statusLabel(order.status)}</span><p className="mt-2 text-xs text-muted-foreground">{statusLabel(order.paymentStatus)}</p></div>
+                        <div><span className="inline-flex rounded-md bg-slate-900 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white">{statusLabel(order.status)}</span><p className="mt-2 text-xs text-muted-foreground">{statusLabel(order.paymentStatus)}</p></div>
                         <div><p className="text-sm font-bold text-slate-900">{statusLabel(order.fulfillmentMethod)}</p><p className="text-xs text-muted-foreground">{order.itemsCount} item(s)</p></div>
-                        <div><p className="text-base font-black text-primary">{formatCurrency(order.finalAmount)}</p><p className="text-xs text-muted-foreground">{order.requiresPrescription ? "Rx required" : "No prescription"}</p></div>
+                        <div><p className="text-base font-semibold text-primary">{formatCurrency(order.finalAmount)}</p><p className="text-xs text-muted-foreground">{order.requiresPrescription ? "Rx required" : "No prescription"}</p></div>
                         <ChevronRight className="ml-auto h-5 w-5 text-muted-foreground" />
                       </button>
                     ))}
@@ -1103,29 +1097,29 @@ export default function AdminDashboard() {
                 <div className={`${UI.card} p-5`}>
                   {selectedOrder ? (
                     <div className="space-y-5">
-                      <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[0.22em] text-primary/70">Order Detail View</p><h3 className="mt-2 text-2xl font-black text-slate-900">#{selectedOrder.id.slice(-8)}</h3><p className="mt-1 text-sm text-muted-foreground">Placed {formatDateTime(selectedOrder.createdAt)}</p></div><span className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-primary">{statusLabel(selectedOrder.status)}</span></div>
-                      <div className="grid gap-3 rounded-[1.6rem] bg-slate-50 p-4 sm:grid-cols-2">
-                        <div><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Customer</p><p className="mt-2 font-bold text-slate-900">{selectedOrder.user.name}</p><p className="text-sm text-muted-foreground">{selectedOrder.user.email}</p><p className="text-sm text-muted-foreground">{selectedOrder.user.phone || "Phone unavailable"}</p></div>
-                        <div><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Fulfillment</p><p className="mt-2 font-bold text-slate-900">{statusLabel(selectedOrder.fulfillmentMethod)}</p><p className="text-sm text-muted-foreground">{selectedOrder.fulfillmentMethod === "PICKUP" ? selectedOrder.pickupSlotTime || "Pick-up slot pending" : selectedOrder.shippingAddress || "Delivery address unavailable"}</p></div>
+                      <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-wider text-primary/70">Order Detail View</p><h3 className="mt-2 text-2xl font-semibold text-slate-900">#{selectedOrder.id.slice(-8)}</h3><p className="mt-1 text-sm text-muted-foreground">Placed {formatDateTime(selectedOrder.createdAt)}</p></div><span className="rounded-md bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-slate-700">{statusLabel(selectedOrder.status)}</span></div>
+                      <div className="grid gap-3 rounded-lg bg-slate-50 p-4 sm:grid-cols-2">
+                        <div><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Customer</p><p className="mt-2 font-bold text-slate-900">{selectedOrder.user.name}</p><p className="text-sm text-muted-foreground">{selectedOrder.user.email}</p><p className="text-sm text-muted-foreground">{selectedOrder.user.phone || "Phone unavailable"}</p></div>
+                        <div><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Fulfillment</p><p className="mt-2 font-bold text-slate-900">{statusLabel(selectedOrder.fulfillmentMethod)}</p><p className="text-sm text-muted-foreground">{selectedOrder.fulfillmentMethod === "PICKUP" ? selectedOrder.pickupSlotTime || "Pick-up slot pending" : selectedOrder.shippingAddress || "Delivery address unavailable"}</p></div>
                       </div>
-                      <div className="rounded-[1.6rem] border border-border p-4">
-                        <div className="mb-4 flex items-center justify-between"><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Medicines</p><p className="text-sm font-bold text-primary">{formatCurrency(selectedOrder.finalAmount)}</p></div>
-                        <div className="space-y-3">{selectedOrder.items.map((item) => <div key={item.id || `${item.medicine?.name}-${item.quantity}`} className="flex items-center justify-between gap-4 rounded-2xl bg-slate-50 px-4 py-3"><div><p className="font-bold text-slate-900">{item.medicine?.name || "Medicine"}</p><p className="text-xs text-muted-foreground">{item.medicine?.category || "Category unavailable"}</p></div><div className="text-right"><p className="text-sm font-bold text-slate-900">Qty {item.quantity}</p><p className="text-xs text-muted-foreground">{formatCurrency(item.price)}</p></div></div>)}</div>
+                      <div className="rounded-lg border border-border p-4">
+                        <div className="mb-4 flex items-center justify-between"><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Medicines</p><p className="text-sm font-bold text-primary">{formatCurrency(selectedOrder.finalAmount)}</p></div>
+                        <div className="space-y-3">{selectedOrder.items.map((item) => <div key={item.id || `${item.medicine?.name}-${item.quantity}`} className="flex items-center justify-between gap-4 rounded-lg bg-slate-50 px-4 py-3"><div><p className="font-bold text-slate-900">{item.medicine?.name || "Medicine"}</p><p className="text-xs text-muted-foreground">{item.medicine?.category || "Category unavailable"}</p></div><div className="text-right"><p className="text-sm font-bold text-slate-900">Qty {item.quantity}</p><p className="text-xs text-muted-foreground">{formatCurrency(item.price)}</p></div></div>)}</div>
                       </div>
-                      <div className="rounded-[1.6rem] border border-border p-4">
-                        <div className="mb-4 flex items-center justify-between"><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Prescription Verification</p><span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${selectedOrder.prescriptionImage ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>{selectedOrder.prescriptionImage ? "File Available" : "No Upload"}</span></div>
+                      <div className="rounded-lg border border-border p-4">
+                        <div className="mb-4 flex items-center justify-between"><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Prescription Verification</p><span className={`rounded-md px-3 py-1 text-xs font-semibold uppercase tracking-wider ${selectedOrder.prescriptionImage ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>{selectedOrder.prescriptionImage ? "File Available" : "No Upload"}</span></div>
                         {selectedOrder.prescriptionImage ? (
                           <div className="grid gap-4 sm:grid-cols-[140px_minmax(0,1fr)]">
-                            <button onClick={() => window.open(toAssetUrl(selectedOrder.prescriptionImage), "_blank", "noopener,noreferrer")} className="group relative overflow-hidden rounded-[1.5rem] border border-border"><img src={toAssetUrl(selectedOrder.prescriptionImage)} alt="Prescription" className="h-36 w-full object-cover" /><div className="absolute inset-0 flex items-center justify-center bg-slate-950/0 text-white transition group-hover:bg-slate-950/45"><Eye className="h-6 w-6 opacity-0 transition group-hover:opacity-100" /></div></button>
-                            <div className="space-y-3"><textarea value={reviewComment} onChange={(event) => setReviewComment(event.target.value)} rows={4} placeholder="Add review notes for this order" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white" /><button onClick={() => void updateOrder({ pharmacistReviewComment: reviewComment })} disabled={isSavingOrder} className="inline-flex items-center gap-2 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm font-bold text-primary disabled:opacity-60">{isSavingOrder ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}Save Review Note</button></div>
+                            <button onClick={() => window.open(toAssetUrl(selectedOrder.prescriptionImage), "_blank", "noopener,noreferrer")} className="group relative overflow-hidden rounded-lg border border-border"><img src={toAssetUrl(selectedOrder.prescriptionImage)} alt="Prescription" className="h-36 w-full object-cover" /><div className="absolute inset-0 flex items-center justify-center bg-slate-950/0 text-white transition group-hover:bg-slate-950/45"><Eye className="h-6 w-6 opacity-0 transition group-hover:opacity-100" /></div></button>
+                            <div className="space-y-3"><textarea value={reviewComment} onChange={(event) => setReviewComment(event.target.value)} rows={4} placeholder="Add review notes for this order" className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white" /><button onClick={() => void updateOrder({ pharmacistReviewComment: reviewComment })} disabled={isSavingOrder} className="inline-flex items-center gap-2 rounded-lg border border-primary/20 bg-slate-100 px-4 py-3 text-sm font-bold text-slate-700 disabled:opacity-60">{isSavingOrder ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}Save Review Note</button></div>
                           </div>
                         ) : <p className="text-sm text-muted-foreground">This order does not include an uploaded prescription file.</p>}
                       </div>
-                      <div className="grid gap-4 rounded-[1.6rem] border border-border p-4 sm:grid-cols-2">
-                        <label><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Order Status</p><select value={selectedOrder.status} onChange={(event) => void updateOrder({ status: event.target.value as OrderStatus })} className="mt-2 w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">{STATUS_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
-                        <label><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Payment Status</p><select value={selectedOrder.paymentStatus} onChange={(event) => void updateOrder({ paymentStatus: event.target.value as PaymentStatus })} className="mt-2 w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">{PAYMENT_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
+                      <div className="grid gap-4 rounded-lg border border-border p-4 sm:grid-cols-2">
+                        <label><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Order Status</p><select value={selectedOrder.status} onChange={(event) => void updateOrder({ status: event.target.value as OrderStatus })} className="mt-2 w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">{STATUS_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
+                        <label><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Payment Status</p><select value={selectedOrder.paymentStatus} onChange={(event) => void updateOrder({ paymentStatus: event.target.value as PaymentStatus })} className="mt-2 w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">{PAYMENT_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
                       </div>
-                      <div><p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-slate-500">Quick Actions</p><div className="flex flex-wrap gap-3">{QUICK_ACTIONS[selectedOrder.status].length ? QUICK_ACTIONS[selectedOrder.status].map((status) => <button key={status} onClick={() => void updateOrder({ status, pharmacistReviewComment: reviewComment })} disabled={isSavingOrder} className="rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:opacity-60">{statusLabel(status)}</button>) : <p className="text-sm text-muted-foreground">No quick actions left for the current order state.</p>}</div></div>
+                      <div><p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Quick Actions</p><div className="flex flex-wrap gap-3">{QUICK_ACTIONS[selectedOrder.status].length ? QUICK_ACTIONS[selectedOrder.status].map((status) => <button key={status} onClick={() => void updateOrder({ status, pharmacistReviewComment: reviewComment })} disabled={isSavingOrder} className="rounded-lg bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:opacity-60">{statusLabel(status)}</button>) : <p className="text-sm text-muted-foreground">No quick actions left for the current order state.</p>}</div></div>
                     </div>
                   ) : <div className="flex min-h-72 items-center justify-center text-center text-muted-foreground">Select an order to inspect its customer, prescription, and fulfillment details.</div>}
                 </div>
@@ -1143,12 +1137,12 @@ export default function AdminDashboard() {
                   { label: "Total Units", value: inventorySummary.totalUnits, icon: Pill },
                   { label: "Stock Value", value: formatCurrency(inventorySummary.totalStockValue), icon: Tag },
                 ].map((card) => (
-                  <div key={card.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <div key={card.label} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">{card.label}</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{card.label}</p>
                       <card.icon className="h-5 w-5 text-primary" />
                     </div>
-                    <p className="mt-5 text-3xl font-black text-slate-900">{card.value}</p>
+                    <p className="mt-5 text-2xl font-semibold text-slate-900">{card.value}</p>
                   </div>
                 ))}
               </div>
@@ -1157,7 +1151,7 @@ export default function AdminDashboard() {
                 <div className={`${UI.card} p-5`}>
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Stock Levels</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Stock Levels</p>
                       <p className="mt-2 text-sm text-muted-foreground">Adjust stock and keep your catalogue in sync with checkout availability.</p>
                     </div>
                     <button
@@ -1174,12 +1168,12 @@ export default function AdminDashboard() {
                       Loading inventory...
                     </div>
                   ) : medicines.length === 0 ? (
-                    <div className="rounded-[1.5rem] border border-dashed border-border p-10 text-center text-muted-foreground">
+                    <div className="rounded-lg border border-dashed border-border p-10 text-center text-muted-foreground">
                       No medicines found. Add medicines in the Catalogue tab first.
                     </div>
                   ) : (
-                    <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-border bg-white">
-                      <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)_minmax(0,0.6fr)] items-center gap-4 bg-slate-50 px-5 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-500">
+                    <div className="mt-5 overflow-hidden rounded-lg border border-border bg-white">
+                      <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)_minmax(0,0.6fr)] items-center gap-4 bg-slate-50 px-5 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
                         <span>Medicine</span>
                         <span>Stock</span>
                         <span className="text-right">Action</span>
@@ -1199,12 +1193,12 @@ export default function AdminDashboard() {
                           return (
                             <div key={medicine.id || medicine._id || `${medicine.name}-${index}`} className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)_minmax(0,0.6fr)] items-center gap-4 px-5 py-4">
                               <div className="min-w-0">
-                                <p className="truncate font-black text-slate-900">{medicine.name}</p>
+                                <p className="truncate font-semibold text-slate-900">{medicine.name}</p>
                                 <p className="mt-1 truncate text-xs text-muted-foreground">{medicine.category}</p>
                               </div>
                               <div className="flex items-center gap-3">
-                                <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-black ${badgeClass}`}>{badgeLabel}</span>
-                                <span className="text-sm font-black text-slate-900">{stock}</span>
+                                <span className={`inline-flex items-center rounded-md border px-3 py-1 text-xs font-semibold ${badgeClass}`}>{badgeLabel}</span>
+                                <span className="text-sm font-semibold text-slate-900">{stock}</span>
                               </div>
                               <div className="flex justify-end">
                                 <button onClick={() => openAdjustModal(medicine)} className={UI.buttonPrimary}>
@@ -1222,13 +1216,13 @@ export default function AdminDashboard() {
                 <div className={`${UI.card} p-5`}>
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Movement History</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Movement History</p>
                       <p className="mt-2 text-sm text-muted-foreground">Last 50 stock events (sales, adjustments, restocks).</p>
                     </div>
                     <select
                       value={movementMedicineFilter}
                       onChange={(event) => setMovementMedicineFilter(event.target.value)}
-                      className="rounded-2xl border border-border bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white [color-scheme:light]"
+                      className="rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white [color-scheme:light]"
                     >
                       <option value="ALL">All medicines</option>
                       {medicines.map((m) => (
@@ -1245,32 +1239,32 @@ export default function AdminDashboard() {
                       Loading movements...
                     </div>
                   ) : inventoryMovements.length === 0 ? (
-                    <div className="mt-6 rounded-[1.5rem] border border-dashed border-border p-8 text-center text-muted-foreground">
+                    <div className="mt-6 rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
                       No movements yet.
                     </div>
                   ) : (
                     <div className="mt-5 space-y-3">
                       {inventoryMovements.map((movement) => (
-                        <div key={movement.id} className="rounded-[1.3rem] border border-border bg-white p-4">
+                        <div key={movement.id} className="rounded-lg border border-border bg-white p-4">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <p className="truncate text-sm font-black text-slate-900">{movement.medicine?.name ?? "Medicine"}</p>
+                              <p className="truncate text-sm font-semibold text-slate-900">{movement.medicine?.name ?? "Medicine"}</p>
                               <p className="mt-1 text-xs text-muted-foreground">{new Date(movement.createdAt).toLocaleString("en-IN")}</p>
                             </div>
-                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">{statusLabel(movement.type)}</span>
+                            <span className="rounded-md bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{statusLabel(movement.type)}</span>
                           </div>
                           <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
-                            <div className="rounded-2xl bg-slate-50 p-3">
-                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Delta</p>
-                              <p className={`mt-2 font-black ${movement.delta < 0 ? "text-rose-700" : "text-emerald-700"}`}>{movement.delta}</p>
+                            <div className="rounded-lg bg-slate-50 p-3">
+                              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Delta</p>
+                              <p className={`mt-2 font-semibold ${movement.delta < 0 ? "text-rose-700" : "text-emerald-700"}`}>{movement.delta}</p>
                             </div>
-                            <div className="rounded-2xl bg-slate-50 p-3">
-                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Before</p>
-                              <p className="mt-2 font-black text-slate-900">{movement.beforeStock}</p>
+                            <div className="rounded-lg bg-slate-50 p-3">
+                              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Before</p>
+                              <p className="mt-2 font-semibold text-slate-900">{movement.beforeStock}</p>
                             </div>
-                            <div className="rounded-2xl bg-slate-50 p-3">
-                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">After</p>
-                              <p className="mt-2 font-black text-slate-900">{movement.afterStock}</p>
+                            <div className="rounded-lg bg-slate-50 p-3">
+                              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">After</p>
+                              <p className="mt-2 font-semibold text-slate-900">{movement.afterStock}</p>
                             </div>
                           </div>
                           {movement.reason ? <p className="mt-3 text-xs text-muted-foreground">Reason: {movement.reason}</p> : null}
@@ -1289,13 +1283,13 @@ export default function AdminDashboard() {
               {isCatalogLoading && medicines.length === 0 ? (
                 <div className="flex min-h-72 items-center justify-center gap-4 text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin text-primary" />Loading medicine catalogue...</div>
               ) : medicines.length === 0 ? (
-                <div className="rounded-[1.5rem] border border-dashed border-border p-10 text-center text-muted-foreground">Catalog is empty. Add your first medicine to make it available for checkout.</div>
+                <div className="rounded-lg border border-dashed border-border p-10 text-center text-muted-foreground">Catalog is empty. Add your first medicine to make it available for checkout.</div>
               ) : (
                 <div className="overflow-x-auto">
-                  <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                  <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
                     <table className="w-full min-w-[980px] text-sm">
                     <thead className="bg-slate-50">
-                      <tr className="text-left text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
+                      <tr className="text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                         <th className="px-4 py-3">Medicine ID</th>
                         <th className="px-4 py-3">Name</th>
                         <th className="px-4 py-3">Strength</th>
@@ -1312,21 +1306,21 @@ export default function AdminDashboard() {
                           key={medicine.id || medicine._id || `${medicine.name}-${index}`}
                           className="bg-white hover:bg-slate-50"
                         >
-                          <td className="whitespace-nowrap px-4 py-3 text-sm font-black text-primary">
+                          <td className="whitespace-nowrap px-4 py-3 text-sm font-semibold text-primary">
                             {medicine.medicineId || "AUTO"}
                           </td>
-                          <td className="max-w-[260px] px-4 py-3 text-sm font-black text-slate-900">
+                          <td className="max-w-[260px] px-4 py-3 text-sm font-semibold text-slate-900">
                             <p className="truncate">{medicine.name}</p>
                           </td>
                           <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-800">{medicine.strength || "—"}</td>
                           <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-800">{medicine.category}</td>
                           <td className="px-4 py-3">
                             {medicine.requiresPrescription ? (
-                              <span className="inline-flex rounded-full bg-amber-100 px-2 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-amber-700">
+                              <span className="inline-flex rounded-md bg-amber-100 px-2 py-1 text-xs font-semibold uppercase tracking-wider text-amber-700">
                                 Rx only
                               </span>
                             ) : (
-                              <span className="inline-flex rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-700">
+                              <span className="inline-flex rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-700">
                                 OTC
                               </span>
                             )}
@@ -1349,9 +1343,9 @@ export default function AdminDashboard() {
           {activeTab === "slots" && (
             <div className="space-y-6">
               <div className="grid gap-4 md:grid-cols-3">
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Active Slots</p><p className="mt-5 text-3xl font-black text-slate-900">{slots.length}</p></div>
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Booked Capacity</p><p className="mt-5 text-3xl font-black text-slate-900">{slots.reduce((sum, slot) => sum + slot.currentBookings, 0)}</p></div>
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Open Capacity</p><p className="mt-5 text-3xl font-black text-slate-900">{slots.reduce((sum, slot) => sum + Math.max(slot.maxBookings - slot.currentBookings, 0), 0)}</p></div>
+                <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Active Slots</p><p className="mt-5 text-2xl font-semibold text-slate-900">{slots.length}</p></div>
+                <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Booked Capacity</p><p className="mt-5 text-2xl font-semibold text-slate-900">{slots.reduce((sum, slot) => sum + slot.currentBookings, 0)}</p></div>
+                <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Open Capacity</p><p className="mt-5 text-2xl font-semibold text-slate-900">{slots.reduce((sum, slot) => sum + Math.max(slot.maxBookings - slot.currentBookings, 0), 0)}</p></div>
               </div>
               <div className={`${UI.card} p-5`}>
                 {isSlotsLoading && slots.length === 0 ? (
@@ -1361,9 +1355,9 @@ export default function AdminDashboard() {
                     {slots.map((slot, index) => {
                       const fill = slot.maxBookings ? (slot.currentBookings / slot.maxBookings) * 100 : 0;
                       return (
-                        <div key={slot.id || `${slot.date}-${slot.timeSlot}-${index}`} className="rounded-[1.6rem] border border-border bg-white p-5">
-                          <div className="flex items-center justify-between"><span className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-primary">{new Date(slot.date).toLocaleDateString("en-IN", { weekday: "short", day: "2-digit", month: "short" })}</span><Clock className="h-5 w-5 text-muted-foreground" /></div>
-                          <p className="mt-5 text-xl font-black text-slate-900">{slot.timeSlot}</p>
+                        <div key={slot.id || `${slot.date}-${slot.timeSlot}-${index}`} className="rounded-lg border border-border bg-white p-5">
+                          <div className="flex items-center justify-between"><span className="rounded-md bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-slate-700">{new Date(slot.date).toLocaleDateString("en-IN", { weekday: "short", day: "2-digit", month: "short" })}</span><Clock className="h-5 w-5 text-muted-foreground" /></div>
+                          <p className="mt-5 text-xl font-semibold text-slate-900">{slot.timeSlot}</p>
                           <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100"><motion.div initial={{ width: 0 }} animate={{ width: `${fill}%` }} className="h-full bg-primary" /></div>
                           <div className="mt-3 flex items-center justify-between text-sm"><span className="text-muted-foreground">Booked</span><span className="font-bold text-slate-900">{slot.currentBookings}/{slot.maxBookings}</span></div>
                         </div>
@@ -1378,28 +1372,28 @@ export default function AdminDashboard() {
           {activeTab === "coupons" && (
             <div className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <div className="rounded-[1.6rem] border border-primary/10 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Total Coupons</p>
-                  <p className="mt-5 text-3xl font-black text-slate-900">{couponStats.total}</p>
+                <div className="rounded-lg border border-primary/10 bg-white p-5 shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Coupons</p>
+                  <p className="mt-5 text-2xl font-semibold text-slate-900">{couponStats.total}</p>
                 </div>
-                <div className="rounded-[1.6rem] border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-800">Active</p>
-                  <p className="mt-5 text-3xl font-black text-emerald-900">{couponStats.active}</p>
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800">Active</p>
+                  <p className="mt-4 text-2xl font-semibold text-emerald-900">{couponStats.active}</p>
                 </div>
-                <div className="rounded-[1.6rem] border border-amber-200 bg-amber-50 p-5 shadow-sm">
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-800">Expiring In 7 Days</p>
-                  <p className="mt-5 text-3xl font-black text-amber-900">{couponStats.expiringSoon}</p>
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-5 shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-amber-800">Expiring In 7 Days</p>
+                  <p className="mt-4 text-2xl font-semibold text-amber-900">{couponStats.expiringSoon}</p>
                 </div>
-                <div className="rounded-[1.6rem] border border-rose-200 bg-rose-50 p-5 shadow-sm">
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-rose-800">Usage Exhausted</p>
-                  <p className="mt-5 text-3xl font-black text-rose-900">{couponStats.exhausted}</p>
+                <div className="rounded-lg border border-rose-200 bg-rose-50 p-5 shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-rose-800">Usage Exhausted</p>
+                  <p className="mt-4 text-2xl font-semibold text-rose-900">{couponStats.exhausted}</p>
                 </div>
               </div>
 
               <div className={`${UI.card} p-5`}>
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Campaign Rules</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Campaign Rules</p>
                     <p className="mt-1 text-sm text-muted-foreground">Toggle coupons instantly or remove obsolete codes.</p>
                   </div>
                   <button
@@ -1416,9 +1410,9 @@ export default function AdminDashboard() {
                     Loading coupons...
                   </div>
                 ) : couponError ? (
-                  <div className="rounded-[1.5rem] border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700">{couponError}</div>
+                  <div className="rounded-lg border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700">{couponError}</div>
                 ) : coupons.length === 0 ? (
-                  <div className="rounded-[1.5rem] border border-dashed border-border p-10 text-center text-muted-foreground">
+                  <div className="rounded-lg border border-dashed border-border p-10 text-center text-muted-foreground">
                     No coupons found. Create your first code to unlock discount campaigns.
                   </div>
                 ) : (
@@ -1430,27 +1424,27 @@ export default function AdminDashboard() {
                       const isExhausted = usageLimit > 0 && usedCount >= usageLimit;
 
                       return (
-                        <div key={couponId} className="rounded-[1.5rem] border border-border bg-white p-5">
+                        <div key={couponId} className="rounded-lg border border-border bg-white p-5">
                           <div className="flex items-start justify-between gap-3">
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-primary">{coupon.code}</span>
+                                <span className="rounded-md bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-slate-700">{coupon.code}</span>
                                 <span
-                                  className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${
+                                  className={`rounded-md px-3 py-1 text-xs font-semibold uppercase tracking-wider ${
                                     coupon.isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-700"
                                   }`}
                                 >
                                   {coupon.isActive ? "Active" : "Inactive"}
                                 </span>
-                                {isExhausted ? <span className="rounded-full bg-rose-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-rose-700">Exhausted</span> : null}
+                                {isExhausted ? <span className="rounded-md bg-rose-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-rose-700">Exhausted</span> : null}
                               </div>
-                              <p className="mt-3 text-2xl font-black text-slate-900">{formatCouponValue(coupon)} OFF</p>
+                              <p className="mt-3 text-2xl font-semibold text-slate-900">{formatCouponValue(coupon)} OFF</p>
                               <p className="mt-1 text-sm text-muted-foreground">{coupon.description || "No description provided."}</p>
                             </div>
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => openEditCouponModal(coupon)}
-                                className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-700 transition hover:bg-slate-100"
+                                className="rounded-md border border-slate-200 bg-slate-50 p-2 text-slate-700 transition hover:bg-slate-100"
                                 aria-label={`Edit ${coupon.code}`}
                               >
                                 <Pencil className="h-4 w-4" />
@@ -1458,7 +1452,7 @@ export default function AdminDashboard() {
                               <button
                                 onClick={() => void deleteCoupon(coupon)}
                                 disabled={deletingCouponId === couponId}
-                                className="rounded-xl border border-rose-200 bg-rose-50 p-2 text-rose-700 transition hover:bg-rose-100 disabled:opacity-60"
+                                className="rounded-md border border-rose-200 bg-rose-50 p-2 text-rose-700 transition hover:bg-rose-100 disabled:opacity-60"
                                 aria-label={`Delete ${coupon.code}`}
                               >
                                 {deletingCouponId === couponId ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
@@ -1467,13 +1461,13 @@ export default function AdminDashboard() {
                           </div>
 
                           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                            <div className="rounded-2xl bg-slate-50 p-3">
-                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Min Order</p>
-                              <p className="mt-2 font-black text-slate-900">{formatCurrency(Number(coupon.minOrderAmount || 0))}</p>
+                            <div className="rounded-lg bg-slate-50 p-3">
+                              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Min Order</p>
+                              <p className="mt-2 font-semibold text-slate-900">{formatCurrency(Number(coupon.minOrderAmount || 0))}</p>
                             </div>
-                            <div className="rounded-2xl bg-slate-50 p-3">
-                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Usage</p>
-                              <p className="mt-2 font-black text-slate-900">{usageLimit > 0 ? `${usedCount}/${usageLimit}` : `${usedCount} used`}</p>
+                            <div className="rounded-lg bg-slate-50 p-3">
+                              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Usage</p>
+                              <p className="mt-2 font-semibold text-slate-900">{usageLimit > 0 ? `${usedCount}/${usageLimit}` : `${usedCount} used`}</p>
                             </div>
                           </div>
 
@@ -1483,7 +1477,7 @@ export default function AdminDashboard() {
                             </p>
                             <button
                               onClick={() => void toggleCouponStatus(coupon, !coupon.isActive)}
-                              className={`rounded-2xl px-4 py-2 text-xs font-black uppercase tracking-[0.18em] ${
+                              className={`rounded-lg px-4 py-2 text-xs font-semibold uppercase tracking-wider ${
                                 coupon.isActive ? "bg-slate-100 text-slate-700" : "bg-primary text-primary-foreground"
                               }`}
                             >
@@ -1519,37 +1513,37 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, scale: 0.96, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 20 }}
-              className="relative w-full max-w-xl rounded-2xl bg-white p-8 shadow-2xl"
+              className="relative w-full max-w-xl rounded-lg bg-white p-8 shadow-2xl"
             >
-              <h3 className="text-2xl font-black text-slate-900">Adjust Inventory</h3>
+              <h3 className="text-2xl font-semibold text-slate-900">Adjust Inventory</h3>
               <p className="mt-2 text-sm text-muted-foreground">Positive adds stock, negative removes stock.</p>
 
               <form onSubmit={handleAdjustInventory} className="mt-6 space-y-4">
-                <div className="rounded-[1.5rem] border border-border bg-slate-50 p-4">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Medicine</p>
-                  <p className="mt-2 text-lg font-black text-slate-900">{adjustTarget.name}</p>
+                <div className="rounded-lg border border-border bg-slate-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Medicine</p>
+                  <p className="mt-2 text-lg font-semibold text-slate-900">{adjustTarget.name}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{adjustTarget.category}</p>
                 </div>
 
                 <label className="space-y-2 block">
-                  <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Delta</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Delta</span>
                   <input
                     type="number"
                     required
                     value={adjustDelta}
                     onChange={(event) => setAdjustDelta(Number(event.target.value))}
                     placeholder="e.g. 25 or -10"
-                    className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                    className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                   />
                 </label>
 
                 <label className="space-y-2 block">
-                  <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Reason (Optional)</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Reason (Optional)</span>
                   <input
                     value={adjustReason}
                     onChange={(event) => setAdjustReason(event.target.value)}
                     placeholder="Restock delivery, expiry, manual correction"
-                    className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                    className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                   />
                 </label>
 
@@ -1598,9 +1592,9 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, scale: 0.96, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 20 }}
-              className="relative w-full max-w-5xl rounded-2xl bg-white p-8 shadow-2xl"
+              className="relative w-full max-w-5xl rounded-lg bg-white p-8 shadow-2xl"
             >
-              <h3 className="text-2xl font-black text-slate-900">Import Medicines (Excel)</h3>
+              <h3 className="text-2xl font-semibold text-slate-900">Import Medicines (Excel)</h3>
               <p className="mt-2 text-sm text-muted-foreground">
                 Upload an Excel file with columns like <span className="font-semibold text-slate-700">medicineId</span>,{" "}
                 <span className="font-semibold text-slate-700">name</span>, <span className="font-semibold text-slate-700">strength</span>,{" "}
@@ -1643,17 +1637,17 @@ export default function AdminDashboard() {
               </div>
 
               {importError ? (
-                <div className="mt-5 rounded-[1.5rem] border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{importError}</div>
+                <div className="mt-5 rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{importError}</div>
               ) : null}
 
               {importRows.length === 0 ? (
-                <div className="mt-5 rounded-[1.5rem] border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+                <div className="mt-5 rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
                   {isImportParsing ? "Reading file..." : "No file selected yet. Click “Choose Excel File” to start."}
                 </div>
               ) : (
-                <div className="mt-5 overflow-x-auto rounded-[1.5rem] border border-border">
+                <div className="mt-5 overflow-x-auto rounded-lg border border-border">
                   <table className="w-full min-w-[980px] text-sm">
-                    <thead className="bg-slate-50 text-left text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
+                    <thead className="bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                       <tr>
                         <th className="w-12 px-4 py-3">Add</th>
                         <th className="w-20 px-4 py-3">Row</th>
@@ -1678,8 +1672,8 @@ export default function AdminDashboard() {
                             />
                           </td>
                           <td className="px-4 py-3 text-muted-foreground">{row.rowNumber}</td>
-                          <td className="px-4 py-3 font-black text-primary">{row.medicine.medicineId || "—"}</td>
-                          <td className="px-4 py-3 font-black text-slate-900">{row.medicine.name || "—"}</td>
+                          <td className="px-4 py-3 font-semibold text-primary">{row.medicine.medicineId || "—"}</td>
+                          <td className="px-4 py-3 font-semibold text-slate-900">{row.medicine.name || "—"}</td>
                           <td className="px-4 py-3 text-slate-800">{row.medicine.strength || "—"}</td>
                           <td className="px-4 py-3 text-right font-bold text-slate-900">{formatCurrency(row.medicine.price)}</td>
                           <td className="px-4 py-3 text-right text-slate-800">{row.medicine.quantity}</td>
@@ -1743,38 +1737,38 @@ export default function AdminDashboard() {
         {showAddModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAddModal(false)} className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" />
-            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl">
-              <h3 className="text-2xl font-black text-slate-900">Add Medicine</h3>
+            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-2xl rounded-lg bg-white p-8 shadow-2xl">
+              <h3 className="text-2xl font-semibold text-slate-900">Add Medicine</h3>
               <form onSubmit={handleAddMedicine} className="mt-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Medicine ID</span>
-                    <input required value={newMed.medicineId} onChange={(event) => setNewMed({ ...newMed, medicineId: event.target.value })} placeholder="SKIN-001" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Medicine ID</span>
+                    <input required value={newMed.medicineId} onChange={(event) => setNewMed({ ...newMed, medicineId: event.target.value })} placeholder="SKIN-001" className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Medicine Name</span>
-                    <input required value={newMed.name} onChange={(event) => setNewMed({ ...newMed, name: event.target.value })} placeholder="Tretinoin Cream" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Medicine Name</span>
+                    <input required value={newMed.name} onChange={(event) => setNewMed({ ...newMed, name: event.target.value })} placeholder="Tretinoin Cream" className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Strength</span>
-                    <input required value={newMed.strength} onChange={(event) => setNewMed({ ...newMed, strength: event.target.value })} placeholder="10mg / 0.05%" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Strength</span>
+                    <input required value={newMed.strength} onChange={(event) => setNewMed({ ...newMed, strength: event.target.value })} placeholder="10mg / 0.05%" className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Category</span>
-                    <input required value={newMed.category} onChange={(event) => setNewMed({ ...newMed, category: event.target.value })} placeholder="Skin Care" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Category</span>
+                    <input required value={newMed.category} onChange={(event) => setNewMed({ ...newMed, category: event.target.value })} placeholder="Skin Care" className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Price</span>
-                    <input required type="number" value={newMed.price} onChange={(event) => setNewMed({ ...newMed, price: Number(event.target.value) })} placeholder="499" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Price</span>
+                    <input required type="number" value={newMed.price} onChange={(event) => setNewMed({ ...newMed, price: Number(event.target.value) })} placeholder="499" className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Quantity</span>
-                    <input required type="number" value={newMed.quantity} onChange={(event) => setNewMed({ ...newMed, quantity: Number(event.target.value) })} placeholder="25" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Quantity</span>
+                    <input required type="number" value={newMed.quantity} onChange={(event) => setNewMed({ ...newMed, quantity: Number(event.target.value) })} placeholder="25" className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
                   </label>
                 </div>
                 <label className="space-y-2 block">
-                  <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Description</span>
-                  <textarea required rows={4} value={newMed.description} onChange={(event) => setNewMed({ ...newMed, description: event.target.value })} placeholder="Describe the medicine, usage, or key notes" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Description</span>
+                  <textarea required rows={4} value={newMed.description} onChange={(event) => setNewMed({ ...newMed, description: event.target.value })} placeholder="Describe the medicine, usage, or key notes" className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
                 </label>
                 <label className="inline-flex items-center gap-3 text-sm font-medium text-slate-700"><input type="checkbox" checked={newMed.requiresPrescription} onChange={(event) => setNewMed({ ...newMed, requiresPrescription: event.target.checked })} />Requires prescription</label>
                 <div className="flex justify-end gap-3">
@@ -1795,25 +1789,25 @@ export default function AdminDashboard() {
         {showAddSlotModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAddSlotModal(false)} className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" />
-            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-xl rounded-2xl bg-white p-8 shadow-2xl">
-              <h3 className="text-2xl font-black text-slate-900">Create Pick-up Slot</h3>
+            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-xl rounded-lg bg-white p-8 shadow-2xl">
+              <h3 className="text-2xl font-semibold text-slate-900">Create Pick-up Slot</h3>
               <form onSubmit={handleAddSlot} className="mt-6 space-y-4">
                 <label className="space-y-2 block">
-                  <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Date</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Date</span>
                   <input
                     type="date"
                     required
                     value={newSlot.date}
                     onChange={(event) => setNewSlot({ ...newSlot, date: event.target.value })}
-                    className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                    className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                   />
                 </label>
                 <label className="space-y-2 block">
-                  <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Time Slot</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Time Slot</span>
                   <select
                     value={newSlot.timeSlot}
                     onChange={(event) => setNewSlot({ ...newSlot, timeSlot: event.target.value })}
-                    className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                    className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                   >
                     <option>09:00 AM - 11:00 AM</option>
                     <option>11:00 AM - 01:00 PM</option>
@@ -1824,7 +1818,7 @@ export default function AdminDashboard() {
                   </select>
                 </label>
                 <label className="space-y-2 block">
-                  <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Max Bookings</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Max Bookings</span>
                   <input
                     type="number"
                     min="1"
@@ -1832,7 +1826,7 @@ export default function AdminDashboard() {
                     value={newSlot.maxBookings}
                     onChange={(event) => setNewSlot({ ...newSlot, maxBookings: Number(event.target.value) })}
                     placeholder="10"
-                    className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                    className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                   />
                 </label>
                 <div className="flex justify-end gap-3">
@@ -1862,35 +1856,35 @@ export default function AdminDashboard() {
               }}
               className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
             />
-            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl">
-              <h3 className="text-2xl font-black text-slate-900">Create Coupon</h3>
+            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-2xl rounded-lg bg-white p-8 shadow-2xl">
+              <h3 className="text-2xl font-semibold text-slate-900">Create Coupon</h3>
               <p className="mt-2 text-sm text-muted-foreground">Set discount logic and control campaign limits.</p>
 
               <form onSubmit={handleAddCoupon} className="mt-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Code</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Code</span>
                     <input
                       required
                       value={newCoupon.code}
                       onChange={(event) => setNewCoupon({ ...newCoupon, code: event.target.value.toUpperCase() })}
                       placeholder="SKIN20"
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                      className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                     />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Discount Type</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Discount Type</span>
                     <select
                       value={newCoupon.discountType}
                       onChange={(event) => setNewCoupon({ ...newCoupon, discountType: event.target.value as CouponDiscountType })}
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                      className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                     >
                       <option value="PERCENTAGE">Percentage</option>
                       <option value="FLAT">Flat Amount</option>
                     </select>
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Discount Value</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Discount Value</span>
                     <input
                       required
                       type="number"
@@ -1898,63 +1892,63 @@ export default function AdminDashboard() {
                       value={newCoupon.discountValue}
                       onChange={(event) => setNewCoupon({ ...newCoupon, discountValue: Number(event.target.value) })}
                       placeholder={newCoupon.discountType === "PERCENTAGE" ? "20" : "150"}
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                      className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                     />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Min Order Amount</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Min Order Amount</span>
                     <input
                       type="number"
                       min="0"
                       value={newCoupon.minOrderAmount}
                       onChange={(event) => setNewCoupon({ ...newCoupon, minOrderAmount: Number(event.target.value) })}
                       placeholder="0"
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                      className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                     />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Max Discount (for %)</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Max Discount (for %)</span>
                     <input
                       type="number"
                       min="0"
                       value={newCoupon.maxDiscountAmount}
                       onChange={(event) => setNewCoupon({ ...newCoupon, maxDiscountAmount: Number(event.target.value) })}
                       placeholder="0 = no cap"
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                      className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                     />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Usage Limit</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Usage Limit</span>
                     <input
                       type="number"
                       min="0"
                       value={newCoupon.usageLimit}
                       onChange={(event) => setNewCoupon({ ...newCoupon, usageLimit: Number(event.target.value) })}
                       placeholder="0 = unlimited"
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                      className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                     />
                   </label>
                 </div>
 
                 <label className="block space-y-2">
-                  <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Description</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Description</span>
                   <textarea
                     rows={3}
                     value={newCoupon.description}
                     onChange={(event) => setNewCoupon({ ...newCoupon, description: event.target.value })}
                     placeholder="20% off on skin-care essentials"
-                    className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                    className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                   />
                 </label>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Expiry Date (optional)</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Expiry Date (optional)</span>
                     <input
                       type="date"
                       value={newCoupon.expiresAt}
                       onChange={(event) => setNewCoupon({ ...newCoupon, expiresAt: event.target.value })}
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                      className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                     />
                   </label>
                   <label className="mt-7 inline-flex items-center gap-3 text-sm font-medium text-slate-700">
@@ -1971,14 +1965,14 @@ export default function AdminDashboard() {
                   <button
                     type="button"
                     onClick={() => setShowAddCouponModal(false)}
-                    className="rounded-2xl border border-border px-5 py-3 font-bold text-slate-700"
+                    className="rounded-lg border border-border px-5 py-3 font-bold text-slate-700"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isCouponSaving}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 font-bold text-primary-foreground disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 font-bold text-primary-foreground disabled:opacity-60"
                   >
                     {isCouponSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                     Save Coupon
@@ -2004,35 +1998,35 @@ export default function AdminDashboard() {
               }}
               className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
             />
-            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl">
-              <h3 className="text-2xl font-black text-slate-900">Edit Coupon</h3>
+            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-2xl rounded-lg bg-white p-8 shadow-2xl">
+              <h3 className="text-2xl font-semibold text-slate-900">Edit Coupon</h3>
               <p className="mt-2 text-sm text-muted-foreground">Update discount values, limits, or expiry rules.</p>
 
               <form onSubmit={handleUpdateCoupon} className="mt-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Code</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Code</span>
                     <input
                       required
                       value={editCoupon.code}
                       onChange={(event) => setEditCoupon({ ...editCoupon, code: event.target.value.toUpperCase() })}
                       placeholder="SKIN20"
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                      className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                     />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Discount Type</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Discount Type</span>
                     <select
                       value={editCoupon.discountType}
                       onChange={(event) => setEditCoupon({ ...editCoupon, discountType: event.target.value as CouponDiscountType })}
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                      className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                     >
                       <option value="PERCENTAGE">Percentage</option>
                       <option value="FLAT">Flat Amount</option>
                     </select>
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Discount Value</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Discount Value</span>
                     <input
                       required
                       type="number"
@@ -2040,63 +2034,63 @@ export default function AdminDashboard() {
                       value={editCoupon.discountValue}
                       onChange={(event) => setEditCoupon({ ...editCoupon, discountValue: Number(event.target.value) })}
                       placeholder={editCoupon.discountType === "PERCENTAGE" ? "20" : "150"}
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                      className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                     />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Min Order Amount</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Min Order Amount</span>
                     <input
                       type="number"
                       min="0"
                       value={editCoupon.minOrderAmount}
                       onChange={(event) => setEditCoupon({ ...editCoupon, minOrderAmount: Number(event.target.value) })}
                       placeholder="0"
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                      className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                     />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Max Discount (for %)</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Max Discount (for %)</span>
                     <input
                       type="number"
                       min="0"
                       value={editCoupon.maxDiscountAmount}
                       onChange={(event) => setEditCoupon({ ...editCoupon, maxDiscountAmount: Number(event.target.value) })}
                       placeholder="0 = no cap"
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                      className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                     />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Usage Limit</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Usage Limit</span>
                     <input
                       type="number"
                       min="0"
                       value={editCoupon.usageLimit}
                       onChange={(event) => setEditCoupon({ ...editCoupon, usageLimit: Number(event.target.value) })}
                       placeholder="0 = unlimited"
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                      className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                     />
                   </label>
                 </div>
 
                 <label className="block space-y-2">
-                  <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Description</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Description</span>
                   <textarea
                     rows={3}
                     value={editCoupon.description}
                     onChange={(event) => setEditCoupon({ ...editCoupon, description: event.target.value })}
                     placeholder="20% off on skin-care essentials"
-                    className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                    className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                   />
                 </label>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Expiry Date (optional)</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Expiry Date (optional)</span>
                     <input
                       type="date"
                       value={editCoupon.expiresAt}
                       onChange={(event) => setEditCoupon({ ...editCoupon, expiresAt: event.target.value })}
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
+                      className="w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                     />
                   </label>
                   <label className="mt-7 inline-flex items-center gap-3 text-sm font-medium text-slate-700">
@@ -2117,14 +2111,14 @@ export default function AdminDashboard() {
                       setShowEditCouponModal(false);
                       setEditingCouponId(null);
                     }}
-                    className="rounded-2xl border border-border px-5 py-3 font-bold text-slate-700"
+                    className="rounded-lg border border-border px-5 py-3 font-bold text-slate-700"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isCouponUpdating}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 font-bold text-primary-foreground disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 font-bold text-primary-foreground disabled:opacity-60"
                   >
                     {isCouponUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                     Update Coupon
