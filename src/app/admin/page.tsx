@@ -426,7 +426,7 @@ export default function AdminDashboard() {
       const nextSummary = (await summaryRes.json()) as OrderSummary;
       setOrders(nextOrders);
       setSummary(nextSummary);
-      setSelectedOrderId((current) => current ?? nextOrders[0]?.id ?? null);
+      setSelectedOrderId((current) => current ?? null);
     } catch (error) {
       console.error(error);
       setOrders([]);
@@ -1117,7 +1117,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-[#fcfcfd]/50 p-8 rounded-[2rem] border border-slate-50 mt-2">
+                <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm mt-2">
                   <button onClick={() => setSelectedOrderId(null)} className="mb-8 inline-flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-5 py-3 text-xs font-bold uppercase tracking-widest text-slate-500 shadow-sm transition-all hover:text-indigo-600 hover:border-indigo-100 hover:shadow-md active:scale-95">
                     <ArrowLeft className="h-4 w-4" />
                     Back to Orders
