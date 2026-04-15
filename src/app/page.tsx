@@ -3,53 +3,52 @@ import Hero from "@/components/Hero";
 import Process from "@/components/Process";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { Star, Shield, Zap, TrendingUp } from "lucide-react";
+import { Upload } from "lucide-react";
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-white">
       <Navbar />
       <Hero />
       
-      {/* Social Proof / Stats */}
-      <section className="py-12 border-y border-border bg-background">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { label: "Active Users", value: "50k+", icon: <Star className="w-5 h-5 text-yellow-500" /> },
-              { label: "Medicines", value: "10k+", icon: <Shield className="w-5 h-5 text-blue-500" /> },
-              { label: "AI Accuracy", value: "99.2%", icon: <Zap className="w-5 h-5 text-purple-500" /> },
-              { label: "Fast Delivery", value: "24hrs", icon: <TrendingUp className="w-5 h-5 text-emerald-500" /> },
-            ].map((stat, i) => (
-              <div key={i} className="flex flex-col items-center gap-2 text-center p-4">
-                <div className="mb-2 p-3 rounded-full bg-secondary/50">{stat.icon}</div>
-                <div className="text-3xl font-bold">{stat.value}</div>
-                <div className="text-muted-foreground text-sm font-medium">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <Process />
 
-      {/* CTA Section */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-primary/5 -z-10" />
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto glass p-12 md:p-20 rounded-[3rem] text-center space-y-8">
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tight">Ready to transform your healthcare journey?</h2>
-            <p className="text-xl text-muted-foreground max-w-xl mx-auto">
-              Join thousands of users who have simplified their medicine ordering process with AI.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4">
-              <Link href="/upload">
-                <button className="px-10 py-5 bg-primary text-primary-foreground rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-xl shadow-primary/25">
-                  Upload Now
-                </button>
-              </Link>
+      {/* Product Showcase / CTA Section */}
+      <section className="py-32 relative overflow-hidden bg-white">
+        <div className="container mx-auto px-6 lg:px-12">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-16 lg:gap-24">
+            <div className="relative w-full lg:w-1/2">
+              <div className="absolute inset-0 bg-neutral-100 rounded-[3rem] -rotate-3 -z-10" />
+              <img 
+                src="/skinnonest_products_lineup_1776255102224.png" 
+                alt="SKINNONEST Product Lineup" 
+                className="w-full h-auto rounded-[3rem] shadow-2xl shadow-black/10 hover:scale-[1.02] transition-transform duration-700"
+              />
+            </div>
+
+            <div className="w-full lg:w-1/2 space-y-10 text-center lg:text-left">
+              <h2 className="text-4xl md:text-6xl font-black tracking-tight text-black leading-tight uppercase">
+                Ready to transform your <br />
+                healthcare journey?
+              </h2>
+              <p className="text-lg font-medium text-slate-500 max-w-xl mx-auto lg:mx-0">
+                Join thousands of users who have simplified their medicine ordering process with AI.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6 pt-4">
+                <Link href="/upload">
+                  <button className="group flex items-center justify-center gap-3 px-12 py-5 bg-black text-white rounded-lg text-lg font-bold hover:scale-105 transition-all shadow-xl shadow-black/10">
+                    <Upload className="w-5 h-5 group-hover:animate-bounce" />
+                    Upload Now
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
+        </div>
+        
+        {/* Subtle Branding Watermark */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 pointer-events-none opacity-[0.03]">
+          <span className="text-[20vw] font-black tracking-tighter uppercase whitespace-nowrap">SKINNONEST</span>
         </div>
       </section>
 
