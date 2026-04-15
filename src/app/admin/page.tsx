@@ -1021,18 +1021,18 @@ export default function AdminDashboard() {
                 <div className="grid gap-3 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,0.8fr))]">
                   <label className="relative block">
                     <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search order id, customer, email, phone, medicine" className="w-full rounded-lg border border-border bg-slate-50 py-3 pl-11 pr-4 text-sm outline-none focus:border-primary focus:bg-white" />
+                    <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search order id, customer, email, phone, medicine" className="w-full rounded-lg border border-border bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white [color-scheme:light]" />
                   </label>
-                  <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">
+                  <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white [color-scheme:light]">
                     <option value="ALL">All Statuses</option>
                     {STATUS_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
                   </select>
-                  <select value={fulfillmentFilter} onChange={(event) => setFulfillmentFilter(event.target.value)} className="rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">
+                  <select value={fulfillmentFilter} onChange={(event) => setFulfillmentFilter(event.target.value)} className="rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white [color-scheme:light]">
                     <option value="ALL">All Fulfillment</option>
                     <option value="DELIVERY">Delivery</option>
                     <option value="PICKUP">Pick-up</option>
                   </select>
-                  <select value={paymentFilter} onChange={(event) => setPaymentFilter(event.target.value)} className="rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">
+                  <select value={paymentFilter} onChange={(event) => setPaymentFilter(event.target.value)} className="rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white [color-scheme:light]">
                     <option value="ALL">All Payment</option>
                     {PAYMENT_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
                   </select>
@@ -1090,8 +1090,8 @@ export default function AdminDashboard() {
                         ) : <p className="text-sm text-muted-foreground">This order does not include an uploaded prescription file.</p>}
                       </div>
                       <div className="grid gap-4 rounded-lg border border-border p-4 sm:grid-cols-2">
-                        <label><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Order Status</p><select value={selectedOrder.status} onChange={(event) => void updateOrder({ status: event.target.value as OrderStatus })} className="mt-2 w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">{STATUS_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
-                        <label><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Payment Status</p><select value={selectedOrder.paymentStatus} onChange={(event) => void updateOrder({ paymentStatus: event.target.value as PaymentStatus })} className="mt-2 w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm outline-none focus:border-primary focus:bg-white">{PAYMENT_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
+                        <label><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Order Status</p><select value={selectedOrder.status} onChange={(event) => void updateOrder({ status: event.target.value as OrderStatus })} className="mt-2 w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white [color-scheme:light]">{STATUS_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
+                        <label><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Payment Status</p><select value={selectedOrder.paymentStatus} onChange={(event) => void updateOrder({ paymentStatus: event.target.value as PaymentStatus })} className="mt-2 w-full rounded-lg border border-border bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white [color-scheme:light]">{PAYMENT_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
                       </div>
                       <div><p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Quick Actions</p><div className="flex flex-wrap gap-3">{QUICK_ACTIONS[selectedOrder.status].length ? QUICK_ACTIONS[selectedOrder.status].map((status) => <button key={status} onClick={() => void updateOrder({ status, pharmacistReviewComment: reviewComment })} disabled={isSavingOrder} className="rounded-lg bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:opacity-60">{statusLabel(status)}</button>) : <p className="text-sm text-muted-foreground">No quick actions left for the current order state.</p>}</div></div>
                     </div>
