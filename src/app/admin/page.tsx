@@ -224,6 +224,23 @@ const statusLabel = (value: string) =>
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value || 0);
 
+const UI = {
+  card: "rounded-2xl border border-slate-200 bg-white shadow-sm",
+  cardMuted: "rounded-2xl border border-slate-200 bg-slate-50 shadow-sm",
+  buttonPrimary:
+    "inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition hover:opacity-95 disabled:opacity-60",
+  buttonSecondary:
+    "inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-900 transition hover:bg-slate-50 disabled:opacity-60",
+  buttonDark:
+    "inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-slate-800 disabled:opacity-60",
+  buttonDanger:
+    "inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-bold text-rose-700 transition hover:bg-rose-100 disabled:opacity-60",
+  chip:
+    "inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-700",
+  chipPrimary:
+    "inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-primary",
+};
+
 const formatDateTime = (value: string) =>
   new Date(value).toLocaleString("en-IN", {
     day: "2-digit",
@@ -891,40 +908,56 @@ export default function AdminDashboard() {
   }
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#edf4ff_45%,#ffffff_100%)] pt-24 pb-8">
+    <main className="min-h-screen bg-slate-50 pt-24 pb-10">
       <Navbar />
       <div className="mx-auto flex max-w-[1600px] flex-col gap-6 px-4 lg:flex-row lg:px-6">
-        <aside className="w-full shrink-0 rounded-[2rem] border border-primary/10 bg-white/80 p-4 shadow-[0_24px_80px_-48px_rgba(30,64,175,0.45)] backdrop-blur lg:sticky lg:top-28 lg:w-80 lg:self-start">
-          <div className="mb-6 rounded-[1.75rem] bg-[linear-gradient(135deg,#0f4c81_0%,#1f7aa8_100%)] p-6 text-white">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-white/70">Admin Backend</p>
-            <h1 className="mt-3 text-3xl font-black leading-tight">Order Management</h1>
-            <p className="mt-3 text-sm text-white/80">Live visibility from prescription review to delivery and pick-up.</p>
+        <aside className={`${UI.card} w-full shrink-0 p-5 lg:sticky lg:top-28 lg:w-80 lg:self-start`}>
+          <div className="mb-6 rounded-2xl bg-slate-900 p-5 text-white">
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-white/70">Admin Panel</p>
+            <h1 className="mt-2 text-2xl font-black leading-tight">
+              {activeTab === "orders"
+                ? "Orders"
+                : activeTab === "catalog"
+                  ? "Medicine Catalogue"
+                  : activeTab === "inventory"
+                    ? "Inventory"
+                    : activeTab === "slots"
+                      ? "Pick-up Slots"
+                      : "Coupons"}
+            </h1>
+            <p className="mt-2 text-xs text-white/70">{user.email}</p>
           </div>
-            <div className="space-y-3">
-              {[
-                { id: "orders", label: "Orders", icon: LayoutDashboard },
-                { id: "catalog", label: "Medicine Catalogue", icon: Pill },
-                { id: "inventory", label: "Inventory", icon: Boxes },
-                { id: "slots", label: "Pick-up Slots", icon: Calendar },
-                { id: "coupons", label: "Coupons", icon: Tag },
-              ].map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id as AdminTab)}
-                className={`flex w-full items-center gap-4 rounded-[1.4rem] border p-4 text-left font-bold transition ${activeTab === item.id ? "border-primary bg-primary text-primary-foreground" : "border-transparent bg-slate-50 text-slate-800 hover:border-primary/10 hover:bg-white"}`}
-              >
-                <item.icon className="h-5 w-5" />
-                {item.label}
-              </button>
-            ))}
+
+          <div className="space-y-2">
+            {[
+              { id: "orders", label: "Orders", icon: LayoutDashboard },
+              { id: "catalog", label: "Medicine Catalogue", icon: Pill },
+              { id: "inventory", label: "Inventory", icon: Boxes },
+              { id: "slots", label: "Pick-up Slots", icon: Calendar },
+              { id: "coupons", label: "Coupons", icon: Tag },
+            ].map((item) => {
+              const active = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id as AdminTab)}
+                  className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-bold transition ${
+                    active ? "border-primary bg-primary text-primary-foreground" : "border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
+                  }`}
+                >
+                  <item.icon className={`h-5 w-5 ${active ? "text-primary-foreground" : "text-slate-600"}`} />
+                  {item.label}
+                </button>
+              );
+            })}
           </div>
         </aside>
 
         <section className="min-w-0 flex-1 space-y-6">
-          <header className="rounded-[2rem] border border-primary/10 bg-white/80 p-6 shadow-[0_24px_80px_-48px_rgba(30,64,175,0.45)] backdrop-blur">
+          <header className={`${UI.card} p-6`}>
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.25em] text-primary/70">Module 10</p>
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-slate-500">Admin Workspace</p>
                 <h2 className="mt-2 text-3xl font-black text-slate-900">
                   {activeTab === "orders"
                     ? "Order Management"
@@ -950,7 +983,7 @@ export default function AdminDashboard() {
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 {activeTab === "orders" && (
-                  <button onClick={exportOrders} className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-700">
+                  <button onClick={exportOrders} className={UI.buttonDark}>
                     <Download className="h-4 w-4" />
                     Export CSV
                   </button>
@@ -962,34 +995,34 @@ export default function AdminDashboard() {
                         resetImport();
                         setShowImportModal(true);
                       }}
-                      className="inline-flex items-center gap-2 rounded-2xl border border-border bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
+                      className={UI.buttonSecondary}
                     >
                       <Upload className="h-4 w-4" />
                       Import Excel
                     </button>
-                    <button onClick={() => setShowAddModal(true)} className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">
+                    <button onClick={() => setShowAddModal(true)} className={UI.buttonPrimary}>
                       <Plus className="h-4 w-4" />
                       Add Medicine
                     </button>
                   </>
                 )}
                 {activeTab === "slots" && (
-                  <button onClick={() => setShowAddSlotModal(true)} className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">
+                  <button onClick={() => setShowAddSlotModal(true)} className={UI.buttonPrimary}>
                     <Plus className="h-4 w-4" />
                     Add Slot
                   </button>
                 )}
                 {activeTab === "coupons" && (
-                  <button onClick={() => setShowAddCouponModal(true)} className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">
+                  <button onClick={() => setShowAddCouponModal(true)} className={UI.buttonPrimary}>
                     <Plus className="h-4 w-4" />
                     Create Coupon
                   </button>
                 )}
-                <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900">
-                  <ShieldAlert className="h-5 w-5" />
+                <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900">
+                  <ShieldAlert className="h-5 w-5 text-primary" />
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700">Review Authority</p>
-                    <p className="text-sm font-bold">Admin verification active</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Access</p>
+                    <p className="text-sm font-bold">Admin verified</p>
                   </div>
                 </div>
               </div>
@@ -1006,7 +1039,7 @@ export default function AdminDashboard() {
                   { label: "Completed", value: summary.completedOrders, icon: Check },
                   { label: "Revenue", value: formatCurrency(summary.revenue), icon: Tag },
                 ].map((card) => (
-                  <div key={card.label} className="rounded-[1.6rem] border border-primary/10 bg-white p-5 shadow-sm">
+                  <div key={card.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">{card.label}</p>
                       <card.icon className="h-5 w-5 text-primary" />
@@ -1016,7 +1049,7 @@ export default function AdminDashboard() {
                 ))}
               </div>
 
-              <div className="rounded-[2rem] border border-primary/10 bg-white/80 p-5 shadow-sm">
+              <div className={`${UI.card} p-5`}>
                 <div className="grid gap-3 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,0.8fr))]">
                   <label className="relative block">
                     <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -1043,7 +1076,7 @@ export default function AdminDashboard() {
               </div>
 
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
-                <div className="rounded-[2rem] border border-primary/10 bg-white/80 p-4 shadow-sm">
+                <div className={`${UI.card} p-4`}>
                   <div className="hidden grid-cols-[1.1fr_0.85fr_0.75fr_0.75fr_0.8fr_36px] gap-3 rounded-[1.3rem] bg-slate-100 px-4 py-3 text-xs font-black uppercase tracking-[0.2em] text-slate-500 md:grid">
                     <span>Customer</span><span>Order</span><span>Status</span><span>Mode</span><span>Amount</span><span></span>
                   </div>
@@ -1067,7 +1100,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <div className="rounded-[2rem] border border-primary/10 bg-white/90 p-5 shadow-sm">
+                <div className={`${UI.card} p-5`}>
                   {selectedOrder ? (
                     <div className="space-y-5">
                       <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[0.22em] text-primary/70">Order Detail View</p><h3 className="mt-2 text-2xl font-black text-slate-900">#{selectedOrder.id.slice(-8)}</h3><p className="mt-1 text-sm text-muted-foreground">Placed {formatDateTime(selectedOrder.createdAt)}</p></div><span className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-primary">{statusLabel(selectedOrder.status)}</span></div>
@@ -1110,7 +1143,7 @@ export default function AdminDashboard() {
                   { label: "Total Units", value: inventorySummary.totalUnits, icon: Pill },
                   { label: "Stock Value", value: formatCurrency(inventorySummary.totalStockValue), icon: Tag },
                 ].map((card) => (
-                  <div key={card.label} className="rounded-[1.6rem] border border-primary/10 bg-white p-5 shadow-sm">
+                  <div key={card.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">{card.label}</p>
                       <card.icon className="h-5 w-5 text-primary" />
@@ -1121,7 +1154,7 @@ export default function AdminDashboard() {
               </div>
 
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)]">
-                <div className="rounded-[2rem] border border-primary/10 bg-white/80 p-5 shadow-sm">
+                <div className={`${UI.card} p-5`}>
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Stock Levels</p>
@@ -1129,7 +1162,7 @@ export default function AdminDashboard() {
                     </div>
                     <button
                       onClick={() => void Promise.all([fetchMedicines(), fetchInventory()])}
-                      className="rounded-2xl border border-border bg-white px-4 py-3 text-sm font-bold text-slate-800 transition hover:border-primary/20"
+                      className={UI.buttonSecondary}
                     >
                       Refresh
                     </button>
@@ -1174,7 +1207,7 @@ export default function AdminDashboard() {
                                 <span className="text-sm font-black text-slate-900">{stock}</span>
                               </div>
                               <div className="flex justify-end">
-                                <button onClick={() => openAdjustModal(medicine)} className="rounded-2xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground">
+                                <button onClick={() => openAdjustModal(medicine)} className={UI.buttonPrimary}>
                                   Adjust
                                 </button>
                               </div>
@@ -1186,7 +1219,7 @@ export default function AdminDashboard() {
                   )}
                 </div>
 
-                <div className="rounded-[2rem] border border-primary/10 bg-white/80 p-5 shadow-sm">
+                <div className={`${UI.card} p-5`}>
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Movement History</p>
@@ -1252,33 +1285,34 @@ export default function AdminDashboard() {
           )}
 
           {activeTab === "catalog" && (
-            <div className="rounded-[2rem] border border-primary/10 bg-white/80 p-5 shadow-sm">
+            <div className={`${UI.card} p-6`}>
               {isCatalogLoading && medicines.length === 0 ? (
                 <div className="flex min-h-72 items-center justify-center gap-4 text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin text-primary" />Loading medicine catalogue...</div>
               ) : medicines.length === 0 ? (
                 <div className="rounded-[1.5rem] border border-dashed border-border p-10 text-center text-muted-foreground">Catalog is empty. Add your first medicine to make it available for checkout.</div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[880px] border-separate border-spacing-y-2">
-                    <thead>
+                  <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                    <table className="w-full min-w-[980px] text-sm">
+                    <thead className="bg-slate-50">
                       <tr className="text-left text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
-                        <th className="px-4 py-2">Medicine ID</th>
-                        <th className="px-4 py-2">Name</th>
-                        <th className="px-4 py-2">Strength</th>
-                        <th className="px-4 py-2">Category</th>
-                        <th className="px-4 py-2">Rx</th>
-                        <th className="px-4 py-2 text-right">Price</th>
-                        <th className="px-4 py-2 text-right">Stock</th>
-                        <th className="px-4 py-2">Description</th>
+                        <th className="px-4 py-3">Medicine ID</th>
+                        <th className="px-4 py-3">Name</th>
+                        <th className="px-4 py-3">Strength</th>
+                        <th className="px-4 py-3">Category</th>
+                        <th className="px-4 py-3">Rx</th>
+                        <th className="px-4 py-3 text-right">Price</th>
+                        <th className="px-4 py-3 text-right">Stock</th>
+                        <th className="px-4 py-3">Description</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-slate-200">
                       {medicines.map((medicine, index) => (
                         <tr
                           key={medicine.id || medicine._id || `${medicine.name}-${index}`}
-                          className="rounded-[1.25rem] border border-border bg-white shadow-sm"
+                          className="bg-white hover:bg-slate-50"
                         >
-                          <td className="whitespace-nowrap rounded-l-[1.25rem] px-4 py-3 text-sm font-black text-primary">
+                          <td className="whitespace-nowrap px-4 py-3 text-sm font-black text-primary">
                             {medicine.medicineId || "AUTO"}
                           </td>
                           <td className="max-w-[260px] px-4 py-3 text-sm font-black text-slate-900">
@@ -1299,13 +1333,14 @@ export default function AdminDashboard() {
                           </td>
                           <td className="whitespace-nowrap px-4 py-3 text-right text-sm font-bold text-primary">{formatCurrency(medicine.price)}</td>
                           <td className="whitespace-nowrap px-4 py-3 text-right text-sm text-slate-800">{medicine.quantity}</td>
-                          <td className="rounded-r-[1.25rem] px-4 py-3 text-sm text-muted-foreground">
+                          <td className="px-4 py-3 text-sm text-muted-foreground">
                             <p className="max-w-[360px] truncate">{medicine.description}</p>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                </div>
                 </div>
               )}
             </div>
@@ -1314,11 +1349,11 @@ export default function AdminDashboard() {
           {activeTab === "slots" && (
             <div className="space-y-6">
               <div className="grid gap-4 md:grid-cols-3">
-                <div className="rounded-[1.6rem] border border-primary/10 bg-white p-5"><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Active Slots</p><p className="mt-5 text-3xl font-black text-slate-900">{slots.length}</p></div>
-                <div className="rounded-[1.6rem] border border-primary/10 bg-white p-5"><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Booked Capacity</p><p className="mt-5 text-3xl font-black text-slate-900">{slots.reduce((sum, slot) => sum + slot.currentBookings, 0)}</p></div>
-                <div className="rounded-[1.6rem] border border-primary/10 bg-white p-5"><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Open Capacity</p><p className="mt-5 text-3xl font-black text-slate-900">{slots.reduce((sum, slot) => sum + Math.max(slot.maxBookings - slot.currentBookings, 0), 0)}</p></div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Active Slots</p><p className="mt-5 text-3xl font-black text-slate-900">{slots.length}</p></div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Booked Capacity</p><p className="mt-5 text-3xl font-black text-slate-900">{slots.reduce((sum, slot) => sum + slot.currentBookings, 0)}</p></div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Open Capacity</p><p className="mt-5 text-3xl font-black text-slate-900">{slots.reduce((sum, slot) => sum + Math.max(slot.maxBookings - slot.currentBookings, 0), 0)}</p></div>
               </div>
-              <div className="rounded-[2rem] border border-primary/10 bg-white/80 p-5 shadow-sm">
+              <div className={`${UI.card} p-5`}>
                 {isSlotsLoading && slots.length === 0 ? (
                   <div className="flex min-h-72 items-center justify-center gap-4 text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin text-primary" />Loading pickup slots...</div>
                 ) : (
@@ -1361,7 +1396,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="rounded-[2rem] border border-primary/10 bg-white/80 p-5 shadow-sm">
+              <div className={`${UI.card} p-5`}>
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
                     <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Campaign Rules</p>
@@ -1369,7 +1404,7 @@ export default function AdminDashboard() {
                   </div>
                   <button
                     onClick={() => void fetchCoupons()}
-                    className="rounded-2xl border border-border bg-white px-4 py-3 text-sm font-bold text-slate-800 transition hover:border-primary/20"
+                    className={UI.buttonSecondary}
                   >
                     Refresh
                   </button>
@@ -1484,7 +1519,7 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, scale: 0.96, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 20 }}
-              className="relative w-full max-w-xl rounded-[2rem] bg-white p-8 shadow-2xl"
+              className="relative w-full max-w-xl rounded-2xl bg-white p-8 shadow-2xl"
             >
               <h3 className="text-2xl font-black text-slate-900">Adjust Inventory</h3>
               <p className="mt-2 text-sm text-muted-foreground">Positive adds stock, negative removes stock.</p>
@@ -1526,14 +1561,14 @@ export default function AdminDashboard() {
                       setShowAdjustModal(false);
                       setAdjustTarget(null);
                     }}
-                    className="rounded-2xl border border-border px-5 py-3 font-bold text-slate-700"
+                    className={UI.buttonSecondary}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isAdjustingStock}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 font-bold text-primary-foreground disabled:opacity-60"
+                    className={UI.buttonPrimary}
                   >
                     {isAdjustingStock ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                     Save Adjustment
@@ -1563,7 +1598,7 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, scale: 0.96, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 20 }}
-              className="relative w-full max-w-5xl rounded-[2rem] bg-white p-8 shadow-2xl"
+              className="relative w-full max-w-5xl rounded-2xl bg-white p-8 shadow-2xl"
             >
               <h3 className="text-2xl font-black text-slate-900">Import Medicines (Excel)</h3>
               <p className="mt-2 text-sm text-muted-foreground">
@@ -1588,7 +1623,7 @@ export default function AdminDashboard() {
                   type="button"
                   onClick={() => importFileRef.current?.click()}
                   disabled={isImportParsing || isImportSubmitting}
-                  className="inline-flex items-center gap-2 rounded-2xl border border-border bg-white px-4 py-3 text-sm font-bold text-slate-800 transition hover:border-primary/20 disabled:opacity-60"
+                  className={UI.buttonSecondary}
                 >
                   {isImportParsing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                   Choose Excel File
@@ -1683,7 +1718,7 @@ export default function AdminDashboard() {
                       setShowImportModal(false);
                       resetImport();
                     }}
-                    className="rounded-2xl border border-border px-5 py-3 font-bold text-slate-700 disabled:opacity-60"
+                    className={UI.buttonSecondary}
                     disabled={isImportParsing || isImportSubmitting}
                   >
                     Cancel
@@ -1692,7 +1727,7 @@ export default function AdminDashboard() {
                     type="button"
                     onClick={() => void submitImport()}
                     disabled={importRows.length === 0 || importSelectedCount === 0 || isImportSubmitting}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 font-bold text-primary-foreground disabled:opacity-60"
+                    className={UI.buttonPrimary}
                   >
                     {isImportSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                     Add Selected
@@ -1708,7 +1743,7 @@ export default function AdminDashboard() {
         {showAddModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAddModal(false)} className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" />
-            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-2xl rounded-[2rem] bg-white p-8 shadow-2xl">
+            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl">
               <h3 className="text-2xl font-black text-slate-900">Add Medicine</h3>
               <form onSubmit={handleAddMedicine} className="mt-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -1742,7 +1777,14 @@ export default function AdminDashboard() {
                   <textarea required rows={4} value={newMed.description} onChange={(event) => setNewMed({ ...newMed, description: event.target.value })} placeholder="Describe the medicine, usage, or key notes" className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white" />
                 </label>
                 <label className="inline-flex items-center gap-3 text-sm font-medium text-slate-700"><input type="checkbox" checked={newMed.requiresPrescription} onChange={(event) => setNewMed({ ...newMed, requiresPrescription: event.target.checked })} />Requires prescription</label>
-                <div className="flex justify-end gap-3"><button type="button" onClick={() => setShowAddModal(false)} className="rounded-2xl border border-border px-5 py-3 font-bold text-slate-700">Cancel</button><button type="submit" className="rounded-2xl bg-primary px-5 py-3 font-bold text-primary-foreground">Save Medicine</button></div>
+                <div className="flex justify-end gap-3">
+                  <button type="button" onClick={() => setShowAddModal(false)} className={UI.buttonSecondary}>
+                    Cancel
+                  </button>
+                  <button type="submit" className={UI.buttonPrimary}>
+                    Save Medicine
+                  </button>
+                </div>
               </form>
             </motion.div>
           </div>
@@ -1753,7 +1795,7 @@ export default function AdminDashboard() {
         {showAddSlotModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAddSlotModal(false)} className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" />
-            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-xl rounded-[2rem] bg-white p-8 shadow-2xl">
+            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-xl rounded-2xl bg-white p-8 shadow-2xl">
               <h3 className="text-2xl font-black text-slate-900">Create Pick-up Slot</h3>
               <form onSubmit={handleAddSlot} className="mt-6 space-y-4">
                 <label className="space-y-2 block">
@@ -1793,7 +1835,14 @@ export default function AdminDashboard() {
                     className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-primary focus:bg-white"
                   />
                 </label>
-                <div className="flex justify-end gap-3"><button type="button" onClick={() => setShowAddSlotModal(false)} className="rounded-2xl border border-border px-5 py-3 font-bold text-slate-700">Cancel</button><button type="submit" className="rounded-2xl bg-primary px-5 py-3 font-bold text-primary-foreground">Save Slot</button></div>
+                <div className="flex justify-end gap-3">
+                  <button type="button" onClick={() => setShowAddSlotModal(false)} className={UI.buttonSecondary}>
+                    Cancel
+                  </button>
+                  <button type="submit" className={UI.buttonPrimary}>
+                    Save Slot
+                  </button>
+                </div>
               </form>
             </motion.div>
           </div>
@@ -1813,7 +1862,7 @@ export default function AdminDashboard() {
               }}
               className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
             />
-            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-2xl rounded-[2rem] bg-white p-8 shadow-2xl">
+            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl">
               <h3 className="text-2xl font-black text-slate-900">Create Coupon</h3>
               <p className="mt-2 text-sm text-muted-foreground">Set discount logic and control campaign limits.</p>
 
@@ -1955,7 +2004,7 @@ export default function AdminDashboard() {
               }}
               className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
             />
-            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-2xl rounded-[2rem] bg-white p-8 shadow-2xl">
+            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl">
               <h3 className="text-2xl font-black text-slate-900">Edit Coupon</h3>
               <p className="mt-2 text-sm text-muted-foreground">Update discount values, limits, or expiry rules.</p>
 
