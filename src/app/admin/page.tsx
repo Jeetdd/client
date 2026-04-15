@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import * as XLSX from "xlsx";
 import {
+  ArrowLeft,
   Boxes,
   Calendar,
   Check,
@@ -1034,108 +1035,111 @@ export default function AdminDashboard() {
                 ))}
               </div>
 
-              <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm mb-6">
-                <div className="grid gap-4 lg:grid-cols-[1fr_repeat(3,200px)]">
-                  <label className="relative group">
-                    <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                    <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search orders, customers, medicines..." className="w-full rounded-2xl border border-slate-100 bg-[#fcfcfd] py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 transition-all [color-scheme:light]" />
-                  </label>
-                  <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-2xl border border-slate-100 bg-[#fcfcfd] px-5 py-3.5 text-sm text-slate-900 font-semibold outline-none focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 transition-all cursor-pointer [color-scheme:light]">
-                    <option value="ALL">All Statuses</option>
-                    {STATUS_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
-                  </select>
-                  <select value={fulfillmentFilter} onChange={(event) => setFulfillmentFilter(event.target.value)} className="rounded-2xl border border-slate-100 bg-[#fcfcfd] px-5 py-3.5 text-sm text-slate-900 font-semibold outline-none focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 transition-all cursor-pointer [color-scheme:light]">
-                    <option value="ALL">All Delivery</option>
-                    <option value="DELIVERY">Home Delivery</option>
-                    <option value="PICKUP">Store Pickup</option>
-                  </select>
-                  <select value={paymentFilter} onChange={(event) => setPaymentFilter(event.target.value)} className="rounded-2xl border border-slate-100 bg-[#fcfcfd] px-5 py-3.5 text-sm text-slate-900 font-semibold outline-none focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 transition-all cursor-pointer [color-scheme:light]">
-                    <option value="ALL">All Payment</option>
-                    {PAYMENT_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
-                  </select>
-                </div>
-                <div className="mt-4 flex items-center gap-4">
-                  <label className="inline-flex items-center gap-2.5 cursor-pointer group">
-                    <div className="relative">
-                       <input type="checkbox" className="sr-only peer" checked={prescriptionOnly} onChange={(event) => setPrescriptionOnly(event.target.checked)} />
-                       <div className="w-10 h-6 bg-slate-100 rounded-full peer peer-checked:bg-indigo-600 transition-colors"></div>
-                       <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4 shadow-sm"></div>
+              {!selectedOrder ? (
+                <>
+                  <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm mb-6">
+                    <div className="grid gap-4 lg:grid-cols-[1fr_repeat(3,200px)]">
+                      <label className="relative group">
+                        <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search orders, customers, medicines..." className="w-full rounded-2xl border border-slate-100 bg-[#fcfcfd] py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 transition-all [color-scheme:light]" />
+                      </label>
+                      <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-2xl border border-slate-100 bg-[#fcfcfd] px-5 py-3.5 text-sm text-slate-900 font-semibold outline-none focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 transition-all cursor-pointer [color-scheme:light]">
+                        <option value="ALL">All Statuses</option>
+                        {STATUS_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
+                      </select>
+                      <select value={fulfillmentFilter} onChange={(event) => setFulfillmentFilter(event.target.value)} className="rounded-2xl border border-slate-100 bg-[#fcfcfd] px-5 py-3.5 text-sm text-slate-900 font-semibold outline-none focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 transition-all cursor-pointer [color-scheme:light]">
+                        <option value="ALL">All Delivery</option>
+                        <option value="DELIVERY">Home Delivery</option>
+                        <option value="PICKUP">Store Pickup</option>
+                      </select>
+                      <select value={paymentFilter} onChange={(event) => setPaymentFilter(event.target.value)} className="rounded-2xl border border-slate-100 bg-[#fcfcfd] px-5 py-3.5 text-sm text-slate-900 font-semibold outline-none focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 transition-all cursor-pointer [color-scheme:light]">
+                        <option value="ALL">All Payment</option>
+                        {PAYMENT_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
+                      </select>
                     </div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-600 transition-colors">Prescription only</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
-                <div className={`${UI.card} p-4`}>
-                  <div className="hidden grid-cols-[1.1fr_0.85fr_0.75fr_0.75fr_0.8fr_36px] gap-3 rounded-lg bg-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 md:grid">
+                    <div className="mt-4 flex items-center gap-4">
+                      <label className="inline-flex items-center gap-2.5 cursor-pointer group">
+                        <div className="relative">
+                           <input type="checkbox" className="sr-only peer" checked={prescriptionOnly} onChange={(event) => setPrescriptionOnly(event.target.checked)} />
+                           <div className="w-10 h-6 bg-slate-100 rounded-full peer peer-checked:bg-indigo-600 transition-colors"></div>
+                           <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4 shadow-sm"></div>
+                        </div>
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-600 transition-colors">Prescription only</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <div className="hidden grid-cols-[1.1fr_0.85fr_0.75fr_0.75fr_0.8fr_36px] gap-3 rounded-[1.5rem] bg-white px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 md:grid shadow-sm border border-slate-100 mb-4">
                     <span>Customer</span><span>Order</span><span>Status</span><span>Mode</span><span>Amount</span><span></span>
                   </div>
-                    <div className="mt-6 space-y-4">
-                      {isOrdersLoading ? (
-                        <div className="flex min-h-72 items-center justify-center gap-4 text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin text-indigo-600" />Preparing dashboard...</div>
-                      ) : ordersError ? (
-                        <div className="rounded-2xl border border-rose-100 bg-rose-50 p-6 text-sm text-rose-600 font-semibold">{ordersError}</div>
-                      ) : orders.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-slate-200 p-12 text-center text-slate-400 font-medium">No records found matching filters.</div>
-                      ) : orders.map((order) => (
-                        <button key={order.id} onClick={() => setSelectedOrderId(order.id)} className={`grid w-full gap-4 rounded-[1.5rem] border p-5 text-left transition-all md:grid-cols-[1.1fr_0.85fr_0.75fr_0.75fr_0.8fr_36px] md:items-center ${selectedOrderId === order.id ? "border-indigo-200 bg-indigo-50/30 shadow-md shadow-indigo-100/20" : "border-slate-50 bg-[#fcfcfd]/50 hover:border-slate-200 hover:bg-white hover:shadow-lg hover:shadow-slate-200/20"}`}>
-                          <div className="flex items-center gap-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm text-slate-400 ring-1 ring-slate-100"><UserRound className="h-5 w-5" /></div>
-                            <div><p className="font-bold text-slate-900 leading-none">{order.user.name}</p><p className="mt-1.5 text-xs font-bold text-slate-400 tracking-tight">{order.user.phone || order.user.email}</p></div>
-                          </div>
-                          <div><p className="text-sm font-bold text-slate-900 leading-none">#{order.id.slice(-8)}</p><p className="mt-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">{formatDateTime(order.createdAt)}</p></div>
-                          <div><span className={`inline-flex rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest ${order.status === 'PENDING_PHARMACIST_REVIEW' ? 'bg-amber-100 text-amber-600' : 'bg-slate-900 text-white'}`}>{statusLabel(order.status)}</span><p className="mt-2 text-[10px] font-bold text-slate-400 tracking-wider uppercase">{statusLabel(order.paymentStatus)}</p></div>
-                          <div><p className="text-sm font-bold text-slate-900">{statusLabel(order.fulfillmentMethod)}</p><p className="mt-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">{order.itemsCount} Products</p></div>
-                          <div><p className="text-lg font-bold text-indigo-600 tracking-tight">{formatCurrency(order.finalAmount)}</p><p className="mt-1 text-[11px] font-bold text-slate-400 uppercase tracking-widest">{order.requiresPrescription ? "Rx Required" : "No Rx"}</p></div>
-                          <ChevronRight className={`ml-auto h-5 w-5 transition-colors ${selectedOrderId === order.id ? 'text-indigo-600' : 'text-slate-300'}`} />
-                        </button>
-                      ))}
-                    </div>
+                  <div className="space-y-4">
+                    {isOrdersLoading ? (
+                      <div className="flex min-h-72 items-center justify-center gap-4 text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin text-indigo-600" />Preparing dashboard...</div>
+                    ) : ordersError ? (
+                      <div className="rounded-2xl border border-rose-100 bg-rose-50 p-6 text-sm text-rose-600 font-semibold">{ordersError}</div>
+                    ) : orders.length === 0 ? (
+                      <div className="rounded-2xl border border-dashed border-slate-200 p-12 text-center text-slate-400 font-medium bg-white">No records found matching filters.</div>
+                    ) : orders.map((order) => (
+                      <button key={order.id} onClick={() => setSelectedOrderId(order.id)} className={`grid w-full gap-4 rounded-[1.5rem] border p-5 text-left transition-all md:grid-cols-[1.1fr_0.85fr_0.75fr_0.75fr_0.8fr_36px] md:items-center ${selectedOrderId === order.id ? "border-indigo-200 bg-indigo-50/30 shadow-md shadow-indigo-100/20" : "border-slate-50 bg-[#fcfcfd]/50 hover:border-slate-200 hover:bg-white hover:shadow-lg hover:shadow-slate-200/20"}`}>
+                        <div className="flex items-center gap-4">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm text-slate-400 ring-1 ring-slate-100"><UserRound className="h-5 w-5" /></div>
+                          <div><p className="font-bold text-slate-900 leading-none">{order.user.name}</p><p className="mt-1.5 text-xs font-bold text-slate-400 tracking-tight">{order.user.phone || order.user.email}</p></div>
+                        </div>
+                        <div><p className="text-sm font-bold text-slate-900 leading-none">#{order.id.slice(-8)}</p><p className="mt-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">{formatDateTime(order.createdAt)}</p></div>
+                        <div><span className={`inline-flex rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest ${order.status === 'PENDING_PHARMACIST_REVIEW' ? 'bg-amber-100 text-amber-600' : 'bg-slate-900 text-white'}`}>{statusLabel(order.status)}</span><p className="mt-2 text-[10px] font-bold text-slate-400 tracking-wider uppercase">{statusLabel(order.paymentStatus)}</p></div>
+                        <div><p className="text-sm font-bold text-slate-900">{statusLabel(order.fulfillmentMethod)}</p><p className="mt-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">{order.itemsCount} Products</p></div>
+                        <div><p className="text-lg font-bold text-indigo-600 tracking-tight">{formatCurrency(order.finalAmount)}</p><p className="mt-1 text-[11px] font-bold text-slate-400 uppercase tracking-widest">{order.requiresPrescription ? "Rx Required" : "No Rx"}</p></div>
+                        <ChevronRight className={`ml-auto h-5 w-5 transition-colors ${selectedOrderId === order.id ? 'text-indigo-600' : 'text-slate-300'}`} />
+                      </button>
+                    ))}
                   </div>
-  
-                  <div className="bg-[#fcfcfd]/50 p-8 rounded-[2rem] border border-slate-50">
-                    {selectedOrder ? (
-                      <div className="space-y-8">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-indigo-500 mb-1">Detailed Log</p>
-                            <h3 className="text-2xl font-bold tracking-tight text-slate-900">Order #{selectedOrder.id.slice(-8)}</h3>
-                            <p className="mt-1 text-sm font-medium text-slate-400">Captured at {formatDateTime(selectedOrder.createdAt)}</p>
-                          </div>
-                          <span className="rounded-xl bg-white border border-slate-100 shadow-sm px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-slate-900">{statusLabel(selectedOrder.status)}</span>
-                        </div>
-                        
-                        <div className="grid gap-6 rounded-[1.5rem] bg-white border border-slate-100 p-6 shadow-sm md:grid-cols-2">
-                          <div><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3">Customer Profile</p><p className="text-lg font-bold text-slate-900">{selectedOrder.user.name}</p><p className="mt-1 text-sm font-medium text-slate-500">{selectedOrder.user.email}</p><p className="text-sm font-medium text-slate-500">{selectedOrder.user.phone || "No device contact"}</p></div>
-                          <div><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3">Service Mode</p><p className="text-lg font-bold text-slate-900">{statusLabel(selectedOrder.fulfillmentMethod)}</p><p className="mt-1 text-sm font-medium text-slate-500 leading-relaxed">{selectedOrder.fulfillmentMethod === "PICKUP" ? selectedOrder.pickupSlotTime || "Awaiting slot" : selectedOrder.shippingAddress || "N/A"}</p></div>
-                        </div>
-  
-                        <div className="rounded-[1.5rem] bg-white border border-slate-100 p-6 shadow-sm">
-                          <div className="mb-6 flex items-center justify-between"><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Inventory Items</p><p className="text-lg font-bold text-indigo-600 tracking-tight">{formatCurrency(selectedOrder.finalAmount)}</p></div>
-                          <div className="space-y-4">{selectedOrder.items.map((item) => <div key={item.id || `${item.medicine?.name}-${item.quantity}`} className="flex items-center justify-between gap-4 rounded-2xl bg-slate-50/50 p-4 border border-slate-50"><div><p className="font-bold text-slate-900">{item.medicine?.name || "Product"}</p><p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{item.medicine?.category || "Misc"}</p></div><div className="text-right"><p className="font-bold text-slate-900">x{item.quantity}</p><p className="mt-0.5 text-xs font-bold text-indigo-400">{formatCurrency(item.price)}</p></div></div>)}</div>
-                        </div>
-  
-                        <div className="rounded-[1.5rem] bg-white border border-slate-100 p-6 shadow-sm">
-                          <div className="mb-6 flex items-center justify-between"><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Medical Data</p><span className={`rounded-xl px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest border ${selectedOrder.prescriptionImage ? "bg-amber-50 text-amber-600 border-amber-100" : "bg-emerald-50 text-emerald-600 border-emerald-100"}`}>{selectedOrder.prescriptionImage ? "RX ANALYZED" : "OTC ORDER"}</span></div>
-                          {selectedOrder.prescriptionImage ? (
-                            <div className="grid gap-6 sm:grid-cols-[160px_1fr]">
-                              <button onClick={() => window.open(toAssetUrl(selectedOrder.prescriptionImage), "_blank", "noopener,noreferrer")} className="group relative overflow-hidden rounded-2xl border border-slate-100 ring-4 ring-slate-50 shadow-sm"><img src={toAssetUrl(selectedOrder.prescriptionImage)} alt="Prescription" className="h-40 w-full object-cover transition-transform duration-500 group-hover:scale-110" /><div className="absolute inset-0 flex items-center justify-center bg-slate-950/0 text-white transition-all group-hover:bg-slate-950/40 opacity-0 group-hover:opacity-100"><Eye className="h-6 w-6" /></div></button>
-                              <div className="space-y-4"><textarea value={reviewComment} onChange={(event) => setReviewComment(event.target.value)} rows={4} placeholder="Internal verification notes..." className="w-full rounded-2xl border border-slate-100 bg-slate-50/50 p-5 text-sm font-medium text-slate-700 outline-none focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50" /><button onClick={() => void updateOrder({ pharmacistReviewComment: reviewComment })} disabled={isSavingOrder} className="inline-flex items-center gap-2.5 rounded-xl bg-slate-900 px-6 py-3 text-xs font-bold uppercase tracking-widest text-white transition-all active:scale-95 disabled:opacity-50 shadow-lg">{isSavingOrder ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}Append Verification</button></div>
-                            </div>
-                          ) : <p className="text-sm font-medium text-slate-400 italic font-medium">Clearance not required for OTC items.</p>}
-                        </div>
-  
-                        <div className="grid gap-6 rounded-[1.5rem] bg-white border border-slate-100 p-6 shadow-sm sm:grid-cols-2">
-                          <label><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3 ml-1">Lifecycle Status</p><select value={selectedOrder.status} onChange={(event) => void updateOrder({ status: event.target.value as OrderStatus })} className="w-full rounded-2xl border border-slate-100 bg-slate-50/50 px-5 py-4 text-sm font-bold text-slate-900 outline-none transition-all focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 [color-scheme:light]">{STATUS_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
-                          <label><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3 ml-1">Payment State</p><select value={selectedOrder.paymentStatus} onChange={(event) => void updateOrder({ paymentStatus: event.target.value as PaymentStatus })} className="w-full rounded-2xl border border-slate-100 bg-slate-50/50 px-5 py-4 text-sm font-bold text-slate-900 outline-none transition-all focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 [color-scheme:light]">{PAYMENT_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
-                        </div>
-                        
-                        <div><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4 ml-1">Workflow Actions</p><div className="flex flex-wrap gap-3">{QUICK_ACTIONS[selectedOrder.status].length ? QUICK_ACTIONS[selectedOrder.status].map((status) => <button key={status} onClick={() => void updateOrder({ status, pharmacistReviewComment: reviewComment })} disabled={isSavingOrder} className="rounded-2xl bg-indigo-600 px-6 py-4 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-indigo-100 transition-all hover:scale-105 active:scale-95 disabled:opacity-50">{statusLabel(status)}</button>) : <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Pipeline Finalized</p>}</div></div>
+                </>
+              ) : (
+                <div className="bg-[#fcfcfd]/50 p-8 rounded-[2rem] border border-slate-50 mt-2">
+                  <button onClick={() => setSelectedOrderId(null)} className="mb-8 inline-flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-5 py-3 text-xs font-bold uppercase tracking-widest text-slate-500 shadow-sm transition-all hover:text-indigo-600 hover:border-indigo-100 hover:shadow-md active:scale-95">
+                    <ArrowLeft className="h-4 w-4" />
+                    Back to Orders
+                  </button>
+
+                  <div className="space-y-8">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-indigo-500 mb-1">Detailed Log</p>
+                        <h3 className="text-2xl font-bold tracking-tight text-slate-900">Order #{selectedOrder.id.slice(-8)}</h3>
+                        <p className="mt-1 text-sm font-medium text-slate-400">Captured at {formatDateTime(selectedOrder.createdAt)}</p>
                       </div>
-                  ) : <div className="flex min-h-72 items-center justify-center text-center text-muted-foreground">Select an order to inspect its customer, prescription, and fulfillment details.</div>}
+                      <span className="rounded-xl bg-white border border-slate-100 shadow-sm px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-slate-900">{statusLabel(selectedOrder.status)}</span>
+                    </div>
+                    
+                    <div className="grid gap-6 rounded-[1.5rem] bg-white border border-slate-100 p-6 shadow-sm md:grid-cols-2">
+                      <div><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3">Customer Profile</p><p className="text-lg font-bold text-slate-900">{selectedOrder.user.name}</p><p className="mt-1 text-sm font-medium text-slate-500">{selectedOrder.user.email}</p><p className="text-sm font-medium text-slate-500">{selectedOrder.user.phone || "No device contact"}</p></div>
+                      <div><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3">Service Mode</p><p className="text-lg font-bold text-slate-900">{statusLabel(selectedOrder.fulfillmentMethod)}</p><p className="mt-1 text-sm font-medium text-slate-500 leading-relaxed">{selectedOrder.fulfillmentMethod === "PICKUP" ? selectedOrder.pickupSlotTime || "Awaiting slot" : selectedOrder.shippingAddress || "N/A"}</p></div>
+                    </div>
+
+                    <div className="rounded-[1.5rem] bg-white border border-slate-100 p-6 shadow-sm">
+                      <div className="mb-6 flex items-center justify-between"><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Inventory Items</p><p className="text-lg font-bold text-indigo-600 tracking-tight">{formatCurrency(selectedOrder.finalAmount)}</p></div>
+                      <div className="space-y-4">{selectedOrder.items.map((item) => <div key={item.id || `${item.medicine?.name}-${item.quantity}`} className="flex items-center justify-between gap-4 rounded-2xl bg-slate-50/50 p-4 border border-slate-50"><div><p className="font-bold text-slate-900">{item.medicine?.name || "Product"}</p><p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{item.medicine?.category || "Misc"}</p></div><div className="text-right"><p className="font-bold text-slate-900">x{item.quantity}</p><p className="mt-0.5 text-xs font-bold text-indigo-400">{formatCurrency(item.price)}</p></div></div>)}</div>
+                    </div>
+
+                    <div className="rounded-[1.5rem] bg-white border border-slate-100 p-6 shadow-sm">
+                      <div className="mb-6 flex items-center justify-between"><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Medical Data</p><span className={`rounded-xl px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest border ${selectedOrder.prescriptionImage ? "bg-amber-50 text-amber-600 border-amber-100" : "bg-emerald-50 text-emerald-600 border-emerald-100"}`}>{selectedOrder.prescriptionImage ? "RX ANALYZED" : "OTC ORDER"}</span></div>
+                      {selectedOrder.prescriptionImage ? (
+                        <div className="grid gap-6 sm:grid-cols-[160px_1fr]">
+                          <button onClick={() => window.open(toAssetUrl(selectedOrder.prescriptionImage), "_blank", "noopener,noreferrer")} className="group relative overflow-hidden rounded-2xl border border-slate-100 ring-4 ring-slate-50 shadow-sm"><img src={toAssetUrl(selectedOrder.prescriptionImage)} alt="Prescription" className="h-40 w-full object-cover transition-transform duration-500 group-hover:scale-110" /><div className="absolute inset-0 flex items-center justify-center bg-slate-950/0 text-white transition-all group-hover:bg-slate-950/40 opacity-0 group-hover:opacity-100"><Eye className="h-6 w-6" /></div></button>
+                          <div className="space-y-4"><textarea value={reviewComment} onChange={(event) => setReviewComment(event.target.value)} rows={4} placeholder="Internal verification notes..." className="w-full rounded-2xl border border-slate-100 bg-slate-50/50 p-5 text-sm font-medium text-slate-700 outline-none focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50" /><button onClick={() => void updateOrder({ pharmacistReviewComment: reviewComment })} disabled={isSavingOrder} className="inline-flex items-center gap-2.5 rounded-xl bg-slate-900 px-6 py-3 text-xs font-bold uppercase tracking-widest text-white transition-all active:scale-95 disabled:opacity-50 shadow-lg">{isSavingOrder ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}Append Verification</button></div>
+                        </div>
+                      ) : <p className="text-sm font-medium text-slate-400 italic font-medium">Clearance not required for OTC items.</p>}
+                    </div>
+
+                    <div className="grid gap-6 rounded-[1.5rem] bg-white border border-slate-100 p-6 shadow-sm sm:grid-cols-2">
+                      <label><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3 ml-1">Lifecycle Status</p><select value={selectedOrder.status} onChange={(event) => void updateOrder({ status: event.target.value as OrderStatus })} className="w-full rounded-2xl border border-slate-100 bg-slate-50/50 px-5 py-4 text-sm font-bold text-slate-900 outline-none transition-all focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 [color-scheme:light]">{STATUS_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
+                      <label><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3 ml-1">Payment State</p><select value={selectedOrder.paymentStatus} onChange={(event) => void updateOrder({ paymentStatus: event.target.value as PaymentStatus })} className="w-full rounded-2xl border border-slate-100 bg-slate-50/50 px-5 py-4 text-sm font-bold text-slate-900 outline-none transition-all focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 [color-scheme:light]">{PAYMENT_OPTIONS.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label>
+                    </div>
+                    
+                    <div><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4 ml-1">Workflow Actions</p><div className="flex flex-wrap gap-3">{QUICK_ACTIONS[selectedOrder.status].length ? QUICK_ACTIONS[selectedOrder.status].map((status) => <button key={status} onClick={() => void updateOrder({ status, pharmacistReviewComment: reviewComment })} disabled={isSavingOrder} className="rounded-2xl bg-indigo-600 px-6 py-4 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-indigo-100 transition-all hover:scale-105 active:scale-95 disabled:opacity-50">{statusLabel(status)}</button>) : <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Pipeline Finalized</p>}</div></div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
