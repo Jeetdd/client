@@ -39,7 +39,7 @@ export default function OffersDeals() {
               <span className="text-indigo-600">Privileges.</span>
             </h2>
           </div>
-          <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] bg-slate-50 px-6 py-4 rounded-2xl border border-slate-100">
+          <div className="flex items-center gap-2 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] bg-slate-50 px-6 py-4 rounded-2xl border border-slate-200">
             <Gift className="w-5 h-5 text-indigo-600" />
             Active Campaigns
           </div>
@@ -59,13 +59,13 @@ export default function OffersDeals() {
                 {deal.icon}
               </div>
               <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">{deal.label}</h3>
-              <p className="text-slate-400 text-md font-medium mb-10 leading-relaxed">
+              <p className="text-slate-600 text-md font-medium mb-10 leading-relaxed">
                 {deal.description}
               </p>
               
-              <div className="flex items-center justify-between pt-6 border-t border-slate-50">
-                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">Code</div>
-                <div className="text-sm font-black text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl border border-indigo-50">
+              <div className="flex items-center justify-between pt-6 border-t border-slate-100">
+                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Code</div>
+                <div className="text-sm font-black text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl border border-indigo-200">
                   {deal.code}
                 </div>
               </div>

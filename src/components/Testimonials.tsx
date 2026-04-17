@@ -43,7 +43,7 @@ export default function Testimonials() {
             The Standard of <br />
             <span className="text-indigo-600">Care.</span>
           </h2>
-          <p className="text-xl text-slate-400 font-medium leading-relaxed">
+          <p className="text-xl text-slate-600 font-medium leading-relaxed">
             Real experiences from people who have transformed their skincare journey with AI-powered precision.
           </p>
         </div>
@@ -58,7 +58,7 @@ export default function Testimonials() {
               viewport={{ once: true }}
               className="premium-card group relative p-12 hover:border-indigo-100"
             >
-              <div className="absolute top-10 right-12 text-slate-50 group-hover:text-indigo-50 transition-colors">
+              <div className="absolute top-10 right-12 text-slate-200 group-hover:text-indigo-100 transition-colors">
                 <Quote className="w-16 h-16" />
               </div>
               
@@ -80,9 +80,9 @@ export default function Testimonials() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h4 className="font-bold text-slate-900 tracking-tight">{item.name}</h4>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   </div>
-                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mt-1">{item.role}</p>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">{item.role}</p>
                 </div>
               </div>
             </motion.div>

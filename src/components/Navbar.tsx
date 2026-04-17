@@ -17,7 +17,7 @@ export default function Navbar() {
           <Link href="/" className="text-3xl font-black tracking-tighter text-slate-900 group">
             Skin<span className="text-indigo-600 group-hover:text-slate-900 transition-colors">Shop</span>
           </Link>
-          <div className="hidden md:flex items-center gap-10 text-[10px] font-black text-slate-400 transition-colors uppercase tracking-[0.25em]">
+          <div className="hidden md:flex items-center gap-10 text-[10px] font-black text-slate-600 transition-colors uppercase tracking-[0.25em]">
             <Link href="/" className="hover:text-indigo-600">Home</Link>
             <Link href="/#process" className="hover:text-indigo-600">Process</Link>
             <Link href="/shop" className="hover:text-indigo-600">Pharmacy</Link>
@@ -36,7 +36,7 @@ export default function Navbar() {
           {user ? (
             <div className="flex items-center gap-5 pl-5 border-l border-slate-100">
               <div className="hidden lg:block text-right">
-                <p className="text-[9px] font-black uppercase text-slate-300 tracking-[0.2em] leading-none mb-1">Authenticated</p>
+                <p className="text-[9px] font-black uppercase text-slate-500 tracking-[0.2em] leading-none mb-1">Authenticated</p>
                 <p className="text-sm font-black text-slate-900">{user.name}</p>
               </div>
               <div className="flex items-center gap-3">

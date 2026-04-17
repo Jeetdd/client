@@ -26,11 +26,11 @@ export default function Home() {
               { label: "Direct Support", value: "24/7", icon: <TrendingUp className="w-5 h-5" /> },
             ].map((stat, i) => (
               <div key={i} className="flex flex-col items-center gap-4 text-center group">
-                <div className="mb-2 p-5 rounded-2xl bg-white border border-slate-100 shadow-sm text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500">
+                <div className="mb-2 p-5 rounded-2xl bg-white border border-slate-200 shadow-sm text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500">
                   {stat.icon}
                 </div>
                 <div className="text-5xl font-black text-slate-900 tracking-tight leading-none">{stat.value}</div>
-                <div className="text-slate-300 text-[10px] font-black uppercase tracking-[0.25em]">{stat.label}</div>
+                <div className="text-slate-600 text-[10px] font-black uppercase tracking-[0.25em]">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -49,7 +49,7 @@ export default function Home() {
             <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/20 rounded-full blur-[120px]" />
             
             <div className="space-y-8 text-center lg:text-left relative z-10">
-              <div className="inline-flex items-center gap-3 px-5 py-2 rounded-2xl bg-white/10 text-indigo-300 text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-md border border-white/10">
+              <div className="inline-flex items-center gap-3 px-5 py-2 rounded-2xl bg-white/10 text-indigo-200 text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-md border border-white/10">
                 <Gift className="w-4 h-4" />
                 Loyalty Rewards
               </div>
@@ -57,14 +57,14 @@ export default function Home() {
                 Elevate Your <br />
                 <span className="text-indigo-400">Experience.</span>
               </h2>
-              <p className="text-xl text-slate-400 max-w-xl font-medium leading-relaxed">
+              <p className="text-xl text-slate-300 max-w-xl font-medium leading-relaxed">
                 Join the SkinShop community to access prescription tracking, earn <span className="text-white font-bold">10% points</span> on every transaction, and receive direct clinical support.
               </p>
             </div>
             
             <div className="flex flex-col gap-6 w-full max-w-sm relative z-10">
               <Link href="/register">
-                <button className="w-full flex items-center justify-center gap-4 px-12 py-6 bg-white text-slate-900 rounded-[2rem] text-xl font-black hover:bg-indigo-50 transition-all shadow-2xl active:scale-[0.98] group">
+                <button className="w-full flex items-center justify-center gap-4 px-12 py-6 bg-white text-slate-900 rounded-[2rem] text-xl font-black hover:bg-white transition-all shadow-2xl active:scale-[0.98] group">
                   <UserPlus className="w-6 h-6 text-indigo-600" />
                   Sign Up Free
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" />
@@ -72,7 +72,7 @@ export default function Home() {
               </Link>
               <div className="flex items-center justify-center gap-4 pt-4">
                 <div className="h-[1px] w-8 bg-slate-800" />
-                <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">
+                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
                   Existing Member? <Link href="/login" className="text-white hover:text-indigo-400 transition-colors">Log In</Link>
                 </p>
                 <div className="h-[1px] w-8 bg-slate-800" />

@@ -43,7 +43,7 @@ export default function Process() {
             Four Steps to <br />
             <span className="text-indigo-600">Total Wellness.</span>
           </h2>
-          <p className="text-xl text-slate-400 font-medium leading-relaxed italic">
+          <p className="text-xl text-slate-600 font-medium leading-relaxed italic">
             "We've removed the complexity from healthcare, so you can focus on healing."
           </p>
         </div>
@@ -58,15 +58,15 @@ export default function Process() {
               viewport={{ once: true }}
               className="premium-card group relative p-10 hover:border-indigo-200"
             >
-              <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mb-8 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-sm">
+              <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mb-8 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-sm border border-indigo-100">
                 {step.icon}
               </div>
               <h3 className="text-2xl font-black mb-4 text-slate-900 tracking-tight">{step.title}</h3>
-              <p className="text-slate-400 font-medium leading-relaxed">
+              <p className="text-slate-600 font-medium leading-relaxed">
                 {step.description}
               </p>
               
-              <div className="absolute top-8 right-10 text-4xl font-black text-slate-50 italic -z-10 group-hover:text-indigo-50 transition-colors">
+              <div className="absolute top-8 right-10 text-4xl font-black text-slate-200 italic -z-10 group-hover:text-indigo-100 transition-colors">
                 0{index + 1}
               </div>
               

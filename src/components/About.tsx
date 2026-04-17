@@ -51,7 +51,7 @@ export default function About() {
               <span className="text-indigo-600">Simpified.</span>
             </h2>
             
-            <p className="text-xl text-slate-400 leading-relaxed max-w-xl font-medium">
+            <p className="text-xl text-slate-600 leading-relaxed max-w-xl font-medium">
               SkinShop is a premium healthcare gateway by <span className="text-slate-900 font-bold">Skinnonest</span>. 
               We use AI to bridge the gap between complex prescriptions and verified medicine access.
             </p>
@@ -59,11 +59,11 @@ export default function About() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 pt-4">
               {values.map((value, i) => (
                 <div key={i} className="space-y-4">
-                  <div className="w-12 h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-indigo-600 shadow-sm">
+                  <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-indigo-600 shadow-sm">
                     {value.icon}
                   </div>
                   <h4 className="font-bold text-slate-900 tracking-tight">{value.title}</h4>
-                  <p className="text-sm text-slate-400 leading-relaxed font-medium">{value.description}</p>
+                  <p className="text-sm text-slate-600 leading-relaxed font-medium">{value.description}</p>
                 </div>
               ))}
             </div>
@@ -83,7 +83,7 @@ export default function About() {
                   <div className="w-20 h-20 rounded-2xl bg-slate-900 flex items-center justify-center text-white text-3xl font-black shadow-2xl">S</div>
                   <div>
                     <h3 className="text-2xl font-black text-slate-900 leading-none">Core Values</h3>
-                    <p className="text-[10px] font-black text-slate-300 mt-2 uppercase tracking-[0.2em]">Verified Excellence</p>
+                    <p className="text-[10px] font-black text-slate-500 mt-2 uppercase tracking-[0.2em]">Verified Excellence</p>
                   </div>
                 </div>
                 
@@ -93,12 +93,12 @@ export default function About() {
                 
                 <div className="pt-10 flex flex-col gap-4">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 mb-1">Entity Details</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-1">Entity Details</p>
                     <p className="text-sm font-bold text-slate-900 underline decoration-indigo-200 underline-offset-4 decoration-2">SKINNONEST HEALTHCARE PVT LTD</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 mb-1">Licensing</p>
-                    <p className="text-sm font-bold text-slate-600">Reg No: MH-AI-4523B | Grade Pharmaceutical</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-1">Licensing</p>
+                    <p className="text-sm font-bold text-slate-700">Reg No: MH-AI-4523B | Grade Pharmaceutical</p>
                   </div>
                 </div>
               </div>

@@ -16,14 +16,10 @@
   --color-secondary: #f8fafc; /* Slate 50 */
   --color-secondary-foreground: #0f172a;
 
-  --color-muted: #f1f5f9; /* Slate 100 */
-  --color-muted-foreground: #64748b;
+  --color-muted-foreground: #475569; /* Slate 600 */
 
-  --color-accent: #eef2ff; /* Indigo 50 */
-  --color-accent-foreground: #4f46e5;
-
-  --color-destructive: #ef4444;
-  --color-destructive-foreground: #ffffff;
+  --color-accent: #f1f5f9; /* Slate 100 */
+  --color-accent-foreground: #1e293b; /* Slate 800 */
 
   --color-border: #e2e8f0;
   --color-input: #e2e8f0;
@@ -38,7 +34,7 @@
 
 body {
   background-color: #ffffff;
-  color: #0f172a;
+  color: #0f172a; /* Slate 900 */
   font-feature-settings: "rlig" 1, "calt" 1;
 }
 

@@ -61,7 +61,7 @@ export default function Hero() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-[10px] font-black text-indigo-600 mb-4 uppercase tracking-[0.2em]"
+                className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-[10px] font-black text-indigo-700 mb-4 uppercase tracking-[0.2em]"
               >
                 {slide.icon}
                 {slide.tagline}
@@ -78,7 +78,7 @@ export default function Hero() {
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed"
+                className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed"
               >
                 {slide.description}
               </motion.p>
@@ -105,17 +105,17 @@ export default function Hero() {
             </motion.div>
           </AnimatePresence>
 
-          <div className="flex flex-wrap items-center justify-center gap-10 pt-24 text-[10px] font-black uppercase tracking-[0.25em] text-slate-300">
+          <div className="flex flex-wrap items-center justify-center gap-10 pt-24 text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
               Secure Infrastructure
             </div>
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
               Verified Pharmacists
             </div>
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
               Direct Compliance
             </div>
           </div>
