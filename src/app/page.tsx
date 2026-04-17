@@ -62,7 +62,7 @@ export default function Home() {
             </div>
             
             <div className="flex flex-col gap-8 w-full max-w-md relative z-10">
-              <Link href="/register">
+              <Link href="/login?mode=register">
                 <button className="w-full flex items-center justify-center gap-5 px-14 py-8 bg-white text-slate-950 rounded-[2.5rem] text-2xl font-black hover:bg-slate-950 hover:text-white transition-all shadow-3xl active:scale-[0.98] group">
                   <UserPlus className="w-7 h-7" />
                   Sign Up Free

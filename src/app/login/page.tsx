@@ -24,7 +24,8 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const { login: setAuth, loginWithGoogle, user } = useAuth();
   const router = useRouter();
-  const [isLogin, setIsLogin] = useState(true);
+  const initialMode = searchParams.get("mode") === "register" ? false : true;
+  const [isLogin, setIsLogin] = useState(initialMode);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
