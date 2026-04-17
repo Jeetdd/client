@@ -34,7 +34,7 @@ import { useAuth } from "@/components/AuthContext";
 // Default to the production Render API so Vercel deployments work even if the env var isn't set.
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://server-hw5w.onrender.com").replace(/\/$/, "");
 
-type AdminTab = "orders" | "catalog" | "inventory" | "slots" | "coupons";
+type AdminTab = "orders" | "catalog" | "inventory" | "slots" | "coupons" | "loyalty";
 type OrderStatus = "PENDING_PHARMACIST_REVIEW" | "APPROVED" | "REJECTED" | "DISPATCHED" | "DELIVERED" | "READY_FOR_PICKUP" | "COMPLETED" | "CANCELLED";
 type PaymentStatus = "PENDING" | "SUCCESS" | "FAILED";
 
@@ -139,6 +139,27 @@ interface OrderSummary {
   processingOrders: number;
   completedOrders: number;
   revenue: number;
+}
+
+interface UserInfo {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  role: string;
+  loyaltyPoints: number;
+  referralCode: string;
+  createdAt: string;
+}
+
+interface PointsTransaction {
+  id: string;
+  userId: string;
+  amount: number;
+  type: "EARNED" | "REDEEMED";
+  reason: string;
+  createdAt: string;
+  user?: { name: string; email: string };
 }
 
 type CouponDiscountType = "PERCENTAGE" | "FLAT";
@@ -327,6 +348,13 @@ export default function AdminDashboard() {
   const [adjustTarget, setAdjustTarget] = useState<Medicine | null>(null);
   const [adjustDelta, setAdjustDelta] = useState<number>(0);
   const [adjustReason, setAdjustReason] = useState<string>("");
+  const [users, setUsers] = useState<UserInfo[]>([]);
+  const [pointsTransactions, setPointsTransactions] = useState<PointsTransaction[]>([]);
+  const [isLoyaltyLoading, setIsLoyaltyLoading] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [showAdjustPointsModal, setShowAdjustPointsModal] = useState(false);
+  const [adjustPointsValue, setAdjustPointsValue] = useState<number>(0);
+  const [adjustPointsReason, setAdjustPointsReason] = useState("");
   const importFileRef = useRef<HTMLInputElement | null>(null);
   const [isImportParsing, setIsImportParsing] = useState(false);
   const [isImportSubmitting, setIsImportSubmitting] = useState(false);
@@ -392,6 +420,7 @@ export default function AdminDashboard() {
     }
     if (activeTab === "slots") void fetchSlots();
     if (activeTab === "coupons") void fetchCoupons();
+    if (activeTab === "loyalty") void fetchLoyaltyData();
   }, [activeTab, user]);
 
   useEffect(() => {
@@ -504,6 +533,45 @@ export default function AdminDashboard() {
       setCouponError(getErrorMessage(error, "Unable to load coupons right now."));
     } finally {
       setIsCouponsLoading(false);
+    }
+  };
+
+  const fetchLoyaltyData = async () => {
+    setIsLoyaltyLoading(true);
+    try {
+      const [usersRes, transRes] = await Promise.all([
+        fetch(`${API_BASE}/api/users`, { cache: "no-store", headers: { "x-internal-token": process.env.NEXT_PUBLIC_INTERNAL_API_TOKEN || "" } }),
+        fetch(`${API_BASE}/api/users/points/transactions`, { cache: "no-store", headers: { "x-internal-token": process.env.NEXT_PUBLIC_INTERNAL_API_TOKEN || "" } })
+      ]);
+      if (usersRes.ok) setUsers(await usersRes.json());
+      if (transRes.ok) setPointsTransactions(await transRes.json());
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoyaltyLoading(false);
+    }
+  };
+
+  const handleAdjustPoints = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!selectedUserId) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/users/points/adjust`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "x-internal-token": process.env.NEXT_PUBLIC_INTERNAL_API_TOKEN || ""
+        },
+        body: JSON.stringify({ userId: selectedUserId, amount: adjustPointsValue, reason: adjustPointsReason })
+      });
+      if (res.ok) {
+        setShowAdjustPointsModal(false);
+        setAdjustPointsValue(0);
+        setAdjustPointsReason("");
+        await fetchLoyaltyData();
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -930,6 +998,7 @@ export default function AdminDashboard() {
               { id: "inventory", label: "Inventory", icon: Boxes },
               { id: "slots", label: "Schedule", icon: Calendar },
               { id: "coupons", label: "Coupen", icon: Tag },
+              { id: "loyalty", label: "Loyalty", icon: CheckCircle2 },
             ].map((item) => {
               const active = activeTab === item.id;
               return (
@@ -960,16 +1029,20 @@ export default function AdminDashboard() {
         <section className="min-w-0 flex-1 flex flex-col gap-10 bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.02)]">
           <header className="px-2">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-              {activeTab !== "orders" && (
                 <div>
                   <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-                    {activeTab === "catalog" ? "Medical Catalog" : activeTab === "inventory" ? "Inventory Control" : activeTab === "slots" ? "Schedules" : "Coupen"}
+                    {activeTab === "catalog" ? "Medical Catalog" : 
+                     activeTab === "inventory" ? "Inventory Control" : 
+                     activeTab === "slots" ? "Schedules" : 
+                     activeTab === "loyalty" ? "Loyalty Program" : "Coupen"}
                   </h2>
                   <p className="mt-1 text-sm font-medium text-slate-400">
-                    {activeTab === "catalog" ? "Keep your medical inventory detailed and up to date." : activeTab === "inventory" ? "Monitor stock levels and warehouse operations." : activeTab === "slots" ? "Organize store pickup windows for patients." : "Control discount codes and marketing campaigns."}
+                    {activeTab === "catalog" ? "Keep your medical inventory detailed and up to date." : 
+                     activeTab === "inventory" ? "Monitor stock levels and warehouse operations." : 
+                     activeTab === "slots" ? "Organize store pickup windows for patients." : 
+                     activeTab === "loyalty" ? "Manage customer points and referral rewards." : "Control discount codes and marketing campaigns."}
                   </p>
                 </div>
-              )}
               <div className="flex flex-wrap items-center gap-4">
                 {activeTab === "orders" && (
                   <button onClick={exportOrders} className={UI.buttonDark}>
@@ -1556,6 +1629,91 @@ export default function AdminDashboard() {
                     })}
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "loyalty" && (
+            <div className="space-y-6">
+              <div className="grid gap-6 lg:grid-cols-2">
+                <div className={`${UI.card} p-8 bg-gradient-to-br from-indigo-50/50 to-white`}>
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900">User Loyalty Points</h3>
+                      <p className="mt-1 text-sm text-slate-400">View and manage customer point balances.</p>
+                    </div>
+                  </div>
+                  
+                  {isLoyaltyLoading ? (
+                    <div className="flex min-h-[300px] items-center justify-center gap-4 text-slate-400 font-bold tracking-widest text-[10px] uppercase">
+                      <Loader2 className="h-5 w-5 animate-spin text-indigo-600" />
+                      Synchronizing...
+                    </div>
+                  ) : users.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-slate-200 p-12 text-center text-slate-400 font-medium bg-white">No user records found.</div>
+                  ) : (
+                    <div className="space-y-4">
+                      {users.map((userItem) => (
+                        <div key={userItem.id} className="flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-100 hover:shadow-md transition-shadow">
+                          <div className="min-w-0">
+                            <p className="font-bold text-slate-900 truncate">{userItem.name}</p>
+                            <p className="text-xs text-slate-400 truncate">{userItem.email}</p>
+                            <div className="mt-2 flex items-center gap-2">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-lg">CODE: {userItem.referralCode}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4 text-right">
+                            <div className="mr-2">
+                              <p className="text-xl font-black text-slate-900">{userItem.loyaltyPoints || 0}</p>
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Points</p>
+                            </div>
+                            <button 
+                              onClick={() => { setSelectedUserId(userItem.id); setShowAdjustPointsModal(true); }}
+                              className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors shadow-sm"
+                            >
+                              <Plus className="h-5 w-5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className={`${UI.card} p-8`}>
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900">Points History</h3>
+                      <p className="mt-1 text-sm text-slate-400">Recent loyalty transactions and awards.</p>
+                    </div>
+                  </div>
+
+                  {isLoyaltyLoading ? (
+                    <div className="flex min-h-[300px] items-center justify-center gap-4 text-slate-400 font-bold tracking-widest text-[10px] uppercase">
+                      <Loader2 className="h-5 w-5 animate-spin text-indigo-600" />
+                      Fetching logs...
+                    </div>
+                  ) : pointsTransactions.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-slate-200 p-12 text-center text-slate-400 font-medium">No loyalty history logs available.</div>
+                  ) : (
+                    <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                      {pointsTransactions.map((tx) => (
+                        <div key={tx.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <p className="text-xs font-bold text-slate-900 leading-none">{tx.user?.name || "Member"}</p>
+                              <p className="mt-1 text-[10px] text-slate-400 font-medium">{formatDateTime(tx.createdAt)}</p>
+                            </div>
+                            <span className={`text-sm font-black ${tx.type === 'EARNED' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                              {tx.type === 'EARNED' ? '+' : ''}{tx.amount}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider">{tx.reason}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -2189,6 +2347,57 @@ export default function AdminDashboard() {
                   >
                     {isCouponUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                     Update Coupon
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showAdjustPointsModal && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAdjustPointsModal(false)} className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 20 }} className="relative w-full max-w-md rounded-[2.5rem] bg-white p-10 shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-black text-slate-900 tracking-tight">Adjust Points</h3>
+                <button onClick={() => setShowAdjustPointsModal(false)} className="p-2 rounded-xl hover:bg-slate-50 text-slate-400 transition-colors"><ShieldAlert className="h-5 w-5" /></button>
+              </div>
+              <p className="mb-8 text-sm font-medium text-slate-400 leading-relaxed">Update customer's loyalty balance manually. Use <span className="text-emerald-600 font-bold">positive</span> for rewards and <span className="text-rose-600 font-bold">negative</span> for deductions.</p>
+              
+              <form onSubmit={handleAdjustPoints} className="space-y-6">
+                <div className="space-y-2">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Points Change</span>
+                  <div className="relative group">
+                    <input 
+                      type="number" 
+                      required 
+                      value={adjustPointsValue} 
+                      onChange={(e) => setAdjustPointsValue(Number(e.target.value))}
+                      placeholder="e.g. 100 or -50"
+                      className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-slate-900 font-bold outline-none focus:border-indigo-600/30 focus:bg-white transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Reason for Adjustment</span>
+                  <textarea 
+                    required 
+                    value={adjustPointsReason} 
+                    onChange={(e) => setAdjustPointsReason(e.target.value)}
+                    placeholder="Customer reward, manual correction, etc."
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-slate-900 font-medium outline-none focus:border-indigo-600/30 focus:bg-white transition-all min-h-[120px] resize-none"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-3 pt-4">
+                  <button type="submit" className="w-full rounded-2xl bg-indigo-600 py-4 text-sm font-black text-white shadow-xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    Perform Adjustment
+                  </button>
+                  <button type="button" onClick={() => setShowAdjustPointsModal(false)} className="w-full rounded-2xl bg-slate-50 py-4 text-sm font-bold text-slate-400 hover:bg-slate-100 transition-all">
+                    Dismiss
                   </button>
                 </div>
               </form>

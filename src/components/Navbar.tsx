@@ -20,7 +20,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-8 text-sm font-bold text-muted-foreground transition-colors uppercase tracking-widest text-[10px]">
             <Link href="/" className="hover:text-primary">Home</Link>
             <Link href="/#process" className="hover:text-primary">Medical Process</Link>
-            <Link href="/#store" className="hover:text-primary">Pharmacy Store</Link>
+            <Link href="/shop" className="hover:text-primary">Pharmacy Store</Link>
             <Link href="/#about" className="hover:text-primary">Our Story</Link>
           </div>
         </div>

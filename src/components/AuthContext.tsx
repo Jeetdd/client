@@ -9,6 +9,8 @@ interface User {
   email: string;
   image?: string;
   role: "ADMIN" | "USER";
+  referralCode?: string;
+  loyaltyPoints?: number;
 }
 
 interface AuthContextType {

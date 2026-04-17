@@ -58,7 +58,7 @@ export default function Hero() {
               <ChevronRight className="w-4 h-4 ml-1" />
             </Link>
             <Link 
-              href="#store" 
+              href="/shop" 
               className="px-8 py-4 rounded-full text-lg font-semibold border border-border hover:bg-secondary transition-all"
             >
               Browse Shop

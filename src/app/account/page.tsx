@@ -10,6 +10,7 @@ import {
   LogOut,
   ShoppingCart,
   UserRound,
+  ShieldCheck,
 } from "lucide-react";
 
 import Navbar from "@/components/Navbar";
@@ -18,7 +19,7 @@ import { useCart } from "@/components/CartContext";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://server-hw5w.onrender.com").replace(/\/$/, "");
 
-type AccountTab = "orders" | "prescriptions" | "profile";
+type AccountTab = "orders" | "prescriptions" | "rewards" | "profile";
 
 type OrderStatus =
   | "PENDING_PHARMACIST_REVIEW"
@@ -78,6 +79,8 @@ interface UserProfile {
   name: string;
   email: string;
   phone?: string | null;
+  referralCode?: string | null;
+  loyaltyPoints?: number;
 }
 
 const statusLabel = (value: string) =>
@@ -364,6 +367,7 @@ export default function AccountPage() {
             {[
               { id: "orders", label: "My Orders", icon: ClipboardList },
               { id: "prescriptions", label: "My Prescriptions", icon: FileText },
+              { id: "rewards", label: "Rewards & Referrals", icon: ShieldCheck },
               { id: "profile", label: "Profile", icon: UserRound },
             ].map((item) => (
               <button
@@ -611,6 +615,90 @@ export default function AccountPage() {
             </div>
           )}
 
+          {activeTab === "rewards" && (
+            <div className="rounded-[2rem] border border-primary/10 bg-white/80 p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-black text-slate-900">Rewards & Referrals</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">Earn points for every order and by referring your friends.</p>
+                </div>
+                <button onClick={fetchProfile} className="rounded-2xl border border-border bg-white px-4 py-3 text-sm font-bold text-slate-800 transition hover:border-primary/20">
+                  Refresh
+                </button>
+              </div>
+
+              <div className="mt-10 grid gap-8 md:grid-cols-2">
+                {/* Loyalty Points Card */}
+                <div className="rounded-[2.5rem] bg-[linear-gradient(135deg,#059669_0%,#10b981_100%)] p-8 text-white shadow-xl shadow-emerald-500/10">
+                  <div className="flex items-center gap-3">
+                    <ShieldCheck className="h-6 w-6 text-emerald-200" />
+                    <span className="text-xs font-black uppercase tracking-[0.25em] text-emerald-100">SkinShop Loyalty</span>
+                  </div>
+                  <div className="mt-6 flex items-baseline gap-2">
+                    <h3 className="text-6xl font-black">{profile?.loyaltyPoints || 0}</h3>
+                    <p className="text-xl font-bold text-emerald-100">Points</p>
+                  </div>
+                  <p className="mt-4 text-sm font-medium text-emerald-50/80 leading-relaxed">
+                    You earn 1 point for every ₹100 spent. <br />
+                    100 points = ₹1 worth of discount.
+                  </p>
+                  <button className="mt-8 w-full rounded-2xl bg-white/20 py-4 text-sm font-black text-white hover:bg-white/30 transition">
+                    View Points History
+                  </button>
+                </div>
+
+                {/* Referral Card */}
+                <div className="rounded-[2.5rem] border border-primary/10 bg-white p-8 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <UserRound className="h-6 w-6 text-primary" />
+                    <span className="text-xs font-black uppercase tracking-[0.25em] text-slate-400">Refer & Earn</span>
+                  </div>
+                  <h3 className="mt-6 text-2xl font-black text-slate-900">Invite a Friend</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Share your code and get <span className="font-bold text-primary">50 Points</span> when they place their first order.
+                  </p>
+                  
+                  <div className="mt-8 space-y-4">
+                    <div className="group relative flex items-center justify-between rounded-2xl border border-border bg-slate-50 p-4 transition-all hover:border-primary/50">
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Your Referral Code</p>
+                        <p className="mt-1 font-mono text-xl font-black text-primary">{profile?.referralCode || "GETTING-CODE..."}</p>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          if (profile?.referralCode) {
+                            navigator.clipboard.writeText(profile.referralCode);
+                            alert("Code copied to clipboard!");
+                          }
+                        }}
+                        className="rounded-xl bg-primary px-4 py-2 text-xs font-black text-white shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* How it works */}
+              <div className="mt-12 rounded-[2rem] bg-slate-50 p-8">
+                <h4 className="font-black text-slate-900">How to earn more?</h4>
+                <div className="mt-6 grid gap-6 sm:grid-cols-3">
+                  {[
+                    { label: "Order Medicines", content: "Earn points on every purchase automatically.", icon: "🛍️" },
+                    { label: "Refer Friends", content: "Share your code and earn 50pts per friend.", icon: "🤝" },
+                    { label: "Special Sales", content: "Look out for 2X points events in our store.", icon: "🔥" }
+                  ].map((step, i) => (
+                    <div key={i} className="space-y-2">
+                       <span className="text-2xl">{step.icon}</span>
+                       <p className="font-bold text-slate-900">{step.label}</p>
+                       <p className="text-xs text-muted-foreground">{step.content}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
           {activeTab === "profile" && (
             <div className="rounded-[2rem] border border-primary/10 bg-white/80 p-6 shadow-sm">
               <div className="flex items-center justify-between">
