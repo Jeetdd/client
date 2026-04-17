@@ -7,27 +7,27 @@ import { FileUp, Search, ShoppingBag, Truck } from 'lucide-react';
 const steps = [
   {
     title: "Upload Prescription",
-    description: "Scan or upload your doctor's prescription in JPG, PNG or PDF format.",
+    description: "Upload your doctor's prescription and let our AI instantly verify your needs.",
     icon: <FileUp className="w-8 h-8" />,
-    color: "bg-blue-500/10 text-blue-500"
-  },
-  {
-    title: "AI Analysis",
-    description: "Our AI systems automatically detect medicines and verify details.",
-    icon: <Search className="w-8 h-8" />,
-    color: "bg-purple-500/10 text-purple-500"
+    color: "bg-indigo-500/10 text-indigo-500"
   },
   {
     title: "Add to Cart",
-    description: "Review detected medicines, adjust quantities and add to your bag.",
+    description: "Review detected medicines, adjust your dosages, and add items to your bag.",
     icon: <ShoppingBag className="w-8 h-8" />,
+    color: "bg-purple-500/10 text-purple-500"
+  },
+  {
+    title: "Choose Delivery",
+    description: "Pick doorstep delivery or convenient pick-up from our nearest partner store.",
+    icon: <Truck className="w-8 h-8" />,
     color: "bg-emerald-500/10 text-emerald-500"
   },
   {
-    title: "Quick Delivery",
-    description: "Fast doorstep delivery or convenient pick-up from a local store.",
-    icon: <Truck className="w-8 h-8" />,
-    color: "bg-orange-500/10 text-orange-500"
+    title: "Get Medicines",
+    description: "Receive your verified medications safely with professional pharmacist support.",
+    icon: <Search className="w-8 h-8" />,
+    color: "bg-amber-500/10 text-amber-500"
   }
 ];
 
