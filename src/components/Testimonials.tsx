@@ -38,7 +38,7 @@ export default function Testimonials() {
           <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-indigo-500/10 text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 border border-indigo-500/20 backdrop-blur-md">
             The Proof
           </div>
-          <h2 className="text-6xl md:text-[9rem] font-black tracking-tighter text-white leading-[0.85]">
+          <h2 className="text-4xl md:text-7xl font-black tracking-tighter text-white leading-[0.9]">
             The Standard <br />
             <span className="text-indigo-500 italic font-medium">of Care.</span>
           </h2>

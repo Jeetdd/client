@@ -47,7 +47,7 @@ export default function About() {
               The Mission
             </div>
             
-            <h2 className="text-6xl md:text-[9rem] font-black tracking-tighter text-white leading-[0.8]">
+            <h2 className="text-4xl md:text-7xl font-black tracking-tighter text-white leading-[0.9]">
               Medicine. <br />
               <span className="text-indigo-500 italic font-medium">Simplified.</span>
             </h2>

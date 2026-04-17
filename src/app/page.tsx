@@ -28,7 +28,7 @@ export default function Home() {
                 <div className="mb-0 p-6 rounded-[1.5rem] bg-white/5 border border-white/5 text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-700 shadow-2xl">
                   {stat.icon}
                 </div>
-                <div className="text-6xl font-black text-white tracking-tighter leading-none">{stat.value}</div>
+                <div className="text-4xl md:text-5xl font-black text-white tracking-tighter leading-none">{stat.value}</div>
                 <div className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em]">{stat.label}</div>
               </div>
             ))}
@@ -52,7 +52,7 @@ export default function Home() {
                 <Gift className="w-5 h-5" />
                 Loyalty Status
               </div>
-              <h2 className="text-6xl md:text-8xl font-black tracking-tighter text-white leading-[0.85]">
+              <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white leading-[1]">
                 Elevate Your <br />
                 <span className="text-indigo-100 italic font-medium">Experience.</span>
               </h2>

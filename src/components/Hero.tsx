@@ -71,11 +71,11 @@ export default function Hero() {
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-7xl md:text-[11rem] font-black tracking-tighter leading-[0.8] text-white"
+                className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] text-white"
               >
                 <span className="block">Your Skin,</span>
                 <span className="text-white">Prescribed</span>
-                <span className="block text-indigo-500 italic font-medium mt-4">by Intelligence.</span>
+                <span className="block text-indigo-500 italic font-medium mt-2">by Intelligence.</span>
               </motion.h1>
 
               <motion.p

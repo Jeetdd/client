@@ -34,7 +34,7 @@ export default function OffersDeals() {
             <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-indigo-500/10 text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 border border-indigo-500/20 backdrop-blur-md">
               The Rewards
             </div>
-            <h2 className="text-6xl md:text-8xl font-black tracking-tighter text-white leading-[0.9]">
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white leading-[1]">
               Premium <br />
               <span className="text-indigo-500 italic font-medium">Privileges.</span>
             </h2>
