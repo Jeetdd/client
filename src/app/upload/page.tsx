@@ -23,46 +23,37 @@ interface DetectedMedicine {
 }
 
 export default function UploadPage() {
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [files, setFiles] = useState<{ id: string; file: File; preview: string; isAnalyzing: boolean; error: string | null; detectedMedicines: DetectedMedicine[] }[]>([]);
+  const [activeAnalysis, setActiveAnalysis] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [detectedMedicines, setDetectedMedicines] = useState<DetectedMedicine[]>([]);
+  const [currentMeds, setCurrentMeds] = useState<DetectedMedicine[]>([]);
   const [selectedMeds, setSelectedMeds] = useState<number[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const { addItem, setPrescriptionUrl } = useCart();
   const { user } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    // Select all available medicines by default when they are detected
-    if (detectedMedicines.length > 0) {
-      const availableIndices = detectedMedicines
-        .map((m, i) => m.isAvailable && m.price ? i : -1)
-        .filter(i => i !== -1);
-      setSelectedMeds(availableIndices);
+  const handleFiles = useCallback(async (newFiles: FileList | null) => {
+    if (!newFiles) return;
+
+    const uploaded = Array.from(newFiles).map(file => ({
+      id: Math.random().toString(36).substr(2, 9),
+      file,
+      preview: URL.createObjectURL(file),
+      isAnalyzing: false,
+      error: null,
+      detectedMedicines: []
+    }));
+
+    setFiles(prev => [...prev, ...uploaded]);
+    
+    // Automatically analyze the first one Added or all
+    for (const item of uploaded) {
+      await analyzeWithAPI(item.file, item.id);
     }
-  }, [detectedMedicines]);
-
-  const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || !e.target.files[0]) return;
-
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    setError(null);
-
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = () => setPreview(reader.result as string);
-    reader.readAsDataURL(selectedFile);
-
-    // Send to backend API
-    await analyzeWithAPI(selectedFile);
   }, []);
 
-  const analyzeWithAPI = async (selectedFile: File) => {
-    setIsAnalyzing(true);
-    setError(null);
+  const analyzeWithAPI = async (selectedFile: File, id: string) => {
+    setFiles(prev => prev.map(f => f.id === id ? { ...f, isAnalyzing: true, error: null } : f));
 
     try {
       const formData = new FormData();
@@ -79,40 +70,39 @@ export default function UploadPage() {
 
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.message || 'Failed to analyze prescription');
+        throw new Error(errData.message || 'Analysis failed');
       }
 
       const data = await response.json();
-      console.log('API Response:', data);
+      
+      setFiles(prev => prev.map(f => f.id === id ? { 
+        ...f, 
+        isAnalyzing: false, 
+        detectedMedicines: data.detectedMedicines || [] 
+      } : f));
 
-      if (data.detectedMedicines && data.detectedMedicines.length > 0) {
-        setDetectedMedicines(data.detectedMedicines);
+      if (data.detectedMedicines?.length > 0) {
+        setCurrentMeds(data.detectedMedicines);
         setPrescriptionUrl(`${API_BASE}${data.imageUrl}`);
+        setSelectedMeds(data.detectedMedicines.map((m: any, i: number) => m.isAvailable && m.price ? i : -1).filter((i: number) => i !== -1));
         setShowModal(true);
-      } else {
-        setError(data.message || 'No medicines could be detected. Please upload a clearer prescription image.');
       }
     } catch (err: any) {
-      console.error('Upload error:', err);
-      setError(err.message || 'Failed to analyze prescription. Please try again.');
-    } finally {
-      setIsAnalyzing(false);
+      setFiles(prev => prev.map(f => f.id === id ? { ...f, isAnalyzing: false, error: err.message } : f));
     }
   };
 
-  const toggleMedSelection = (index: number) => {
-    setSelectedMeds(prev => 
-      prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
-    );
+  const removeFile = (id: string) => {
+    setFiles(prev => prev.filter(f => f.id !== id));
   };
 
   const handleAddToCart = () => {
-    const medsToAdd = selectedMeds.map(index => detectedMedicines[index]);
-    medsToAdd.forEach(med => {
+    selectedMeds.forEach(index => {
+      const med = currentMeds[index];
       addItem({
         medicineId: med.matchedMedicine?.id || undefined,
         name: med.name,
-        price: med.price || 0, // Fallback to 0 if not matched in catalogue
+        price: med.price || 0,
         quantity: med.quantity || 1,
         image: med.image || undefined,
         dosage: med.dosage,
@@ -123,232 +113,191 @@ export default function UploadPage() {
     router.push('/cart');
   };
 
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const droppedFile = e.dataTransfer.files[0];
-      const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-      if (!allowed.includes(droppedFile.type)) {
-        setError('Only JPG, PNG, and PDF files are allowed');
-        return;
-      }
-      setFile(droppedFile);
-      setError(null);
-      const reader = new FileReader();
-      reader.onload = () => setPreview(reader.result as string);
-      reader.readAsDataURL(droppedFile);
-      analyzeWithAPI(droppedFile);
-    }
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  }, []);
-
   return (
-    <main className="min-h-screen bg-background pt-24">
+    <main className="min-h-screen bg-slate-950 pt-32 pb-20 relative overflow-hidden">
+      {/* Ambient Effects */}
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-500/10 rounded-full blur-[160px] -z-10 opacity-30 translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[140px] -z-10 opacity-20 -translate-x-1/2 translate-y-1/2" />
+
       <Navbar />
       
-      <div className="container mx-auto px-4 max-w-4xl">
-        <div className="space-y-8 text-center mb-12">
-          <h1 className="text-4xl font-bold font-outfit">Upload Prescription</h1>
-          <p className="text-muted-foreground text-lg">
-            Our AI will scan your prescription and allow you to select which medicines to add.
+      <div className="container mx-auto px-6 max-w-6xl">
+        <div className="text-center mb-20 space-y-6">
+          <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-indigo-500/10 text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 border border-indigo-500/20 backdrop-blur-md">
+            Digital Diagnostics
+          </div>
+          <h1 className="text-6xl font-black tracking-tighter text-white">
+            Upload <span className="text-indigo-500 italic font-medium">Prescriptions.</span>
+          </h1>
+          <p className="text-slate-400 text-xl font-medium max-w-2xl mx-auto italic">
+            "Clinical-grade AI analysis for absolute medication accuracy."
           </p>
-          <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl flex items-center gap-3 text-sm text-primary max-w-2xl mx-auto">
-            <ShieldCheck className="w-5 h-5 shrink-0" />
-            Your prescription data is stored securely and used only to process your order.
-          </div>
         </div>
 
-        {/* Upload Zone */}
-        <div
-          className="relative group cursor-pointer"
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-        >
-          <input
-            type="file"
-            onChange={handleFileUpload}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-            accept=".jpg,.jpeg,.png,.pdf"
-          />
-          <div className="border-2 border-dashed border-border group-hover:border-primary/50 transition-colors rounded-[2.5rem] p-20 flex flex-col items-center gap-6 bg-secondary/30">
-            <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-              {isAnalyzing ? <Loader2 className="w-12 h-12 animate-spin" /> : <Upload className="w-12 h-12" />}
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold mb-2">
-                {file ? file.name : "Click or drag & drop to upload"}
-              </p>
-              <p className="text-muted-foreground">Supports PDF, JPG, PNG formats (max 10MB)</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Preview */}
-        {preview && !isAnalyzing && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-8 rounded-[2.5rem] overflow-hidden border border-border bg-secondary/30 p-8"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <ImageIcon className="w-5 h-5 text-primary" />
-              </div>
-              <p className="font-bold text-lg">Uploaded Prescription</p>
-            </div>
-            <div className="relative group">
-              <img src={preview} alt="Prescription preview" className="max-h-[500px] mx-auto rounded-2xl object-contain shadow-2xl border border-white/10" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex items-center justify-center backdrop-blur-[2px]">
-                <button className="px-6 py-3 bg-white text-black rounded-full font-bold">Zoom View</button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Error Display */}
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mt-8 p-6 bg-red-500/10 border border-red-500/20 rounded-[2rem] flex items-start gap-4"
-          >
-            <div className="p-2 bg-red-500/20 rounded-xl mt-1">
-              <AlertCircle className="w-6 h-6 text-red-500 shrink-0" />
-            </div>
-            <div>
-              <p className="text-xl font-bold text-red-400">Analysis Failed</p>
-              <p className="text-red-400/80 mt-1">{error}</p>
-              <button 
-                onClick={() => {
-                  setFile(null);
-                  setError(null);
-                  setPreview(null);
-                }}
-                className="mt-4 px-6 py-2 bg-red-500 text-white rounded-xl font-bold text-sm hover:opacity-90"
-              >
-                Try Again
-              </button>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Loading State Overlay */}
-        <AnimatePresence>
-          {isAnalyzing && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[60] bg-background/90 backdrop-blur-xl flex flex-col items-center justify-center gap-8"
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          {/* Upload & Instructions */}
+          <div className="lg:col-span-12 space-y-10">
+            <div 
+              className="premium-card relative group cursor-pointer p-2 relative overflow-hidden h-80 flex flex-col items-center justify-center text-center border-dashed border-2 border-white/10 hover:border-indigo-500/50 transition-all bg-white/[0.02]"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                handleFiles(e.dataTransfer.files);
+              }}
             >
-              <div className="relative">
-                <Loader2 className="w-24 h-24 text-primary animate-spin" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <ShieldCheck className="w-8 h-8 text-primary/50" />
-                </div>
-              </div>
-              <div className="text-center space-y-3">
-                <h3 className="text-3xl font-bold font-outfit">Analyzing your prescription...</h3>
-                <p className="text-muted-foreground text-lg">Our AI is extracting medication details with 99.2% accuracy</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Detection Pop-up Modal */}
-        <AnimatePresence>
-          {showModal && (
-            <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="absolute inset-0 bg-black/80 backdrop-blur-md"
-                onClick={() => setShowModal(false)}
+              <input 
+                type="file" 
+                multiple
+                onChange={(e) => handleFiles(e.target.files)}
+                className="absolute inset-0 opacity-0 cursor-pointer z-20"
               />
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 30 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                className="relative w-full max-w-3xl bg-background rounded-[3rem] shadow-2xl overflow-hidden border border-white/10"
-              >
-                <div className="p-10 border-b border-border flex items-center justify-between bg-secondary/20">
-                  <div>
-                    <h2 className="text-3xl font-bold font-outfit">Prescription Detected</h2>
-                    <p className="text-muted-foreground mt-1">Select the items you want to add to your order</p>
-                  </div>
-                  <button onClick={() => setShowModal(false)} className="p-3 hover:bg-secondary rounded-full transition-colors">
-                    <X className="w-8 h-8" />
-                  </button>
-                </div>
+              <div className="w-24 h-24 rounded-3xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 mb-6 group-hover:scale-110 transition-transform duration-500 ring-1 ring-white/5">
+                <Upload className="w-10 h-10" />
+              </div>
+              <h3 className="text-3xl font-black text-white mb-2">Deploy Files.</h3>
+              <p className="text-slate-500 uppercase text-[10px] font-black tracking-[0.3em]">Drop JPG, PNG or PDF (Max 10MB per file)</p>
+              
+              <div className="absolute top-6 right-6 p-4 rounded-2xl bg-white/5 border border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <CheckCircle2 className="w-5 h-5 text-indigo-500" />
+              </div>
+            </div>
 
-                <div className="p-10 max-h-[50vh] overflow-y-auto space-y-6">
-                  {detectedMedicines.map((med, i) => (
-                    <div 
-                      key={i} 
-                      onClick={() => toggleMedSelection(i)}
-                      className={`group flex items-center justify-between p-6 rounded-[2rem] border transition-all cursor-pointer ${
-                        selectedMeds.includes(i) 
-                          ? 'bg-primary/5 border-primary shadow-lg shadow-primary/5' 
-                          : 'bg-secondary/40 border-border hover:border-primary/30'
-                      }`}
-                    >
-                      <div className="flex gap-6 items-start">
-                        <div className={`mt-1 h-8 w-8 rounded-full border-2 flex items-center justify-center transition-colors ${
-                          selectedMeds.includes(i) ? 'bg-primary border-primary text-white' : 'border-border'
+            {/* Evidence List */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {files.map((item) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="premium-card p-6 bg-slate-900/40 relative group overflow-hidden"
+                >
+                  <button 
+                    onClick={() => removeFile(item.id)}
+                    className="absolute top-4 right-4 p-2 bg-rose-500/10 text-rose-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity hover:bg-rose-500 hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                  
+                  <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-black/20 mb-6 relative">
+                    <img src={item.preview} className="w-full h-full object-cover" alt="" />
+                    {item.isAnalyzing && (
+                      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center flex-col gap-4">
+                        <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">Analyzing...</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-4">
+                    <h4 className="text-white font-black truncate text-sm uppercase tracking-wider">{item.file.name}</h4>
+                    {item.error ? (
+                      <p className="text-rose-500 text-xs font-bold leading-tight">{item.error}</p>
+                    ) : item.detectedMedicines.length > 0 ? (
+                      <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                        <span className="text-emerald-500 text-[10px] font-black uppercase tracking-wider">{item.detectedMedicines.length} Detected</span>
+                        <button 
+                          onClick={() => {
+                            setCurrentMeds(item.detectedMedicines);
+                            setSelectedMeds(item.detectedMedicines.map((m, i) => m.isAvailable && m.price ? i : -1).filter(i => i !== -1));
+                            setShowModal(true);
+                          }}
+                          className="text-white bg-indigo-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-400 transition-colors"
+                        >
+                          View Output
+                        </button>
+                      </div>
+                    ) : !item.isAnalyzing && (
+                      <button 
+                        onClick={() => analyzeWithAPI(item.file, item.id)}
+                        className="w-full py-2 bg-white/5 text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-slate-950 transition-all"
+                      >
+                        Start Scan
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal - Redesigned Modal */}
+      <AnimatePresence>
+        {showModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-slate-950/90 backdrop-blur-xl" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              className="relative w-full max-w-4xl bg-slate-900 border border-white/10 rounded-[4rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            >
+              <div className="p-12 border-b border-white/5 flex items-center justify-between">
+                <div>
+                  <h2 className="text-5xl font-black text-white tracking-tighter">Clinical Report.</h2>
+                  <p className="text-slate-500 font-medium mt-2 uppercase text-xs tracking-[0.2em]">Verified by SkinShop AI</p>
+                </div>
+                <button onClick={() => setShowModal(false)} className="p-4 bg-white/5 text-slate-400 rounded-2xl hover:bg-rose-500 hover:text-white transition-all">
+                  <X className="w-8 h-8" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-12 space-y-8">
+                {currentMeds.map((med, i) => (
+                  <div 
+                    key={i}
+                    onClick={() => setSelectedMeds(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i])}
+                    className={`group relative p-8 rounded-[3rem] border transition-all cursor-pointer overflow-hidden ${
+                      selectedMeds.includes(i) ? 'bg-indigo-500/10 border-indigo-500/50' : 'bg-white/[0.02] border-white/5 hover:border-indigo-500/30'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between relative z-10">
+                      <div className="flex gap-10">
+                        <div className={`w-14 h-14 rounded-2xl border-2 flex items-center justify-center transition-all ${
+                          selectedMeds.includes(i) ? 'bg-indigo-500 border-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.5)]' : 'border-white/10 group-hover:border-indigo-500/50'
                         }`}>
-                          {selectedMeds.includes(i) && <Check className="w-5 h-5 stroke-[4px]" />}
+                          {selectedMeds.includes(i) && <Check className="w-8 h-8 stroke-[4px]" />}
                         </div>
                         <div>
-                          <p className="font-bold text-xl">{med.name}</p>
-                          <p className="text-muted-foreground mt-1">{med.dosage} • {med.frequency}</p>
-                          {med.duration && <p className="text-sm text-primary/70 font-medium mt-1">Suggested: {med.duration}</p>}
+                          <h4 className="text-3xl font-black text-white tracking-tight leading-none mb-3">{med.name}</h4>
+                          <p className="text-slate-400 text-lg font-medium">{med.dosage} • {med.frequency} • {med.duration || 'Standard Duration'}</p>
                           {!med.isAvailable && (
-                            <span className="inline-block mt-3 px-3 py-1 bg-amber-500/10 text-amber-500 text-[11px] font-bold rounded-full uppercase tracking-wider">
-                              Special order (Not in Standard Catalogue)
-                            </span>
+                            <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-widest border border-amber-500/20">
+                              <AlertCircle className="w-4 h-4" />
+                              External Fulfillment Required
+                            </div>
                           )}
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-2xl tracking-tight">
-                          {med.price ? `₹${med.price}` : 'Price TBD'}
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">Quantity: {med.quantity}</p>
+                        <p className="text-4xl font-black text-white tracking-tighter mb-2">{med.price ? `₹${med.price}` : 'TBD'}</p>
+                        <p className="text-indigo-500 text-sm font-black uppercase tracking-[0.2em]">Quantity: {med.quantity}</p>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
+              </div>
 
-                <div className="p-10 bg-secondary/10 flex flex-col sm:flex-row gap-4 items-center justify-between border-t border-border">
-                  <div className="text-center sm:text-left">
-                    <p className="text-muted-foreground">Total Selected</p>
-                    <p className="text-2xl font-bold">{selectedMeds.length} Items</p>
-                  </div>
-                  <div className="flex gap-4 w-full sm:w-auto">
-                    <button 
-                      onClick={() => setShowModal(false)}
-                      className="flex-1 sm:px-8 py-5 rounded-2xl font-bold bg-background border border-border hover:bg-secondary transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button 
-                      onClick={handleAddToCart}
-                      disabled={selectedMeds.length === 0}
-                      className="flex-[2] sm:px-12 py-5 rounded-2xl font-bold bg-primary text-primary-foreground flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-primary/20"
-                    >
-                      <ShoppingCart className="w-5 h-5" />
-                      Add to Shop Cart
-                    </button>
-                  </div>
+              <div className="p-12 bg-white/[0.02] flex items-center justify-between border-t border-white/5 px-20">
+                <div className="space-y-1">
+                  <p className="text-indigo-500 text-[10px] font-black uppercase tracking-[0.4em]">Ready to Dispense</p>
+                  <p className="text-4xl font-black text-white tracking-tighter">{selectedMeds.length} Preparations</p>
                 </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-      </div>
+                <div className="flex gap-6">
+                  <button onClick={() => setShowModal(false)} className="px-12 py-6 rounded-[2.5rem] text-xl font-black text-slate-400 bg-white/5 hover:bg-white/10 transition-all">Cancel</button>
+                  <button 
+                    onClick={handleAddToCart}
+                    disabled={selectedMeds.length === 0}
+                    className="px-16 py-6 rounded-[2.5rem] text-xl font-black bg-indigo-500 text-white hover:bg-indigo-400 transition-all shadow-[0_20px_60px_rgba(99,102,241,0.3)] disabled:opacity-50"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
