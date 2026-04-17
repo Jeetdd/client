@@ -29,41 +29,42 @@ const values = [
 
 export default function About() {
   return (
-    <section id="about" className="py-32 bg-white relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-slate-50/50 -z-10 skew-x-12 translate-x-1/2" />
+    <section id="about" className="py-40 bg-slate-950 relative overflow-hidden">
+      {/* Structural Decorative Elements */}
+      <div className="absolute top-0 right-0 w-1/3 h-full bg-indigo-500/5 -skew-x-12 translate-x-1/2 blur-[100px]" />
+      <div className="absolute bottom-0 left-0 w-1/4 h-1/2 bg-purple-500/5 skew-x-12 -translate-x-1/2 blur-[100px]" />
       
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+      <div className="container mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 1 }}
             viewport={{ once: true }}
-            className="space-y-10"
+            className="space-y-12"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 border border-indigo-100">
+            <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-indigo-500/10 text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 border border-indigo-500/20 backdrop-blur-md">
               The Mission
             </div>
             
-            <h2 className="text-5xl md:text-7xl font-black tracking-tight text-slate-900 leading-[0.9]">
+            <h2 className="text-6xl md:text-[9rem] font-black tracking-tighter text-white leading-[0.8]">
               Medicine. <br />
-              <span className="text-indigo-600">Simpified.</span>
+              <span className="text-indigo-500 italic font-medium">Simplified.</span>
             </h2>
             
-            <p className="text-xl text-slate-600 leading-relaxed max-w-xl font-medium">
-              SkinShop is a premium healthcare gateway by <span className="text-slate-900 font-bold">Skinnonest</span>. 
-              We use AI to bridge the gap between complex prescriptions and verified medicine access.
+            <p className="text-xl text-slate-400 leading-relaxed max-w-xl font-medium">
+              SkinShop is a state-of-the-art clinic gateway by <span className="text-white font-bold">Skinnonest</span>. 
+              We utilize proprietary AI models to decode complex prescriptions and ensure absolute medicine fidelity.
             </p>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 pt-8">
               {values.map((value, i) => (
-                <div key={i} className="space-y-4">
-                  <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-indigo-600 shadow-sm">
+                <div key={i} className="space-y-6 group">
+                  <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-500 shadow-xl group-hover:shadow-indigo-500/20">
                     {value.icon}
                   </div>
-                  <h4 className="font-bold text-slate-900 tracking-tight">{value.title}</h4>
-                  <p className="text-sm text-slate-600 leading-relaxed font-medium">{value.description}</p>
+                  <h4 className="text-xl font-black text-white tracking-tight">{value.title}</h4>
+                  <p className="text-md text-slate-500 leading-relaxed font-medium group-hover:text-slate-300 transition-colors">{value.description}</p>
                 </div>
               ))}
             </div>
@@ -72,33 +73,41 @@ export default function About() {
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1 }}
+            transition={{ duration: 1.2 }}
             viewport={{ once: true }}
             className="relative"
           >
-            <div className="absolute -inset-4 bg-indigo-50/50 rounded-[3rem] blur-2xl -z-10" />
-            <div className="premium-card p-12 lg:p-16 border-slate-200/60 ring-8 ring-white">
-              <div className="space-y-8">
-                <div className="flex items-center gap-5 border-b border-slate-100 pb-10">
-                  <div className="w-20 h-20 rounded-2xl bg-slate-900 flex items-center justify-center text-white text-3xl font-black shadow-2xl">S</div>
+            <div className="absolute -inset-10 bg-indigo-500/10 rounded-[4rem] blur-[120px] -z-10" />
+            <div className="premium-card lg:p-20 ring-1 ring-white/10 backdrop-blur-2xl bg-slate-900/40 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
+              
+              <div className="space-y-12 relative z-10">
+                <div className="flex items-center gap-6 border-b border-white/5 pb-10">
+                  <div className="w-24 h-24 rounded-3xl bg-white text-slate-950 flex items-center justify-center text-4xl font-black shadow-2xl">S</div>
                   <div>
-                    <h3 className="text-2xl font-black text-slate-900 leading-none">Core Values</h3>
-                    <p className="text-[10px] font-black text-slate-500 mt-2 uppercase tracking-[0.2em]">Verified Excellence</p>
+                    <h3 className="text-3xl font-black text-white leading-none">Core Values</h3>
+                    <p className="text-[10px] font-black text-indigo-500 mt-3 uppercase tracking-[0.3em]">Integrity Verified</p>
                   </div>
                 </div>
                 
-                <p className="text-2xl font-medium text-slate-700 leading-tight tracking-tight">
-                  "Speed is nothing without accuracy. Our AI and human experts work in tandem to ensure your health is never a gamble."
+                <p className="text-3xl font-medium text-slate-200 leading-[1.2] tracking-tighter">
+                  "Speed is nothing without accuracy. Our AI and human experts work in tandem to ensure your health remains absolute."
                 </p>
                 
-                <div className="pt-10 flex flex-col gap-4">
+                <div className="pt-10 flex flex-col gap-6">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-1">Entity Details</p>
-                    <p className="text-sm font-bold text-slate-900 underline decoration-indigo-200 underline-offset-4 decoration-2">SKINNONEST HEALTHCARE PVT LTD</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-2">Corporate Entity</p>
+                    <p className="text-lg font-bold text-white underline decoration-indigo-500 decoration-4 underline-offset-8">SKINNONEST HEALTHCARE PVT LTD</p>
                   </div>
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-1">Licensing</p>
-                    <p className="text-sm font-bold text-slate-700">Reg No: MH-AI-4523B | Grade Pharmaceutical</p>
+                  <div className="grid grid-cols-2 gap-8">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-2">Registration</p>
+                      <p className="text-sm font-bold text-slate-400">MH-AI-4523B</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-2">Compliance</p>
+                      <p className="text-sm font-bold text-slate-400">Grade A Pharma</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -109,3 +118,4 @@ export default function About() {
     </section>
   );
 }
+

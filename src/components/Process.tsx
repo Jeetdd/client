@@ -33,18 +33,21 @@ const steps = [
 
 export default function Process() {
   return (
-    <section id="process" className="py-32 bg-slate-50 relative overflow-hidden">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-24 max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">
-            Simplicity Refined
+    <section id="process" className="py-40 bg-slate-950 relative overflow-hidden">
+      {/* Background Ambience */}
+      <div className="absolute top-1/2 left-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[140px] -z-10 opacity-30" />
+      
+      <div className="container mx-auto px-6">
+        <div className="text-center max-w-4xl mx-auto mb-32 space-y-10">
+          <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-indigo-500/10 text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 border border-indigo-500/20 backdrop-blur-md">
+            The Workflow
           </div>
-          <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight leading-none">
+          <h2 className="text-6xl md:text-8xl font-black tracking-tighter text-white leading-[0.9]">
             Four Steps to <br />
-            <span className="text-indigo-600">Total Wellness.</span>
+            <span className="text-indigo-500 italic font-medium">Total Wellness.</span>
           </h2>
-          <p className="text-xl text-slate-600 font-medium leading-relaxed italic">
-            "We've removed the complexity from healthcare, so you can focus on healing."
+          <p className="text-xl text-slate-400 font-medium leading-relaxed italic">
+            "Simplifying pharmaceutical complexity through artificial intelligence."
           </p>
         </div>
 
@@ -52,29 +55,25 @@ export default function Process() {
           {steps.map((step, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
+              transition={{ duration: 0.8, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="premium-card group relative p-10 hover:border-indigo-200"
+              className="premium-card relative group p-14 hover:border-indigo-500/30 overflow-hidden"
             >
-              <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mb-8 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-sm border border-indigo-100">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              
+              <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-10 text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-700 shadow-2xl group-hover:shadow-indigo-500/40">
                 {step.icon}
               </div>
-              <h3 className="text-2xl font-black mb-4 text-slate-900 tracking-tight">{step.title}</h3>
-              <p className="text-slate-600 font-medium leading-relaxed">
+              <h3 className="text-2xl font-black mb-4 text-white tracking-tight">{step.title}</h3>
+              <p className="text-slate-500 font-medium leading-relaxed group-hover:text-slate-300 transition-colors">
                 {step.description}
               </p>
               
-              <div className="absolute top-8 right-10 text-4xl font-black text-slate-200 italic -z-10 group-hover:text-indigo-100 transition-colors">
+              <div className="absolute bottom-6 right-10 text-7xl font-black text-white/[0.02] italic pointer-events-none group-hover:text-indigo-500/10 transition-colors">
                 0{index + 1}
               </div>
-              
-              {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-1/2 -right-4 translate-x-1/2 -translate-y-1/2 z-10">
-                  <div className="w-8 h-[2px] bg-slate-100" />
-                </div>
-              )}
             </motion.div>
           ))}
         </div>

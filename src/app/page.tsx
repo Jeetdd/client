@@ -10,27 +10,26 @@ import { Star, Shield, Zap, TrendingUp, Gift, UserPlus, ArrowRight } from "lucid
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-slate-950">
       <Navbar />
       <Hero />
       
-      {/* Social Proof / Stats */}
-      <section className="py-24 border-y border-slate-50 bg-white relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_0%_0%,rgba(79,70,229,0.02)_0%,transparent_50%)]" />
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
+      {/* Dynamic Stats Section */}
+      <section className="py-24 bg-slate-950 relative overflow-hidden">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-24 relative z-10">
             {[
               { label: "Active Patients", value: "25k+", icon: <Star className="w-5 h-5" /> },
               { label: "Medicine Catalog", value: "5k+", icon: <Shield className="w-5 h-5" /> },
               { label: "AI Precision", value: "99.8%", icon: <Zap className="w-5 h-5" /> },
               { label: "Direct Support", value: "24/7", icon: <TrendingUp className="w-5 h-5" /> },
             ].map((stat, i) => (
-              <div key={i} className="flex flex-col items-center gap-4 text-center group">
-                <div className="mb-2 p-5 rounded-2xl bg-white border border-slate-200 shadow-sm text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500">
+              <div key={i} className="flex flex-col items-center gap-6 text-center group">
+                <div className="mb-0 p-6 rounded-[1.5rem] bg-white/5 border border-white/5 text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-700 shadow-2xl">
                   {stat.icon}
                 </div>
-                <div className="text-5xl font-black text-slate-900 tracking-tight leading-none">{stat.value}</div>
-                <div className="text-slate-600 text-[10px] font-black uppercase tracking-[0.25em]">{stat.label}</div>
+                <div className="text-6xl font-black text-white tracking-tighter leading-none">{stat.value}</div>
+                <div className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em]">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -41,41 +40,41 @@ export default function Home() {
       <Process />
       <OffersDeals />
 
-      {/* Register & Earn Prompt - Refined Design */}
-      <section className="py-32 bg-white relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-16 bg-slate-900 p-16 lg:p-24 rounded-[4rem] shadow-2xl relative overflow-hidden">
+      {/* Register & Earn Prompt - Premium Dark Mode */}
+      <section className="py-40 bg-slate-950 relative overflow-hidden">
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-24 bg-indigo-600 p-20 lg:p-32 rounded-[4rem] shadow-[0_40px_100px_rgba(79,70,229,0.4)] relative overflow-hidden group">
             {/* Background Glow */}
-            <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/20 rounded-full blur-[120px]" />
+            <div className="absolute -top-24 -right-24 w-[600px] h-[600px] bg-white/10 rounded-full blur-[120px] group-hover:bg-white/20 transition-all duration-1000" />
             
-            <div className="space-y-8 text-center lg:text-left relative z-10">
-              <div className="inline-flex items-center gap-3 px-5 py-2 rounded-2xl bg-white/10 text-indigo-200 text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-md border border-white/10">
-                <Gift className="w-4 h-4" />
-                Loyalty Rewards
+            <div className="space-y-10 text-center lg:text-left relative z-10">
+              <div className="inline-flex items-center gap-4 px-6 py-2.5 rounded-2xl bg-white/20 text-white text-[11px] font-black uppercase tracking-[0.4em] backdrop-blur-md">
+                <Gift className="w-5 h-5" />
+                Loyalty Status
               </div>
-              <h2 className="text-5xl md:text-7xl font-black tracking-tight text-white leading-[0.9]">
+              <h2 className="text-6xl md:text-8xl font-black tracking-tighter text-white leading-[0.85]">
                 Elevate Your <br />
-                <span className="text-indigo-400">Experience.</span>
+                <span className="text-indigo-100 italic font-medium">Experience.</span>
               </h2>
-              <p className="text-xl text-slate-300 max-w-xl font-medium leading-relaxed">
-                Join the SkinShop community to access prescription tracking, earn <span className="text-white font-bold">10% points</span> on every transaction, and receive direct clinical support.
+              <p className="text-2xl text-indigo-100 max-w-xl font-medium leading-relaxed">
+                Join our clinical community to track health metrics, earn <span className="text-white font-black underline decoration-white/30 decoration-4">10% rewards</span>, and access 24/7 pharmaceutical support.
               </p>
             </div>
             
-            <div className="flex flex-col gap-6 w-full max-w-sm relative z-10">
+            <div className="flex flex-col gap-8 w-full max-w-md relative z-10">
               <Link href="/register">
-                <button className="w-full flex items-center justify-center gap-4 px-12 py-6 bg-white text-slate-900 rounded-[2rem] text-xl font-black hover:bg-white transition-all shadow-2xl active:scale-[0.98] group">
-                  <UserPlus className="w-6 h-6 text-indigo-600" />
+                <button className="w-full flex items-center justify-center gap-5 px-14 py-8 bg-white text-slate-950 rounded-[2.5rem] text-2xl font-black hover:bg-slate-950 hover:text-white transition-all shadow-3xl active:scale-[0.98] group">
+                  <UserPlus className="w-7 h-7" />
                   Sign Up Free
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" />
+                  <ArrowRight className="w-6 h-6 ml-4 group-hover:translate-x-3 transition-transform" />
                 </button>
               </Link>
-              <div className="flex items-center justify-center gap-4 pt-4">
-                <div className="h-[1px] w-8 bg-slate-800" />
-                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
-                  Existing Member? <Link href="/login" className="text-white hover:text-indigo-400 transition-colors">Log In</Link>
+              <div className="flex items-center justify-center gap-6 pt-6">
+                <div className="h-[2px] w-12 bg-white/20" />
+                <p className="text-indigo-100 text-[11px] font-black uppercase tracking-[0.3em]">
+                  Existing? <Link href="/login" className="text-white hover:underline underline-offset-4 decoration-2">Log In</Link>
                 </p>
-                <div className="h-[1px] w-8 bg-slate-800" />
+                <div className="h-[2px] w-12 bg-white/20" />
               </div>
             </div>
           </div>
