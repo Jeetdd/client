@@ -30,57 +30,59 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="py-24 bg-background">
+    <section className="py-32 bg-slate-50 relative overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-100 to-transparent" />
+      
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 text-[10px] font-black uppercase tracking-widest">
-            Trusted by Thousands
+        <div className="text-center max-w-3xl mx-auto space-y-6 mb-24">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-black uppercase tracking-[0.2em]">
+            Voice of the Community
           </div>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 leading-none">
-            Don't take our word <br />
-            <span className="text-primary">for it.</span>
+          <h2 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 leading-[0.9]">
+            The Standard of <br />
+            <span className="text-indigo-600">Care.</span>
           </h2>
-          <p className="text-lg text-slate-500 font-medium">
-            Join a community of thousands who rely on SkinShop for their daily healthcare needs. 
-            Real stories from real users.
+          <p className="text-xl text-slate-400 font-medium leading-relaxed">
+            Real experiences from people who have transformed their skincare journey with AI-powered precision.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {testimonials.map((item, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
               viewport={{ once: true }}
-              className="relative p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.02)] hover:shadow-[0_40px_80px_rgba(0,0,0,0.04)] transition-all flex flex-col justify-between"
+              className="premium-card group relative p-12 hover:border-indigo-100"
             >
-              <div className="absolute top-8 right-10 text-slate-50">
-                <Quote className="w-12 h-12" />
+              <div className="absolute top-10 right-12 text-slate-50 group-hover:text-indigo-50 transition-colors">
+                <Quote className="w-16 h-16" />
               </div>
               
-              <div className="relative space-y-6">
-                <div className="flex gap-1">
+              <div className="relative space-y-8">
+                <div className="flex gap-1.5">
                   {[...Array(item.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                    <Star key={i} className="w-5 h-5 fill-indigo-600 text-indigo-600 shadow-sm" />
                   ))}
                 </div>
-                <p className="text-lg font-medium text-slate-700 leading-relaxed italic">
+                <p className="text-xl font-medium text-slate-700 leading-relaxed tracking-tight italic">
                   "{item.text}"
                 </p>
               </div>
 
-              <div className="mt-10 flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-slate-900 flex items-center justify-center text-white font-black text-xl shadow-lg ring-4 ring-slate-50">
+              <div className="mt-12 flex items-center gap-5">
+                <div className="w-16 h-16 rounded-2xl bg-slate-900 flex items-center justify-center text-white font-black text-2xl shadow-xl group-hover:scale-110 transition-transform">
                   {item.avatar}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h4 className="font-bold text-slate-900">{item.name}</h4>
-                    <CheckCircle2 className="w-4 h-4 text-primary fill-primary/10" />
+                    <h4 className="font-bold text-slate-900 tracking-tight">{item.name}</h4>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                   </div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{item.role}</p>
+                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mt-1">{item.role}</p>
                 </div>
               </div>
             </motion.div>

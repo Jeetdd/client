@@ -33,12 +33,18 @@ const steps = [
 
 export default function Process() {
   return (
-    <section id="process" className="py-24 bg-secondary/50">
+    <section id="process" className="py-32 bg-slate-50 relative overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">How it Works</h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            A seamless experience designed to make healthcare accessible and effortless.
+        <div className="text-center mb-24 max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">
+            Simplicity Refined
+          </div>
+          <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight leading-none">
+            Four Steps to <br />
+            <span className="text-indigo-600">Total Wellness.</span>
+          </h2>
+          <p className="text-xl text-slate-400 font-medium leading-relaxed italic">
+            "We've removed the complexity from healthcare, so you can focus on healing."
           </p>
         </div>
 
@@ -46,23 +52,27 @@ export default function Process() {
           {steps.map((step, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="relative p-8 rounded-3xl bg-background border border-border group hover:border-primary/50 transition-all hover:shadow-2xl hover:shadow-primary/5"
+              className="premium-card group relative p-10 hover:border-indigo-200"
             >
-              <div className={`w-16 h-16 rounded-2xl ${step.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+              <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mb-8 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-sm">
                 {step.icon}
               </div>
-              <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <h3 className="text-2xl font-black mb-4 text-slate-900 tracking-tight">{step.title}</h3>
+              <p className="text-slate-400 font-medium leading-relaxed">
                 {step.description}
               </p>
               
+              <div className="absolute top-8 right-10 text-4xl font-black text-slate-50 italic -z-10 group-hover:text-indigo-50 transition-colors">
+                0{index + 1}
+              </div>
+              
               {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-1/2 -right-4 translate-x-1/2 -translate-y-1/2 z-10 text-border">
-                  <div className="w-8 h-[2px] bg-border" />
+                <div className="hidden lg:block absolute top-1/2 -right-4 translate-x-1/2 -translate-y-1/2 z-10">
+                  <div className="w-8 h-[2px] bg-slate-100" />
                 </div>
               )}
             </motion.div>
